@@ -1,7 +1,6 @@
 @import "tailwindcss";
-
 :root {
-  --background: #ffffff;
+  --background:#F8F9FA;
   --foreground: #171717;
 }
 
@@ -10,11 +9,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;      /* override default xl */
+  --breakpoint-desktop: 1366px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #ffffff;
     --foreground: #ededed;
   }
 }
@@ -24,3 +28,32 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.my-custom-btn {
+  @apply bg-pink-500 text-white font-bold hover:bg-pink-600 border-none rounded-lg;
+}
+
+.image {
+  @apply w-[257px] h-[222px] ;
+}
+
+.ant-card-body {
+  padding: 0 !important;
+}
+
+ .ant-form-item .ant-row .ant-col > label {
+    @apply font-inter font-normal text-[16px] leading-6 text-[#212529] mobile:w-[364px] tablet:w-[544px];
+  }
+
+ /* .ant-form-item-control-input .ant-form-item-control-input-content > input {
+  @apply mobile:w-[364px] tablet:w-[544px];
+} 
+
+ .ant-form-item-control-input .ant-form-item-control-input-content > button {
+  @apply mobile:w-[364px] tablet:w-[544px];
+}
+
+.ant-card .ant-card-body {
+  @apply mobile:px-4 mobile:pt-4 tablet:!px-[32px] tablet:!pt-[19px]
+} */
+

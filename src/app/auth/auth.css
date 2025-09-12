@@ -1,0 +1,79 @@
+@import "tailwindcss";
+:root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;      /* override default xl */
+  --breakpoint-desktop: 1366px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+/* Container */
+.login-container {
+  @apply flex flex-col items-center justify-center min-h-screen space-y-8;
+}
+
+/* Title */
+.login-title {
+  @apply font-inter font-medium text-[32px] leading-[38px] text-[#007BFF];
+}
+
+/* Card */
+.login-card {
+  @apply [&_.ant-card-body]:!p-0 
+         mobile:[&_.ant-card-body]:!px-4 
+         mobile:[&_.ant-card-body]:!pt-4 
+         tablet:[&_.ant-card-body]:!px-[32px] 
+         tablet:[&_.ant-card-body]:!pt-[19px];
+}
+
+/* Input */
+.login-input {
+  @apply mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 
+         font-inter font-normal text-base leading-6 text-[#6C757D];
+}
+
+/* Checkbox */
+.login-checkbox {
+  @apply mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 
+         font-inter font-normal text-[12.8px] leading-[19.2px];
+}
+
+/* Button */
+.login-button {
+  @apply mobile:!w-[364px] tablet:!w-[544px] !h-[36px] !px-2 
+         font-inter font-normal text-base leading-6 tracking-normal text-center align-middle;
+}
+
+/* Links */
+.login-links {
+  @apply flex flex-col gap-6 text-center !space-y-6;
+}
+
+.login-text {
+  @apply font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !mb-0;
+}
+
+.login-link {
+  @apply text-[#3C76FF] hover:underline font-inter font-normal text-sm leading-[21px] tracking-normal;
+}
