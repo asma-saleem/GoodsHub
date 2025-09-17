@@ -1,15 +1,3 @@
-// import AuthLayout from '../layout';
-// import AuthForm from '@/components/auth-form';
-
-// export default function LoginPage() {
-//   return (
-//     <AuthLayout>
-//       {/* <h2 className='text-2xl font-bold mb-4 text-center'>Login</h2> */}
-//       <AuthForm type='login' />
-//     </AuthLayout>
-//   );
-// }
-
 'use client';
 import React from 'react';
 import type { FormProps } from 'antd';
@@ -24,9 +12,6 @@ type FieldType = {
   remember?: string;
 };
 
-// const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-//   console.log('Login Success:', values);
-// };
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Login Failed:', errorInfo);
@@ -36,7 +21,7 @@ export default function LoginPage() {
    const onFinish = async (values: FieldType) => {
     try {
       const res = await signIn('credentials', {
-        redirect: false, // ⚡ keep it false to handle success/error yourself
+        redirect: false, 
         email: values.email,
         password: values.password,
         callbackUrl: '/'
@@ -45,7 +30,7 @@ export default function LoginPage() {
       console.log('Login result:', res);
 
       if (res?.ok) {
-        toast.success('✅ Login successful!');
+        toast.success('Login successful!');
         setTimeout(() => {
          window.location.href = res.url || '/';
         }, 2000);
@@ -54,9 +39,32 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('⚠️ Something went wrong, please try again!'); //Network Error
+      toast.error('Something went wrong, please try again!'); 
     }
   };
+   // 🔹 Google Login
+const handleGoogleLogin = async () => {
+  try {
+    const res = await signIn('google', {
+      redirect: false, 
+      callbackUrl: '/'
+    });
+
+    console.log('Google Login result:', res);
+
+    if (res && !res.error) {
+      toast.success('Google Login successful!');
+      // setTimeout(() => {
+      //   window.location.href = res.url || '/';
+      // }, 10000);
+    } else {
+      toast.error('No account found. Please sign up first.');
+    }
+  } catch (error) {
+    console.error('Google login error:', error);
+    toast.error('Something went wrong with Google login!');
+  }
+};
   return (
     <AuthLayout>
       <div className='flex flex-col items-center justify-center min-h-screen space-y-8'>
@@ -141,6 +149,15 @@ export default function LoginPage() {
                 </a>
               </p>
             </div>
+            <div className='text-center !space-y-6'>
+            <button
+             onClick={handleGoogleLogin}
+             className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+             Sign in with Google
+            </button>
+          </div>
+
           </Form>
         </Card>
       </div>
@@ -149,103 +166,3 @@ export default function LoginPage() {
 }
 
 
-// 'use client';
-// import React from 'react';
-// import type { FormProps } from 'antd';
-// import { Button, Checkbox, Form, Input, Card } from 'antd';
-// import AuthLayout from '../layout';
-// import { signIn } from 'next-auth/react';
-// import '../auth.css';
-
-// type FieldType = {
-//   email?: string;
-//   password?: string;
-//   remember?: string;
-// };
-
-// const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-//   console.log('Login Failed:', errorInfo);
-// };
-
-// export default function LoginPage() {
-//   const onFinish = async (values: FieldType) => {
-//     const res = await signIn('credentials', {
-//       redirect: true,
-//       email: values.email,
-//       password: values.password,
-//       callbackUrl: '/'
-//     });
-//     console.log('Login result:', res);
-//   };
-
-//   return (
-//     <AuthLayout>
-//       <div className='login-container'>
-//         <h2 className='login-title'>Login</h2>
-//         <Card className='login-card'>
-//           <Form
-//             name='login'
-//             layout='vertical'
-//             style={{ maxWidth: 544 }}
-//             initialValues={{ remember: true }}
-//             onFinish={onFinish}
-//             onFinishFailed={onFinishFailed}
-//             autoComplete='off'
-//           >
-//             {/* Email */}
-//             <Form.Item<FieldType>
-//               label='Enter email address'
-//               name='email'
-//               rules={[{ required: true, message: 'Enter a valid email address' }]}
-//             >
-//               <Input
-//                 placeholder='Please enter your email'
-//                 className='login-input'
-//               />
-//             </Form.Item>
-
-//             {/* Password */}
-//             <Form.Item<FieldType>
-//               label='Password'
-//               name='password'
-//               rules={[{ required: true, message: 'Enter a valid password' }]}
-//             >
-//               <Input.Password
-//                 placeholder='Please enter password'
-//                 className='login-input'
-//               />
-//             </Form.Item>
-
-//             {/* Remember me */}
-//             <Form.Item<FieldType>
-//               name='remember'
-//               valuePropName='checked'
-//               className='login-checkbox'
-//             >
-//               <Checkbox>Remember me</Checkbox>
-//             </Form.Item>
-
-//             {/* Submit */}
-//             <Form.Item>
-//               <Button type='primary' htmlType='submit' className='login-button'>
-//                 Login
-//               </Button>
-//             </Form.Item>
-
-//             {/* Links */}
-//             <div className='login-links'>
-//               <p className='login-text'>
-//                 Forgot Password?{' '}
-//                 <a href='/auth/reset' className='login-link'>Reset</a>
-//               </p>
-//               <p className='login-text !pb-[32px] !mb-0'>
-//                 I don’t have an account!{' '}
-//                 <a href='/auth/signup' className='login-link'>SignUp</a>
-//               </p>
-//             </div>
-//           </Form>
-//         </Card>
-//       </div>
-//     </AuthLayout>
-//   );
-// }

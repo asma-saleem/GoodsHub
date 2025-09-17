@@ -1,7 +1,5 @@
 import { prisma } from '@/lib/prisma';
-// import type { Prisma } from '@prisma/client';
 
-// ✅ User create
 export const createUser = async (user: {
   fullname: string;
   email: string;

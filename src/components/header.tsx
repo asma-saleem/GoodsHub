@@ -17,12 +17,16 @@ export default function Header() {
     label: <Link href="/orders">Orders</Link>
   },
   {
-    type: 'divider' // ✅ must be literal 'divider'
+    type: 'divider' 
   },
   {
     key: 'logout',
     label: (
-      <span onClick={() => signOut({ callbackUrl: '/' })}>
+      <span onClick={() => {
+        localStorage.removeItem('cart'); 
+        signOut({ callbackUrl: '/' });
+      }}
+       >
         Logout
       </span>
     )

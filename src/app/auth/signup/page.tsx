@@ -49,7 +49,7 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
 
     if (res.ok) {
       console.log('User created:', data.user);
-      toast.success('Signup successful!');  // or use a toast
+      toast.success('Signup successful!');  
     } else {
       console.error('Signup failed:', data.error);
       toast.error(`Signup failed: ${data.error}`);

@@ -1,35 +1,51 @@
-// import AuthLayout from '../layout';
-// import AuthForm from '@/components/auth-form';
-
-// export default function SignupPage() {
-//   return (
-//     <AuthLayout>
-//       {/* <h2 className='text-2xl font-bold mb-4 text-center'>Login</h2> */}
-//       <AuthForm type='reset' />
-//     </AuthLayout>
-//   );
-// }
 
 'use client';
 import React from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import AuthLayout from '../auth-layout';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 type FieldType = {
   password?: string;
   confirmPassword?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-  console.log('Reset Password Success:', values);
-};
-
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Reset Password Failed:', errorInfo);
 };
-
 export default function ResetPasswordPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    if (values.password !== values.confirmPassword) {
+      toast.error('Passwords do not match!');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/auth/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password: values.password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      toast.success('Password reset successful! Redirecting to login...');
+
+      setTimeout(() => {
+        window.location.href = '/auth/login';
+      }, 2000);
+    } catch (error) {
+      console.error('Reset Password Error:', error);
+      toast.error('Something went wrong!');
+    }
+  };
   return (
     <AuthLayout>
       <div className='flex flex-col items-center justify-center min-h-screen !space-y-8'>
@@ -49,7 +65,9 @@ export default function ResetPasswordPage() {
             <Form.Item<FieldType>
               label='Enter new Password'
               name='password'
-              rules={[{ required: true, message: 'Please enter a new password' }]}
+              rules={[
+                { required: true, message: 'Please enter a new password' }
+              ]}
               // labelCol={{
               //   className:
               //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
@@ -65,7 +83,9 @@ export default function ResetPasswordPage() {
             <Form.Item<FieldType>
               label='Confirm Password'
               name='confirmPassword'
-              rules={[{ required: true, message: 'Please confirm your password' }]}
+              rules={[
+                { required: true, message: 'Please confirm your password' }
+              ]}
               // labelCol={{
               //   className:
               //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'

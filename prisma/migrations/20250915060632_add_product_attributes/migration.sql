@@ -4,6 +4,10 @@ CREATE TABLE "public"."Product" (
     "image" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
+    "color" TEXT,
+    "colorCode" TEXT,
+    "stock" INTEGER NOT NULL,
+    "size" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

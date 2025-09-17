@@ -1,29 +1,34 @@
-// import AuthLayout from '../layout';
-// import AuthForm from '@/components/auth-form';
-
-// export default function SignupPage() {
-//   return (
-//     <AuthLayout>
-//       {/* <h2 className='text-2xl font-bold mb-4 text-center'>Login</h2> */}
-//       <AuthForm type='forgot' />
-//     </AuthLayout>
-//   );
-// }
 
 'use client';
 import React from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import AuthLayout from '../auth-layout';
+import { toast } from 'react-toastify';
 
 
 type FieldType = {
-  username?: string;
+  email?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-  console.log('Forgot Password Request:', values);
+const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+  try {
+    const res = await fetch('/api/auth/forgot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: values.email })// map username -> email
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message);
+    toast.success('Reset Password Instructions has been sent to your email address.');
+  } catch (error) {
+    console.error('Forgot Password error:', error);
+    toast.error('Something went wrong with Forgot Password!');
 };
+};
+
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Forgot Password Failed:', errorInfo);
@@ -37,7 +42,7 @@ export default function ForgotPasswordPage() {
           Forgot Password
         </h2>
         {/* <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'> */}
-         <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'>
+         <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!py-[19px]'>
           <Form
             name='forgot'
             layout='vertical'
@@ -48,7 +53,7 @@ export default function ForgotPasswordPage() {
             {/* Email address */}
             <Form.Item<FieldType>
               label='Enter email address'
-              name='username'
+              name='email'
               rules={[{ required: true, message: 'Please enter your email' }]}
               // labelCol={{
               //   className:
@@ -84,7 +89,4 @@ export default function ForgotPasswordPage() {
     </AuthLayout>
   );
 }
-
-
-
 
