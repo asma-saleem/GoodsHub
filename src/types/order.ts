@@ -3,13 +3,13 @@ export interface OrderItemType {
   key: number;
   product: ProductType;
   image: string;
-  stock: number;
+  // stock: number;
   qty: number;
   price: number;
 }
 
 export interface OrderType {
-  id: number;
+  id: string;
   key: number;
   date: string;
   orderNo: number | string;

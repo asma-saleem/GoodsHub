@@ -28,11 +28,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
         `/api/products?page=${pageNum}&limit=8&q=${query}&sortBy=${sort}`
       );
       const data = await res.json();
+      console.log(JSON.stringify(data));
 
       if (pageNum === 1) setProducts(data.products);
       else setProducts((prev) => [...prev, ...data.products]);
 
-      // ✅ Set total count for lazy load limit
       setTotal(data.total);
     } catch (err) {
       console.error('Failed to fetch products:', err);

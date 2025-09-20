@@ -13,20 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   fullname  String
   email     String   @unique
-  mobile    String?  
   password  String
+  mobile    String?  
+  role      Role     @default(USER)
   orders    Order[]
-  passwordResetTokens PasswordResetToken[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
+  id        String     @id @default(uuid())
   image     String
   title     String
   price     Float
@@ -39,33 +44,24 @@ model Product {
   updatedAt DateTime @updatedAt
 }
 model Order {
-  id        Int        @id @default(autoincrement())
+  id        String     @id @default(uuid())
   user      User       @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   total     Float
-  items     OrderItem[]                // 1-to-many (Order → OrderItems)
-  tax       Float
+  items     OrderItem[]                
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
+  id        String     @id @default(uuid())
   order     Order    @relation(fields: [orderId], references: [id])
-  orderId   Int
+  orderId   String
   product   Product  @relation(fields: [productId], references: [id])
-  productId Int
+  productId String
   quantity  Int
   price     Float    // snapshot price (order time price)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model PasswordResetToken {
-  id      Int      @id @default(autoincrement())
-  token   String   @unique
-  userId  Int
-  expires DateTime
-  user    User     @relation(fields: [userId], references: [id])
 }
 

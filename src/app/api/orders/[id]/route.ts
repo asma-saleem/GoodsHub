@@ -7,17 +7,10 @@ export async function GET(
 ) {
  
   const params = await context.params; 
-  const id = Number(params.id);        
+  const id = params.id;        
 
   try {
    
-    if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'Invalid order ID' },
-        { status: 400 }
-      );
-    }
-
     const order = await getOrderById(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });

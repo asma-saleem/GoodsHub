@@ -1,21 +1,11 @@
-// import AuthLayout from '../layout';
-// import AuthForm from '@/components/auth-form';
-
-// export default function SignupPage() {
-//   return (
-//     <AuthLayout>
-//       {/* <h2 className='text-2xl font-bold mb-4 text-center'>Login</h2> */}
-//       <AuthForm type='signup' />
-//     </AuthLayout>
-//   );
-// }
-
 'use client';
+
 import React from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
-import AuthLayout from '../auth-layout';
 import { toast } from 'react-toastify';
+
+import AuthLayout from '../auth-layout';
 
 type FieldType = {
   email?: string;
@@ -28,10 +18,9 @@ type FieldType = {
 const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
   console.log('Signup Success:', values);
 
-  // Prepare payload for your API
   const payload = {
     fullname: values.fullName,
-    email: values.email,   
+    email: values.email,
     mobile: values.mobile,
     password: values.password
   };
@@ -49,7 +38,7 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
 
     if (res.ok) {
       console.log('User created:', data.user);
-      toast.success('Signup successful!');  
+      toast.success('Signup successful!');
     } else {
       console.error('Signup failed:', data.error);
       toast.error(`Signup failed: ${data.error}`);
@@ -59,7 +48,6 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     toast.error('Something went wrong');
   }
 };
-
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Signup Failed:', errorInfo);
@@ -72,7 +60,7 @@ export default function SignupPage() {
         <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
           SignUp
         </h2>
-        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'>
+        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
           <Form
             name='signup'
             layout='vertical'
@@ -85,11 +73,9 @@ export default function SignupPage() {
             <Form.Item<FieldType>
               label='Fullname'
               name='fullName'
-              rules={[{ required: true, message: 'Please enter your full name!' }]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
+              rules={[
+                { required: true, message: 'Please enter your full name!' }
+              ]}
             >
               <Input
                 placeholder='Fullname'
@@ -101,11 +87,13 @@ export default function SignupPage() {
             <Form.Item<FieldType>
               label='Email address'
               name='email'
-              rules={[{ required: true, message: 'Please enter a valid email address' }]}
-              // labelCol={{
-              //   className:
-              //     'mobile:w-[364px] tablet:w-[544px] font-inter font-normal text-[16px] leading-6'
-              // }}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter a valid email address'
+                },
+                { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
+              ]}
             >
               <Input
                 placeholder='email address'
@@ -117,11 +105,14 @@ export default function SignupPage() {
             <Form.Item<FieldType>
               label='Mobile'
               name='mobile'
-              rules={[{ required: true, message: 'Please enter your mobile number!' }]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
+              rules={[
+                { required: true, message: 'Please enter your mobile number!' },
+                {
+                  pattern: /^(?:\+92|0)[0-9]{10}$/,
+                  message:
+                    'Enter a valid mobile number (e.g. 03001234567 or +923001234567)'
+                }
+              ]}
             >
               <Input
                 placeholder='mobile number'
@@ -133,11 +124,15 @@ export default function SignupPage() {
             <Form.Item<FieldType>
               label='Password'
               name='password'
-              rules={[{ required: true, message: 'Please enter a password' }]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
+              rules={[
+                { required: true, message: 'Please enter a password' },
+                {
+                  pattern:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                  message:
+                    'Password must be at least 8 characters long, include uppercase, lowercase, number & special character'
+                }
+              ]}
             >
               <Input.Password
                 placeholder='Password'
@@ -149,11 +144,19 @@ export default function SignupPage() {
             <Form.Item<FieldType>
               label='Confirm Password'
               name='confirmPassword'
-              rules={[{ required: true, message: 'Please confirm your password' }]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
+              dependencies={['password']}
+              hasFeedback
+              rules={[
+                { required: true, message: 'Please confirm your password' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Passwords do not match!'));
+                  }
+                })
+              ]}
             >
               <Input.Password
                 placeholder='Password'
@@ -171,12 +174,15 @@ export default function SignupPage() {
                 SignUp
               </Button>
             </Form.Item>
-            <p className='font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !pb-[32px] !mb-0 text-center'>
-                Already have an account!{' '}
-                <a href='/auth/login' className='text-[#3C76FF] hover:underline font-inter font-normal text-sm leading-[21px] tracking-normal'>
-                  Login
-                </a>
-              </p>
+            <p className='font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !mb-0 text-center'>
+              Already have an account!{' '}
+              <a
+                href='/auth/login'
+                className='text-[#3C76FF] hover:underline font-inter font-normal text-sm leading-[21px] tracking-normal'
+              >
+                Login
+              </a>
+            </p>
           </Form>
         </Card>
       </div>

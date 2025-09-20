@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Table } from 'antd';
@@ -13,6 +12,7 @@ import Header from '@/components/header';
 import RemoveProductModal from '@/components/delete-product';
 import { CartItemType } from '@/types/cart';
 import { toast } from 'react-toastify';
+import { Spin } from 'antd';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -22,46 +22,63 @@ const App: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CartItemType | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [dataSource, setDataSource] = useState<CartItemType[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ added
+  const [deleteSelectedOpen, setDeleteSelectedOpen] = useState(false);
 
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Effects
   useEffect(() => {
-  const storedCart = localStorage.getItem('cart');
-  if (storedCart) {
-    const parsed = JSON.parse(storedCart);
-    setDataSource(parsed);
-    // console.log('Data:', parsed);  
-  }
-}, []);
+    const timer = setTimeout(() => {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        const parsed = JSON.parse(storedCart);
+        setDataSource(parsed);
+      }
+      setLoading(false);
+    }, 500);
 
- // Handlers
-const updateQty = (key: number, type: 'inc' | 'dec') => {
-  setDataSource((prev) => {
-    const updated = prev.map((item) =>
-      item.key === key
-        ? {
-            ...item,
-            qty: type === 'inc' ? item.qty + 1 : item.qty > 1 ? item.qty - 1 : 1
+    return () => clearTimeout(timer);
+  }, []);
+
+  const updateQty = (key: number, type: 'inc' | 'dec') => {
+    let shouldShowToast = false;
+    setDataSource((prev) => {
+      const updated = prev.map((item) => {
+        if (item.key !== key) return item;
+
+        if (type === 'inc') {
+          if (item.qty < item.stock) {
+            return { ...item, qty: item.qty + 1 };
+          } else {
+            shouldShowToast = true;
+            return item;
           }
-        : item
-    );
-    localStorage.setItem('cart', JSON.stringify(updated));
-    return updated;
-  });
-};
+        } else {
+          return { ...item, qty: item.qty > 1 ? item.qty - 1 : 1 };
+        }
+      });
 
-const handleDelete = (key: number) => {
-  setDataSource((prev) => {
-    const updated = prev.filter((item) => item.key !== key);
-    localStorage.setItem('cart', JSON.stringify(updated));
-    return updated;
-  });
-  setDeleteTarget(null);
-};
+      localStorage.setItem('cart', JSON.stringify(updated));
+      window.dispatchEvent(new Event('cartUpdated'));
+      return updated;
+    });
+    if (shouldShowToast) {
+      toast.error('Only limited stock available!');
+    }
+  };
 
-const handlePlaceOrder = async () => {
+  const handleDelete = (key: number) => {
+    setDataSource((prev) => {
+      const updated = prev.filter((item) => item.key !== key);
+      localStorage.setItem('cart', JSON.stringify(updated));
+      window.dispatchEvent(new Event('cartUpdated'));
+      return updated;
+    });
+    setDeleteTarget(null);
+  };
+
+  const handlePlaceOrder = async () => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     if (!cart || cart.length === 0) {
       toast.error('Your cart is empty!');
@@ -96,6 +113,25 @@ const handlePlaceOrder = async () => {
       toast.error('Unexpected error during checkout');
     }
   };
+  // 🆕 delete selected products
+  const handleDeleteSelected = () => {
+    if (selectedRowKeys.length === 0) {
+      toast.error('No products selected!');
+      return;
+    }
+
+    setDataSource((prev) => {
+      const updated = prev.filter(
+        (item) => !selectedRowKeys.includes(item.key)
+      );
+      localStorage.setItem('cart', JSON.stringify(updated));
+      window.dispatchEvent(new Event('cartUpdated'));
+      return updated;
+    });
+
+    setSelectedRowKeys([]); // reset selection
+    toast.success('Selected products removed!');
+  };
 
   // Computed values
   const { subTotal, tax, total } = useMemo(() => {
@@ -107,7 +143,7 @@ const handlePlaceOrder = async () => {
     const total = subTotal + tax;
     return { subTotal, tax, total };
   }, [dataSource]);
-  
+
   // Table configuration
   const columns: TableColumnsType<CartItemType> = [
     {
@@ -154,7 +190,7 @@ const handlePlaceOrder = async () => {
       render: (qty, record) => (
         <div className='flex items-center gap-2'>
           <button
-            className='border px-3 py-1 rounded text-blue-500'
+            className='border px-3 py-1 rounded text-blue-500 hover:!border-[#007BFF]'
             style={{ borderColor: '#DFDFDF' }}
             onClick={() => updateQty(record.key, 'dec')}
           >
@@ -166,8 +202,30 @@ const handlePlaceOrder = async () => {
           >
             {qty.toString().padStart(2, '0')}
           </span>
+          {/* <input
+            type='number'
+            value={qty}
+            onChange={(e) => {
+              const newQty = Number(e.target.value) || 1;
+
+              setDataSource((prev) => {
+                const updated = prev.map((item) =>
+                  item.key === record.key ? { ...item, qty: newQty } : item
+                );
+                localStorage.setItem('cart', JSON.stringify(updated));
+                return updated;
+              });
+            }}
+            className='!p-0 text-center border border-[#DFDFDF] rounded 
+             mobile:!w-[29px] mobile:!h-6 
+             tablet:!w-[30px] desktop:!w-11 desktop:!h-9 
+             [&::-webkit-inner-spin-button]:appearance-none 
+             [&::-webkit-outer-spin-button]:appearance-none 
+             [appearance:textfield] hover:border-[#007BFF] focus:border-[#007BFF]'
+          /> */}
+
           <button
-            className='border px-[10.5px] py-1 rounded text-blue-500'
+            className='border px-[10.5px] py-1 rounded text-blue-500 hover:!border-[#007BFF]'
             style={{ borderColor: '#DFDFDF' }}
             onClick={() => updateQty(record.key, 'inc')}
           >
@@ -188,8 +246,8 @@ const handlePlaceOrder = async () => {
         <Image
           src='/delete.png'
           alt='Delete'
-          width={13}
-          height={15}
+          width={16}
+          height={16}
           className='cursor-pointer'
           onClick={() => setDeleteTarget(record)}
         />
@@ -206,18 +264,64 @@ const handlePlaceOrder = async () => {
     selectedRowKeys,
     onChange: onSelectChange
   };
+  // Render
+  if (loading) {
+    return (
+      <div className='flex justify-center items-center min-h-screen'>
+        <Spin size='large' />
+      </div>
+    );
+  }
 
   // Render
   return (
     <div>
       <Header />
-      <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#ffffff]'>
-        <div className='flex gap-2 pt-6 pb-6 xl:pt-8'>
-          <ArrowLeftOutlined style={{ color: '#007BFF' }} onClick={() => router.back()}/>
+      <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA]'>
+        {/* <div className='flex gap-2 pt-6 pb-6 xl:pt-8'>
+          <ArrowLeftOutlined
+            style={{ color: '#007BFF' }}
+            onClick={() => router.back()}
+          />
           <h4 className='font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0'>
             Your Shopping Bag
           </h4>
+          {selectedRowKeys.length > 0 && (
+           <Button
+           danger
+           onClick={handleDeleteSelected}
+           className='!py-[15px] !h-[28px]'
+            >
+           Delete Selected
+         </Button>
+          )}
+          
+        </div> */}
+        <div className='flex justify-between items-center pt-6 pb-6 xl:pt-8'>
+          {/* Left side: back + title */}
+          <div className='flex gap-2 items-center'>
+            <ArrowLeftOutlined
+              style={{ color: '#007BFF' }}
+              onClick={() => router.back()}
+            />
+            <h4 className='font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0'>
+              Your Shopping Bag
+            </h4>
+          </div>
+
+          {/* Right side: delete button */}
+          {selectedRowKeys.length > 0 && (
+            <Button
+              type='primary'
+              danger
+              onClick={() => setDeleteSelectedOpen(true)}
+              className='!py-[6px] !px-[15px] !h-[32px]'
+            >
+              Delete Selected
+            </Button>
+          )}
         </div>
+
         <div className='overflow-x-auto'>
           <Table<CartItemType>
             rowSelection={rowSelection}
@@ -227,6 +331,21 @@ const handlePlaceOrder = async () => {
             scroll={{ x: 1000 }}
             bordered
             rowClassName={() => 'h-12'}
+            locale={{
+              emptyText: (
+                <div className='flex flex-col justify-center items-center py-10 gap-4'>
+                  <p className='font-inter text-base text-[#495057]'>
+                    There are no items in this cart
+                  </p>
+                  <Button
+                    onClick={() => router.push('/')}
+                    className='!bg-white !text-[#007BFF] !border !border-[#007BFF] hover:!bg-[#f0f8ff]'
+                  >
+                    Continue Shopping
+                  </Button>
+                </div>
+              )
+            }}
           />
         </div>
         <div className='pr-4'>
@@ -256,7 +375,10 @@ const handlePlaceOrder = async () => {
           </div>
           <div className='flex justify-end items-center pb-[11px] md:pb-[13px] lg:pb-[15px] xl:!pb-[23px]'>
             <Button className='!px-[142.5] lg:!px-[50px] !py-[15px] !h-[46px] !bg-[#007BFF]'>
-              <div onClick={handlePlaceOrder} className='font-inter font-normal text-xl leading-[30px] tracking-normal text-center align-middle text-white'>
+              <div
+                onClick={handlePlaceOrder}
+                className='font-inter font-normal text-xl leading-[30px] tracking-normal text-center align-middle text-white'
+              >
                 Place Order
               </div>
             </Button>
@@ -265,8 +387,29 @@ const handlePlaceOrder = async () => {
       </div>
       {deleteTarget && (
         <RemoveProductModal
+          title='Remove Product'
+          message={
+            <>
+              Are You Sure You Want To Delete{' '}
+              <span className='text-red-500'>
+                &quot;{deleteTarget.title}&quot;
+              </span>
+              !
+            </>
+          }
           onConfirm={() => handleDelete(deleteTarget.key)}
           onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+      {deleteSelectedOpen && (
+        <RemoveProductModal
+          title='Remove Products'
+          message={`Are You Sure You Want To Delete ${selectedRowKeys.length} Selected Items!`}
+          onConfirm={() => {
+            handleDeleteSelected();
+            setDeleteSelectedOpen(false);
+          }}
+          onCancel={() => setDeleteSelectedOpen(false)}
         />
       )}
     </div>

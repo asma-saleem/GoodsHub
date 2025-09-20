@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { findUserByEmail } from './userService';
 import { CartItemType } from '../types/cart';
 
-export async function getOrderById(id: number) {
+export async function getOrderById(id: string) {
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
@@ -51,21 +51,52 @@ export async function createOrder(cart: CartItemType[], email: string) {
     (sum, item) => sum + Number(item.price) * Number(item.qty),
     0
   );
-  const tax = total * 0.1;
-  const order = await prisma.order.create({
-    data: {
-      userId: user.id,
-      total,
-      tax,
-      items: {
-        create: cart.map((item) => ({
-          productId: item.id,
-          quantity: item.qty,
-          price: Number(item.price)
-        }))
+
+  // Run everything in a transaction
+  const order = await prisma.$transaction(async (tx) => {
+    // 1. Create order
+    const newOrder = await tx.order.create({
+      data: {
+        userId: user.id,
+        total,
+        items: {
+          create: cart.map((item) => ({
+            productId: item.id,
+            quantity: item.qty,
+            price: Number(item.price)
+          }))
+        }
+      },
+      include: { items: true }
+    });
+
+    // 2. Update stock for each product
+    for (const item of cart) {
+      const product = await tx.product.findUnique({
+        where: { id: item.id }
+      });
+
+      if (!product) {
+        throw new Error(`Product with id ${item.id} not found`);
       }
-    },
-    include: { items: true }
+
+      if (product.stock < item.qty) {
+        throw new Error(
+          `Not enough stock for product ${product.title}. Only ${product.stock} left.`
+        );
+      }
+
+      await tx.product.update({
+        where: { id: item.id },
+        data: {
+          stock: {
+            decrement: item.qty 
+          }
+        }
+      });
+    }
+
+    return newOrder;
   });
 
   return order;

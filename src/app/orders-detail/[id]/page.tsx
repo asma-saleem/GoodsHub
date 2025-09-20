@@ -2,21 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Table } from 'antd';
+import { Spin,Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import { OrderItemType, OrderType } from '@/types/order';
-
-
-// interface OrderItemType {
-//   key: number;
-//   product: string;
-//   image: string;
-//   stock: number;
-//   qty: number;
-//   price: number;
-// }
 
 
 const columns: TableColumnsType<OrderItemType> = [
@@ -46,18 +36,16 @@ const columns: TableColumnsType<OrderItemType> = [
   {
     title: 'Quantity',
     dataIndex: 'qty'
-  },
-  {
-    title: 'Stock',
-    dataIndex: 'stock'
   }
 ];
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const id = Number(params?.id);
+  const id = params?.id;
   const [order, setOrder] = useState<OrderType | null>(null);
+  const [loading, setLoading] = useState(true); 
+
 
   useEffect(() => {
     if (!id) return;
@@ -65,6 +53,7 @@ export default function OrderDetailPage() {
       try {
         const res = await fetch(`/api/orders/${id}`);
         const json = await res.json();
+        console.log(res);
         if (!res.ok) {
           console.error('Failed to fetch order:', json.error);
           return;
@@ -72,26 +61,41 @@ export default function OrderDetailPage() {
         setOrder(json.order);
       } catch (err) {
         console.error('Error fetching order:', err);
+      }finally {
+        setLoading(false); 
       }
     };
     fetchOrder();
   }, [id]);
 
-  if (!order) return <p className='p-4'>Loading...</p>;
-  console.log(order.items);
+  if (loading) {
+  return (
+    <div className="flex justify-center items-center min-h-screen">
+      <Spin size="large" />
+    </div>
+  );
+}
+if (!order) {
+  return (
+    <div className="flex justify-center items-center min-h-screen">
+      <p className="text-gray-500">Order not found!</p>
+    </div>
+  );
+}
+
   const dataSource: OrderItemType[] = order.items.map(
     (item, index) => ({
       key: index,
       product: item.product,
       image: item.product.image,
-      stock: item.product.stock,
       qty: item.qty,
       price: item.price
     })
   );
-
+ 
   return (
-    <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#ffffff]'>
+    <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA]'>
+
       {/* Header */}
       <div className='flex gap-2 pt-6 pb-6 xl:pt-8'>
         <ArrowLeftOutlined
@@ -106,7 +110,7 @@ export default function OrderDetailPage() {
       <div className='border-t border-[#979797] mb-6'></div>
 
       {/* Order Summary */}
-      <div className='grid grid-cols-5 gap-[122px] mb-6'>
+      <div className='grid tablet:grid-cols-4 mobile:grid-cols-2 tablet:gap-[122px] mobile:gap-6 mb-6'>
         <div>
           <p className='font-inter text-xs text-[#979797] pb-[5px]'>Date</p>
           <p className='font-inter text-sm text-[#272B41]'>
@@ -117,10 +121,10 @@ export default function OrderDetailPage() {
           <p className='font-inter text-xs text-[#979797] pb-[5px]'>Order #</p>
           <p className='font-inter text-sm text-[#272B41]'>ORD-#{order.id + 1}</p>
         </div>
-        <div>
-          <p className='font-inter text-xs text-[#979797] pb-[5px]'>UserId</p>
-          <p className='font-inter text-sm text-[#272B41]'>{order.userId}</p>
-        </div>
+        {/* <div>
+          <p className='font-inter text-xs text-[#979797] pb-[5px]'>User Name</p>
+          <p className='font-inter text-sm text-[#272B41]'>{order.user.fullname}</p>
+        </div> */}
         <div>
           <p className='font-inter text-xs text-[#979797] pb-[5px]'>Products</p>
           <p className='font-inter text-sm text-[#272B41]'>

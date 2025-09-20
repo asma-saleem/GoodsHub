@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
           Forgot Password
         </h2>
         {/* <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'> */}
-         <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!py-[19px]'>
+         <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
           <Form
             name='forgot'
             layout='vertical'
@@ -54,7 +54,9 @@ export default function ForgotPasswordPage() {
             <Form.Item<FieldType>
               label='Enter email address'
               name='email'
-              rules={[{ required: true, message: 'Please enter your email' }]}
+              rules={[{ required: true, message: 'Please enter your email' },
+                      { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
+              ]}
               // labelCol={{
               //   className:
               //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-[16px] leading-6'

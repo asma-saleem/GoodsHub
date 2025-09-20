@@ -71,7 +71,7 @@ const handleGoogleLogin = async () => {
         <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
           Login
         </h2>
-        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'>
+        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
           <Form
             name='login'
             layout='vertical'
@@ -86,12 +86,9 @@ const handleGoogleLogin = async () => {
               label='Enter email address'
               name='email'
               rules={[
-                { required: true, message: 'Enter a valid email address' }
+                { required: true, message: 'Enter a valid email address' },
+                { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
               ]}
-              // labelCol={{
-              //   className:
-              //     'mobile:w-[364px] tablet:w-[544px] font-inter font-normal text-[16px] leading-6'
-              // }}
             >
               <Input
                 placeholder='Please enter your email'
@@ -103,11 +100,12 @@ const handleGoogleLogin = async () => {
             <Form.Item<FieldType>
               label='Password'
               name='password'
-              rules={[{ required: true, message: 'Enter a valid password' }]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
+              rules={[{ required: true, message: 'Enter a valid password' },
+                { 
+                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
+                    message: 'Password must be at least 8 characters long, include uppercase, lowercase, number & special character'
+                }
+              ]}
             >
               <Input.Password
                 placeholder='Please enter password'
@@ -115,7 +113,6 @@ const handleGoogleLogin = async () => {
               />
             </Form.Item>
 
-            {/* Remember me */}
             <Form.Item<FieldType>
               name='remember'
               valuePropName='checked'
@@ -125,7 +122,6 @@ const handleGoogleLogin = async () => {
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
 
-            {/* Submit button */}
             <Form.Item label={null}>
               <Button
                 type='primary'
@@ -142,7 +138,7 @@ const handleGoogleLogin = async () => {
                   Reset
                 </a>
               </p>
-              <p className='font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !pb-[32px] !mb-0'>
+              <p className='font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !pb-[16px] !mb-0'>
                 I don’t have an account!{' '}
                 <a href='/auth/signup' className='text-[#3C76FF] hover:underline font-inter font-normal text-sm leading-[21px] tracking-normal'>
                   SignUp

@@ -1,22 +1,28 @@
 'use client';
 
+import { Button } from 'antd';
+import React from 'react';
 interface RemoveProductModalProps {
   onConfirm: () => void;
   onCancel: () => void;
+  title?: string;
+  message?: React.ReactNode;  //JSX 
 }
 
 export default function RemoveProductModal({
   onConfirm,
-  onCancel
+  onCancel,
+  title = 'Remove Product',
+  message = 'Are You Sure You Want To Delete The Item!'
 }: RemoveProductModalProps) {
   return (
-    <div className='fixed inset-0 bg-gray-400 flex items-center justify-center p-4 z-50'>
+    <div className='fixed inset-0 bg-[#0000005e] flex items-center justify-center p-4 z-50'>
       {/* Modal Container */}
       <div className='bg-white rounded-[4px] border border-blue-500 p-8 max-w-md w-full mx-4 shadow-xl'>
         {/* Header */}
-        <div className='text-center mb-6'>
+        <div className='text-center mb-6 max-w-[212px] w-full mx-auto'>
           <h4 className='font-inter font-medium text-[24px] leading-[28.8px] tracking-[0px] text-[#007BFF] pb-[12px]'>
-            Remove Product
+            {title}
           </h4>
 
           {/* Warning Icon */}
@@ -37,27 +43,25 @@ export default function RemoveProductModal({
           </div>
 
           {/* Confirmation Text */}
-          <p className='text-xl font-semibold text-gray-800 mb- leading-relaxed'>
-            Are You Sure You Want To
-            <br />
-            Delete The Item!
+          <p className='font-inter font-bold text-base leading-5 tracking-normal text-center align-middle capitalize'>
+            {message}
           </p>
         </div>
 
         {/* Buttons */}
-        <div className='flex gap-6 justify-center'>
-          <button
+        <div className='flex gap-3 justify-center !max-w-[212px] !w-full !mx-auto'>
+          <Button
             onClick={onCancel}
-            className='px-12 py-3 border-2 border-blue-500 text-blue-500 bg-white rounded-lg text-lg font-medium hover:bg-blue-50 transition-colors min-w-[120px]'
+            className='py-3 border-2 !border-blue-500 !text-blue-500 bg-white rounded-lg text-lg font-medium hover:bg-blue-50 transition-colors min-w-[120px]'
           >
             No
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onConfirm}
-            className='px-12 py-3 bg-blue-500 text-white rounded-lg text-lg font-medium hover:bg-blue-600 transition-colors min-w-[120px]'
+            className='py-3 border-2 !border-blue-500 !bg-blue-500 !text-white rounded-lg text-lg font-medium hover:bg-blue-600 transition-colors min-w-[120px]'
           >
             Yes
-          </button>
+          </Button>
         </div>
       </div>
     </div>

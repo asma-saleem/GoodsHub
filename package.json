@@ -16,6 +16,8 @@
     "@ant-design/nextjs-registry": "^1.1.0",
     "@prisma/client": "^6.16.1",
     "bcryptjs": "^3.0.2",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.5.2",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
@@ -28,6 +30,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/joi": "^17.2.2",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.13",
     "@types/nodemailer": "^7.0.1",
     "@types/react": "^19",

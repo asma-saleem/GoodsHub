@@ -30,7 +30,7 @@ body {
 }
 /* Container */
 .login-container {
-  @apply flex flex-col items-center justify-center min-h-screen space-y-8;
+  @apply flex flex-col items-center justify-center min-h-screen !space-y-8;
 }
 
 /* Title */

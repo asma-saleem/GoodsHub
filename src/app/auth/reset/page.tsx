@@ -1,4 +1,3 @@
-
 'use client';
 import React from 'react';
 import type { FormProps } from 'antd';
@@ -52,7 +51,7 @@ export default function ResetPasswordPage() {
         <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
           Reset Password
         </h2>
-        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'>
+        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
           <Form
             name='reset'
             layout='vertical'
@@ -66,12 +65,14 @@ export default function ResetPasswordPage() {
               label='Enter new Password'
               name='password'
               rules={[
-                { required: true, message: 'Please enter a new password' }
+                { required: true, message: 'Please enter a new password' },
+                {
+                  pattern:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                  message:
+                    'Password must be at least 8 characters long, include uppercase, lowercase, number & special character'
+                }
               ]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
             >
               <Input.Password
                 placeholder='enter password'
@@ -79,17 +80,22 @@ export default function ResetPasswordPage() {
               />
             </Form.Item>
 
-            {/* Confirm Password */}
             <Form.Item<FieldType>
               label='Confirm Password'
               name='confirmPassword'
+              dependencies={['password']}
+              hasFeedback
               rules={[
-                { required: true, message: 'Please confirm your password' }
+                { required: true, message: 'Please confirm your password' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Passwords do not match!'));
+                  }
+                })
               ]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-base leading-6'
-              // }}
             >
               <Input.Password
                 placeholder='confirm password'
