@@ -10,6 +10,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
   --breakpoint-mobile: 428px;
   --breakpoint-tablet: 1080px;
   --breakpoint-xl: 1280px;      /* override default xl */

@@ -16,7 +16,7 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     const res = await fetch('/api/auth/forgot', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: values.email })// map username -> email
+      body: JSON.stringify({ email: values.email })
     });
 
     const data = await res.json();
@@ -37,11 +37,10 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout>
-      <div className='flex !mx-4 flex-col items-center justify-center min-h-screen !space-y-8 w-full'>
+      <div className='flex flex-col items-center justify-center min-h-screen !space-y-8 w-full !mx-4'>
         <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
           Forgot Password
         </h2>
-        {/* <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!px-4 mobile:[&_.ant-card-body]:!pt-4 tablet:[&_.ant-card-body]:!px-[32px] tablet:[&_.ant-card-body]:!pt-[19px]'> */}
          <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
           <Form
             name='forgot'
@@ -57,10 +56,6 @@ export default function ForgotPasswordPage() {
               rules={[{ required: true, message: 'Please enter your email' },
                       { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
               ]}
-              // labelCol={{
-              //   className:
-              //     'mobile:!w-[364px] tablet:!w-[544px] font-inter font-normal text-[16px] leading-6'
-              // }}
             >
               <Input
                 placeholder='Please enter your email'
@@ -85,7 +80,6 @@ export default function ForgotPasswordPage() {
                 </a>
               </p>
           </Form>
-        {/* </Card> */}
         </Card> 
       </div>
     </AuthLayout>

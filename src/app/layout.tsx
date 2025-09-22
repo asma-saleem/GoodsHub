@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 import React from 'react';
 import { Providers } from './providers';
 import { ToastProvider } from './toast-provider';
+import { ReduxProvider } from '@/redux/store/provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,7 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
-        <Providers><AntdRegistry><ToastProvider>{children}</ToastProvider></AntdRegistry></Providers>
+        <ReduxProvider><Providers><AntdRegistry><ToastProvider>{children}</ToastProvider></AntdRegistry></Providers></ReduxProvider>
         
       </body>
     </html>

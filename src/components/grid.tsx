@@ -75,7 +75,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
         justify='start'
       >
         {products.map((product) => (
-          <Col key={product.id} span={6} xs={12} sm={12} lg={8} xl={6}>
+          <Col key={product.id} span={6} xs={12} sm={12} md={8} lg={8} xl={6}>
             <ProductCard product={product} />
           </Col>
         ))}
@@ -84,6 +84,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
       <div ref={loaderRef} className='flex justify-center mt-8'>
         {loading && <Spin size='large' />}
       </div>
+
     </>
   );
 };

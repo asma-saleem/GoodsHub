@@ -60,18 +60,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <Card
-      className='w-full rounded-md border border-[#DFDFDF] bg-white shadow-sm mobile:!px-3 tablet:!px-4'
+      className='w-full rounded-md border border-[#DFDFDF] bg-white shadow-sm small:!px-2 mobile:!px-3 tablet:!px-4'
       cover={
         <Image
           alt='example'
           src={product.image}
           width={257}
           height={222}
-          className='object-contain block mobile:pt-3 tablet:pt-4'
+          className='object-contain block small:pt-2 mobile:pt-3 tablet:pt-4'
         />
       }
     >
-      <div className='mobile:pt-3 tablet:pt-4 flex flex-col gap-y-2'>
+      <div className='small:pt-2 mobile:pt-3 tablet:pt-4 flex flex-col gap-y-2'>
         <p className='font-inter font-medium text-[14px] leading-[19.2px] !mb-0'>
           {product.title}
         </p>
@@ -90,7 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <Button
             onClick={decrement}
             disabled={quantity <= 1}
-            className='!text-[#007BFF] !p-0 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl'
+            className='!text-[#007BFF] !p-0 small:!w-4 small:!h-4 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl'
           >
            <span className='!h-[35px]'>-</span>
           </Button>
@@ -105,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               }
             }}
             onFocus={(e) => e.target.select()}
-            className='!p-0 text-center border border-[#DFDFDF] rounded mobile:!w-[29px] mobile:!h-6 
+            className='!p-0 text-center border border-[#DFDFDF] rounded small:!w-6 small:!h-4 mobile:!w-[29px] mobile:!h-6 
              tablet:!w-[30px] desktop:!w-11 desktop:!h-9 [&::-webkit-inner-spin-button]:appearance-none 
              [&::-webkit-outer-spin-button]:appearance-none 
              [appearance:textfield]'
@@ -114,7 +114,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <Button
             onClick={increment}
             disabled={quantity >= product.stock}
-            className='!text-[#007BFF] !p-0 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl'
+            className='!text-[#007BFF] !p-0 small:!w-4 small:!h-4 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl'
           >
             <span className='!h-[35px]'>+</span>
           </Button>
@@ -122,7 +122,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Button
           onClick={addToCart}
           disabled={product.stock <= 0|| quantity <= 0}
-          className={`!p-0 mobile:!w-[74px] mobile:!h-[24px] tablet:!w-[101px] tablet:!h-9 desktop:!w-[112px] mobile:!px-3 mobile:!py-[6px] font-inter font-normal mobile:!text-[12px] tablet:!text-base leading-6 text-center align-middle rounded !shadow-none !border-none 
+          className={`!p-0 !w-[74px] !h-[24px] small:![40px] small:!h-6 mobile:!w-[74px] mobile:!h-[24px] tablet:!w-[101px] tablet:!h-9 desktop:!w-[112px] small:!px-[2px] small:!py-[3px] mobile:!px-3 mobile:!py-[6px] font-inter font-normal small:!text-[9px] mobile:!text-[12px] tablet:!text-base leading-6 text-center align-middle rounded !shadow-none !border-none 
          ${
            product.stock > 0
              ? '!bg-[#007BFF] !text-white'

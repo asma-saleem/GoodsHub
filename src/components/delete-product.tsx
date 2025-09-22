@@ -2,6 +2,7 @@
 
 import { Button } from 'antd';
 import React from 'react';
+
 interface RemoveProductModalProps {
   onConfirm: () => void;
   onCancel: () => void;

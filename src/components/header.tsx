@@ -30,9 +30,7 @@ export default function Header() {
 };
 
   useEffect(() => {
-    updateCartCount(); // jab header render ho tab bhi count load karo
-
-    // ✅ jab bhi ProductCard se event aaye
+    updateCartCount();
     window.addEventListener('cartUpdated', updateCartCount);
 
     return () => {
@@ -63,7 +61,7 @@ export default function Header() {
     }
   ];
   return (
-    <header className='flex justify-between bg-white mobile:px-4 tablet:px-6 xl:px-9 desktop:px-9 py-3'>
+    <header className='flex justify-between bg-white small:px-3 mobile:px-4 tablet:px-6 xl:px-9 desktop:px-9 py-3'>
       <p className='font-inter font-bold text-base text-[#343A40] !mb-0'>
         E-commerce
       </p>
@@ -81,7 +79,7 @@ export default function Header() {
 
         {session ? (
           <Dropdown
-            menu={{ items: menu, style: { padding: '0.5rem 2rem' } }} // ✅ padding applied here
+            menu={{ items: menu, style: { padding: '0.5rem 2rem' } }}
             trigger={['click']}
           >
             <span className='flex items-center gap-2 cursor-pointer'>

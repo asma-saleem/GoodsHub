@@ -60,7 +60,6 @@ export default function ResetPasswordPage() {
             onFinishFailed={onFinishFailed}
             autoComplete='off'
           >
-            {/* New Password */}
             <Form.Item<FieldType>
               label='Enter new Password'
               name='password'
@@ -103,7 +102,6 @@ export default function ResetPasswordPage() {
               />
             </Form.Item>
 
-            {/* Submit Button */}
             <Form.Item label={null}>
               <Button
                 type='primary'

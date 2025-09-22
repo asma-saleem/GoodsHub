@@ -5,12 +5,10 @@ export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
- 
   const params = await context.params; 
   const id = params.id;        
 
   try {
-   
     const order = await getOrderById(id);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });

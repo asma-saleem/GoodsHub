@@ -1,6 +1,5 @@
 
 import { NextResponse } from 'next/server';
-// import {prisma} from '@/lib/prisma'; // your prisma client
 import { createOrder } from '@/services/order';
 
 export async function POST(req: Request) {

@@ -25,7 +25,8 @@ export async function getOrderById(id: string) {
   };
 }
 
-export async function getOrdersByEmail(email: string) {
+export async function getOrdersByEmail(email: string,page: number = 1,
+  pageSize: number = 10) {
   const user = await findUserByEmail(email);
 
   if (!user) return null;
@@ -35,10 +36,15 @@ export async function getOrdersByEmail(email: string) {
     include: {
       items: { include: { product: true } }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * pageSize,
+    take: pageSize
+  });
+  const total = await prisma.order.count({
+    where: { userId: user.id }
   });
 
-  return orders;
+  return { orders, total };
 }
 
 export async function createOrder(cart: CartItemType[], email: string) {

@@ -22,7 +22,7 @@ const App: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CartItemType | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [dataSource, setDataSource] = useState<CartItemType[]>([]);
-  const [loading, setLoading] = useState(true); // ✅ added
+  const [loading, setLoading] = useState(true); 
   const [deleteSelectedOpen, setDeleteSelectedOpen] = useState(false);
 
   const router = useRouter();
@@ -60,7 +60,9 @@ const App: React.FC = () => {
       });
 
       localStorage.setItem('cart', JSON.stringify(updated));
+      setTimeout(() => {
       window.dispatchEvent(new Event('cartUpdated'));
+    }, 0);
       return updated;
     });
     if (shouldShowToast) {
@@ -72,7 +74,9 @@ const App: React.FC = () => {
     setDataSource((prev) => {
       const updated = prev.filter((item) => item.key !== key);
       localStorage.setItem('cart', JSON.stringify(updated));
+      setTimeout(() => {
       window.dispatchEvent(new Event('cartUpdated'));
+    }, 0);
       return updated;
     });
     setDeleteTarget(null);
@@ -113,7 +117,7 @@ const App: React.FC = () => {
       toast.error('Unexpected error during checkout');
     }
   };
-  // 🆕 delete selected products
+  
   const handleDeleteSelected = () => {
     if (selectedRowKeys.length === 0) {
       toast.error('No products selected!');
@@ -125,7 +129,9 @@ const App: React.FC = () => {
         (item) => !selectedRowKeys.includes(item.key)
       );
       localStorage.setItem('cart', JSON.stringify(updated));
+      setTimeout(() => {
       window.dispatchEvent(new Event('cartUpdated'));
+    }, 0);
       return updated;
     });
 
@@ -202,27 +208,6 @@ const App: React.FC = () => {
           >
             {qty.toString().padStart(2, '0')}
           </span>
-          {/* <input
-            type='number'
-            value={qty}
-            onChange={(e) => {
-              const newQty = Number(e.target.value) || 1;
-
-              setDataSource((prev) => {
-                const updated = prev.map((item) =>
-                  item.key === record.key ? { ...item, qty: newQty } : item
-                );
-                localStorage.setItem('cart', JSON.stringify(updated));
-                return updated;
-              });
-            }}
-            className='!p-0 text-center border border-[#DFDFDF] rounded 
-             mobile:!w-[29px] mobile:!h-6 
-             tablet:!w-[30px] desktop:!w-11 desktop:!h-9 
-             [&::-webkit-inner-spin-button]:appearance-none 
-             [&::-webkit-outer-spin-button]:appearance-none 
-             [appearance:textfield] hover:border-[#007BFF] focus:border-[#007BFF]'
-          /> */}
 
           <button
             className='border px-[10.5px] py-1 rounded text-blue-500 hover:!border-[#007BFF]'
@@ -278,25 +263,6 @@ const App: React.FC = () => {
     <div>
       <Header />
       <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA]'>
-        {/* <div className='flex gap-2 pt-6 pb-6 xl:pt-8'>
-          <ArrowLeftOutlined
-            style={{ color: '#007BFF' }}
-            onClick={() => router.back()}
-          />
-          <h4 className='font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0'>
-            Your Shopping Bag
-          </h4>
-          {selectedRowKeys.length > 0 && (
-           <Button
-           danger
-           onClick={handleDeleteSelected}
-           className='!py-[15px] !h-[28px]'
-            >
-           Delete Selected
-         </Button>
-          )}
-          
-        </div> */}
         <div className='flex justify-between items-center pt-6 pb-6 xl:pt-8'>
           {/* Left side: back + title */}
           <div className='flex gap-2 items-center'>
@@ -308,8 +274,6 @@ const App: React.FC = () => {
               Your Shopping Bag
             </h4>
           </div>
-
-          {/* Right side: delete button */}
           {selectedRowKeys.length > 0 && (
             <Button
               type='primary'
@@ -374,7 +338,7 @@ const App: React.FC = () => {
             </p>
           </div>
           <div className='flex justify-end items-center pb-[11px] md:pb-[13px] lg:pb-[15px] xl:!pb-[23px]'>
-            <Button className='!px-[142.5] lg:!px-[50px] !py-[15px] !h-[46px] !bg-[#007BFF]'>
+            <Button className='small:!px-[85px] mobile:!px-[142.5] sm:!px-[50px] !py-[15px] !h-[46px] !bg-[#007BFF]'>
               <div
                 onClick={handlePlaceOrder}
                 className='font-inter font-normal text-xl leading-[30px] tracking-normal text-center align-middle text-white'

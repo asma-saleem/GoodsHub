@@ -5,6 +5,7 @@ import { Button, Checkbox, Form, Input, Card } from 'antd';
 import AuthLayout from '../auth-layout';
 import { signIn } from 'next-auth/react';
 import { toast } from 'react-toastify';
+import { FcGoogle } from 'react-icons/fc';
 
 type FieldType = {
   email?: string;
@@ -52,13 +53,13 @@ const handleGoogleLogin = async () => {
 
     console.log('Google Login result:', res);
 
-    if (res && !res.error) {
+    if (!res?.error) {
       toast.success('Google Login successful!');
       // setTimeout(() => {
       //   window.location.href = res.url || '/';
       // }, 10000);
     } else {
-      toast.error('No account found. Please sign up first.');
+      toast.error('No account found. Please sign up first');
     }
   } catch (error) {
     console.error('Google login error:', error);
@@ -67,7 +68,7 @@ const handleGoogleLogin = async () => {
 };
   return (
     <AuthLayout>
-      <div className='flex flex-col items-center justify-center min-h-screen space-y-8'>
+      <div className='flex flex-col items-center justify-center min-h-screen !space-y-8'>
         <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
           Login
         </h2>
@@ -146,12 +147,13 @@ const handleGoogleLogin = async () => {
               </p>
             </div>
             <div className='text-center !space-y-6'>
-            <button
-             onClick={handleGoogleLogin}
-             className="bg-blue-500 text-white px-4 py-2 rounded"
+            <Button type="default" htmlType="button"
+             onClick={handleGoogleLogin} 
+             className="bg-blue-500 text-white px-4 py-2 rounded border-2 border-gray-300"
               >
-             Sign in with Google
-            </button>
+              <FcGoogle className="mr-2" size={20} />
+             Login with Google
+            </Button>
           </div>
 
           </Form>

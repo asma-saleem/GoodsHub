@@ -1,6 +1,3 @@
-// src/app/api/auth/forgot/route.ts
-// import { prisma } from '@/lib/prisma';
-// import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import {findUserByEmail} from '@/services/userService';
 import jwt from 'jsonwebtoken';

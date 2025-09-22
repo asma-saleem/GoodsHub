@@ -21,8 +21,8 @@ export default function Page() {
   return (
     <div>
       <Header />
-      <div className='mobile:px-4 tablet:px-[105px] xl:px-14 desktop:px-[60px] bg-[#F8F9FA] max-w-[1920px] m-auto pb-15'>
-        <div className='flex mobile:flex-col mobile:pt-6 mobile:pb-4 mobile:gap-y-3 tablet:flex-row tablet:justify-between tablet:items-center tablet:pt-8 tablet:pb-6'>
+      <div className='small:px-4 mobile:px-4 tablet:px-[105px] xl:px-14 desktop:px-[60px] bg-[#F8F9FA] max-w-[1920px] m-auto pb-15'>
+        <div className='flex small:flex-col small:pt-5 small:pb-3 small:gap-y-2 mobile:flex-col mobile:pt-6 mobile:pb-4 mobile:gap-y-3 tablet:flex-row tablet:justify-between tablet:items-center tablet:pt-8 tablet:pb-6'>
           <h4 className='font-inter font-medium text-2xl leading-[28.8px] text-[#007BFF] !mb-0'>
             Our Products
           </h4>
@@ -34,11 +34,9 @@ export default function Page() {
               <Input.Search
                 placeholder='Search by user & order ID'
                 className='mobile:!w-[234px] tablet:!w-[350px] [&_.ant-input-affix-wrapper]:!h-[36px] [&_.ant-input-search-button]:!h-[36px] rounded-lg'
-                value={searchTerm}
-                // style={{ height: 36 }}  // inline force         
-                onChange={(e) => setSearchTerm(e.target.value)}  // typing update
-                onSearch={(value) => setDebouncedTerm(value)}    // Enter press → turant search
-                // onSearch={(value) => setSearchTerm(value)}
+                value={searchTerm}       
+                onChange={(e) => setSearchTerm(e.target.value)}  
+                onSearch={(value) => setDebouncedTerm(value)}   
                 allowClear
               />
             </div>
