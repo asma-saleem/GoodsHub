@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { findUserByEmail } from './userService';
 import { CartItemType } from '../types/cart';
+import type { Prisma } from '@prisma/client'; 
 
 export async function getOrderById(id: string) {
   const order = await prisma.order.findUnique({
@@ -53,10 +54,12 @@ export async function createOrder(cart: CartItemType[], email: string) {
     throw new Error('User not found');
   }
 
-  const total = cart.reduce(
+  const subTotal = cart.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.qty),
     0
   );
+  const tax = subTotal * 0.1; // 10% tax
+  const total = subTotal + tax;
 
   // Run everything in a transaction
   const order = await prisma.$transaction(async (tx) => {
@@ -106,4 +109,42 @@ export async function createOrder(cart: CartItemType[], email: string) {
   });
 
   return order;
+}
+
+export async function getAllOrders(
+  page: number = 1,
+  pageSize: number = 10,
+  query: string = ''
+) {
+    const where: Prisma.OrderWhereInput = query
+    ? {
+        OR: [
+          { id: { contains: query, mode: 'insensitive' } }, // order ID search
+          { userId: { equals: query } } // userId is string, so match exactly
+        ]
+      }
+    : {};
+  const orders = await prisma.order.findMany({
+    where,
+    include: {
+      user: true,
+      items: { include: { product: true } }
+    },
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * pageSize,
+    take: pageSize
+  });
+
+  const total = await prisma.order.count();
+
+  // Map items: quantity → qty
+  const mappedOrders = orders.map((order) => ({
+    ...order,
+    items: order.items.map((item) => ({
+      ...item,
+      qty: item.quantity
+    }))
+  }));
+
+  return { orders: mappedOrders, total };
 }

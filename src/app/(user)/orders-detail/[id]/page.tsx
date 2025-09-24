@@ -1,17 +1,16 @@
 'use client';
 
-// import { useEffect, useState } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Spin, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 
-// import { OrderItemType, OrderType } from '@/types/order';
-import { OrderItemType } from '@/types/order';
-import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
-import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/orderDetailSlice';
+import { OrderItemType, OrderType } from '@/types/order';
+// import { OrderItemType } from '@/types/order';
+// import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
+// import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/orderDetailSlice';
 
 // Table Columns
 const columns: TableColumnsType<OrderItemType> = [
@@ -44,48 +43,48 @@ const columns: TableColumnsType<OrderItemType> = [
   }
 ];
 
-// // Page Component
-// export default function OrderDetailPage() {
-//   const params = useParams<{ id: string }>();
-//   const router = useRouter();
-//   const id = params?.id;
-//   const [order, setOrder] = useState<OrderType | null>(null);
-//   const [loading, setLoading] = useState(true);
-
-//   // Fetch Order Data
-//   useEffect(() => {
-//     if (!id) return;
-//     const fetchOrder = async () => {
-//       try {
-//         const res = await fetch(`/api/orders/${id}`);
-//         const json = await res.json();
-//         console.log(res);
-//         if (!res.ok) {
-//           console.error('Failed to fetch order:', json.error);
-//           return;
-//         }
-//         setOrder(json.order);
-//       } catch (err) {
-//         console.error('Error fetching order:', err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchOrder();
-//   }, [id]);
-
+// Page Component
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { order, loading } = useAppSelector((state) => state.orderDetail);
+  const id = params?.id;
+  const [order, setOrder] = useState<OrderType | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch Order Data
   useEffect(() => {
-    if (params?.id) dispatch(fetchOrderDetail(params.id));
-    return () => {
-      dispatch(clearOrder());
+    if (!id) return;
+    const fetchOrder = async () => {
+      try {
+        const res = await fetch(`/api/orders/${id}`);
+        const json = await res.json();
+        console.log(res);
+        if (!res.ok) {
+          console.error('Failed to fetch order:', json.error);
+          return;
+        }
+        setOrder(json.order);
+      } catch (err) {
+        console.error('Error fetching order:', err);
+      } finally {
+        setLoading(false);
+      }
     };
-  }, [dispatch, params?.id]);
+    fetchOrder();
+  }, [id]);
+
+// export default function OrderDetailPage() {
+//   const params = useParams<{ id: string }>();
+//   const router = useRouter();
+//   const dispatch = useAppDispatch();
+//   const { order, loading } = useAppSelector((state) => state.orderDetail);
+
+//   useEffect(() => {
+//     if (params?.id) dispatch(fetchOrderDetail(params.id));
+//     return () => {
+//       dispatch(clearOrder());
+//     };
+//   }, [dispatch, params?.id]);
   
   // Loading & Error States
   if (loading) {

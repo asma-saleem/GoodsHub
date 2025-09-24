@@ -42,3 +42,4 @@ export const getProducts = async (page: number = 1, limit: number = 8, query = '
 
   return { products, total };
 };
+

@@ -1,5 +1,9 @@
 import { getProducts } from '@/services/productService';
 import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
 
 export async function GET(req: Request) {
   try {
@@ -18,6 +22,29 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ products: [], total: 0, error: 'Failed to fetch products' }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const product = await prisma.product.create({
+      data: {
+        image: body.image,
+        title: body.name, // your form uses "name"
+        price: parseFloat(body.price),
+        stock: parseInt(body.quantity),
+        color: body.color || null,
+        colorCode: body.colorCode || null,
+        size: body.size || null
+      }
+    });
+
+    return NextResponse.json(product);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
   }
 }
 
