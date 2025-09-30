@@ -1,9 +1,9 @@
-import { getProducts } from '@/services/productService';
+import { getProducts } from '@/services/product';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
+// const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   try {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const product = await prisma.product.create({
       data: {
         image: body.image,
-        title: body.name, // your form uses "name"
+        title: body.name, 
         price: parseFloat(body.price),
         stock: parseInt(body.quantity),
         color: body.color || null,

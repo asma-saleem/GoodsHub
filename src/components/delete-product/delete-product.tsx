@@ -3,6 +3,8 @@
 import { Button } from 'antd';
 import React from 'react';
 
+import './delete-product.css';
+
 interface RemoveProductModalProps {
   onConfirm: () => void;
   onCancel: () => void;
@@ -17,19 +19,19 @@ export default function RemoveProductModal({
   message = 'Are You Sure You Want To Delete The Item!'
 }: RemoveProductModalProps) {
   return (
-    <div className='fixed inset-0 bg-[#0000005e] flex items-center justify-center p-4 z-50'>
+    <div className='modal-overlay'>
       {/* Modal Container */}
-      <div className='bg-white rounded-[4px] border border-blue-500 p-8 max-w-md w-full mx-4 shadow-xl'>
+      <div className='modal-container'>
         {/* Header */}
-        <div className='text-center mb-6 max-w-[212px] w-full mx-auto'>
-          <h4 className='font-inter font-medium text-[24px] leading-[28.8px] tracking-[0px] text-[#007BFF] pb-[12px]'>
+        <div className='modal-header'>
+          <h4 className='modal-title'>
             {title}
           </h4>
 
           {/* Warning Icon */}
-          <div className='flex justify-center mb-8'>
+          <div className='modal-icon'>
             <svg
-              className='w-[72px] h-[72px] text-yellow-500'
+              className='icon-warning'
               fill='none'
               stroke='currentColor'
               strokeWidth='2'
@@ -44,22 +46,22 @@ export default function RemoveProductModal({
           </div>
 
           {/* Confirmation Text */}
-          <p className='font-inter font-bold text-base leading-5 tracking-normal text-center align-middle capitalize'>
+          <p className='modal-message'>
             {message}
           </p>
         </div>
 
         {/* Buttons */}
-        <div className='flex gap-3 justify-center !max-w-[212px] !w-full !mx-auto'>
+        <div className='modal-buttons'>
           <Button
             onClick={onCancel}
-            className='py-3 border-2 !border-blue-500 !text-blue-500 bg-white rounded-lg text-lg font-medium hover:bg-blue-50 transition-colors min-w-[120px]'
+            className='btn-cancel'
           >
             No
           </Button>
           <Button
             onClick={onConfirm}
-            className='py-3 border-2 !border-blue-500 !bg-blue-500 !text-white rounded-lg text-lg font-medium hover:bg-blue-600 transition-colors min-w-[120px]'
+            className='btn-confirm'
           >
             Yes
           </Button>

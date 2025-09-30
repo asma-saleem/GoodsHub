@@ -1,0 +1,80 @@
+@import "tailwindcss";
+:root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;     
+  --breakpoint-desktop: 1366px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* orders.css */
+
+/* Loading Spinner */
+.loading-container {
+  @apply flex justify-center items-center min-h-screen;
+}
+
+/* Main Container */
+.orders-container {
+  @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F9FAFB] min-h-screen;
+}
+
+/* Header Section */
+.orders-header {
+  @apply flex items-center gap-2 pt-[30px] pb-6 xl:pt-8;
+}
+
+.orders-header-with-search {
+  @apply flex small:flex-col small:pt-5 small:pb-3 small:gap-y-2 mobile:flex-col mobile:pt-6 mobile:pb-4 mobile:gap-y-3 tablet:flex-row tablet:justify-between tablet:items-center tablet:pt-8 tablet:pb-6;
+}
+
+.orders-title {
+  @apply font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] !mb-0;
+}
+
+/* Table Container */
+.table-container {
+  @apply overflow-x-auto;
+}
+
+/* Order Number */
+.order-number {
+  @apply text-[#000000];
+}
+
+
+/* Pagination Text */
+.pagination-total {
+  @apply absolute left-0 font-inter font-normal text-[16px] leading-6 text-[#868E96];
+}
+
+.ant-search-icon {
+  @apply [&_.ant-btn]:!bg-[#E2E8F0] [&_.ant-btn-icon]:!text-gray-600;
+}
+
+.ant-input-search {
+  @apply mobile:!w-[234px] tablet:!w-[350px] [&_.ant-input-affix-wrapper]:!h-[36px] [&_.ant-input-search-button]:!h-[36px] rounded-lg;
+}

@@ -1,82 +1,47 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Table, Button } from 'antd';
+import Link from 'next/link';
+
+import { Table, Button, Input } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { Spin } from 'antd';
 import { ArrowLeftOutlined, ExportOutlined } from '@ant-design/icons';
-import Link from 'next/link';
-// import { useSession } from 'next-auth/react';
 
 import { OrderType } from '@/types/order';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
-import { fetchOrders, setPage } from '@/redux/store/slices/ordersSlice';
 
+import {
+  fetchOrders,
+  setPage,
+  setQuery
+} from '@/redux/store/slices/order-slice';
+
+import './page.css';
 
 const Orders: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data, total, loading, currentPage } = useAppSelector((state) => state.orders);
+  const { data, total, loading, currentPage, query } = useAppSelector(
+    (state) => state.orders
+  );
+  const [searchTerm, setSearchTerm] = useState(query || '');
+  const [debouncedTerm, setDebouncedTerm] = useState(query || '');
 
   useEffect(() => {
-    dispatch(fetchOrders({ page: currentPage, pageSize: 10 }));
-  }, [dispatch, currentPage]);
+    const timer = setTimeout(() => {
+      setDebouncedTerm(searchTerm);
+      dispatch(setQuery(searchTerm));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm, dispatch]);
 
-// //  Component
-// const Orders: React.FC = () => {
-//   const { data: session } = useSession();
-//   const router = useRouter();
-
-//   const [orders, setOrders] = useState<OrderType[]>([]);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [loading, setLoading] = useState(true);
-//   const [total, setTotal] = useState(0);
-
-//   const email = session?.user?.email ?? null;
-
-//   // Fetch Orders
-//   useEffect(() => {
-//     if (!email) return;
-
-//     const fetchOrders = async (page = 1, pageSize = 10) => {
-//       try {
-//         const res = await fetch(
-//           `/api/orders?page=${page}&pageSize=${pageSize}`,
-//           {
-//             headers: { 'Content-Type': 'application/json' },
-//             credentials: 'same-origin'
-//           }
-//         );
-//         if (!res.ok) {
-//           console.error('Failed to fetch orders');
-//           setLoading(false);
-//           return;
-//         }
-//         const json = await res.json();
-
-//         // Map API response to OrderType[]
-//         const mappedOrders: OrderType[] = (json.orders || []).map(
-//           (order: OrderType, index: number) => ({
-//             id: order.id,
-//             key: index,
-//             date: new Date(order.createdAt).toLocaleDateString(),
-//             orderNo: order.id || `ORD-${index + 1}`,
-//             products: order.items?.length || 0,
-//             amount: order.total || 0
-//           })
-//         );
-//         setOrders(mappedOrders);
-//         setTotal(json.total);
-//       } catch (error) {
-//         console.error('Error fetching orders:', error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchOrders(currentPage);
-//   }, [email, currentPage]);
+  useEffect(() => {
+    dispatch(
+      fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
+    );
+  }, [dispatch, currentPage, debouncedTerm]);
 
   //  Table columns
   const columns: TableColumnsType<OrderType> = [
@@ -87,7 +52,7 @@ const Orders: React.FC = () => {
     {
       title: 'Order #',
       dataIndex: 'orderNo',
-      render: (val: string) => <span>#{val}</span>
+      render: (val: string) => <span>{val}</span>
     },
     {
       title: 'Product(s)',
@@ -105,54 +70,60 @@ const Orders: React.FC = () => {
         <Button
           type='text'
           icon={<ExportOutlined />}
-          className='!text-[#000000]'
+          className='order-number'
           onClick={() => router.push(`/orders-detail/${record.id}`)}
         />
       )
     }
   ];
-
   // Loading State
   if (loading) {
     return (
-      <div className='flex justify-center items-center min-h-screen'>
+      <div className='loading-container'>
         <Spin size='large' />
       </div>
     );
   }
-
   // Render
   return (
     <div>
-      <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F9FAFB] min-h-screen'>
-        <div className='flex items-center gap-2 pt-[30px] pb-6 xl:pt-8'>
-          <Link href='/'>
-            <ArrowLeftOutlined
-              style={{ color: '#007BFF' }}
-              onClick={() => router.back()}
-            />
-          </Link>
-          <h4 className='font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] !mb-0'>
-            Orders
-          </h4>
+      <div className='orders-container'>
+        <div className='orders-header-with-search'>
+          <div className='orders-header'>
+            <Link href='/'>
+              <ArrowLeftOutlined
+                style={{ color: '#007BFF' }}
+                onClick={() => router.back()}
+              />
+            </Link>
+            <h4 className='orders-title'>Orders</h4>
+          </div>
+            <div
+              className='ant-search-icon'
+            >
+              <Input.Search
+                placeholder='Search by order ID'
+                className='ant-input-search'
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onSearch={(value) => setDebouncedTerm(value)}
+                allowClear
+              />
+            </div>
+      
         </div>
-
-        <div className='overflow-x-auto'>
+        <div className='table-container'>
           <Table<OrderType>
             columns={columns}
-            // dataSource={orders}
             dataSource={data}
             pagination={{
               current: currentPage,
               pageSize: 10,
               total: total,
-              //onChange: (page) => setCurrentPage(page),
               onChange: (page) => dispatch(setPage(page)),
               showSizeChanger: false,
               showTotal: (total) => (
-                <span className='absolute left-0 font-inter font-normal text-[16px] leading-6 text-[#868E96]'>
-                  {total} Total Count
-                </span>
+                <span className='pagination-total'>{total} Total Count</span>
               )
             }}
             bordered

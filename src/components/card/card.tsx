@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-
 import React, { useState } from 'react';
 import { Button, Card } from 'antd';
-import { ProductType } from '@/types/product';
 import { toast } from 'react-toastify';
+
+import { ProductType } from '@/types/product';
+import './card.css';
 
 interface ProductCardProps {
   product: ProductType;
@@ -13,10 +14,9 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const [quantity, setQuantity] = useState(1);
-
   const increment = () => setQuantity((prev) => prev + 1);
   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-
+  
   const addToCart = () => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
@@ -60,41 +60,39 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <Card
-      className='w-full rounded-md border border-[#DFDFDF] bg-white shadow-sm small:!px-2 mobile:!px-3 tablet:!px-4'
+      className='card-container'
       cover={
         <Image
           alt='example'
           src={product.image}
           width={257}
           height={222}
-          className='object-contain block small:pt-2 mobile:pt-3 tablet:pt-4'
+          className='product-image'
         />
       }
     >
-      <div className='small:pt-2 mobile:pt-3 tablet:pt-4 flex flex-col gap-y-2'>
-        <p className='font-inter font-medium text-[14px] leading-[19.2px] !mb-0'>
+      <div className='title-price-container'>
+        <p className='product-title'>
           {product.title}
         </p>
-        <div className='flex justify-start'>
-          <p className='font-inter font-bold text-[14px] leading-5 text-[#868E96] py-1.25 !mb-0'>
+        <div className='price-container'>
+          <p className='price-label'>
             Price:
           </p>
-          <p className='font-inter font-normal text-[20px] leading-[30px] text-center text-[#007BFF] !mb-0'>
+          <p className='price-value'>
             ${Number(product.price).toFixed(2)}
           </p>
         </div>
       </div>
-
-      <div className='flex justify-between pt-[35px] pb-4'>
+      <div className='quantity-container'>
         <div className='flex items-center justify-center gap-[4px]'>
           <Button
             onClick={decrement}
             disabled={quantity <= 1}
-            className='!text-[#007BFF] !p-0 small:!w-4 small:!h-4 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl'
+            className='quantity-btn'
           >
            <span className='!h-[35px]'>-</span>
-          </Button>
-          
+          </Button>          
           <input
             type='number'
             value={quantity}
@@ -105,16 +103,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               }
             }}
             onFocus={(e) => e.target.select()}
-            className='!p-0 text-center border border-[#DFDFDF] rounded small:!w-6 small:!h-4 mobile:!w-[29px] mobile:!h-6 
-             tablet:!w-[30px] desktop:!w-11 desktop:!h-9 [&::-webkit-inner-spin-button]:appearance-none 
-             [&::-webkit-outer-spin-button]:appearance-none 
-             [appearance:textfield]'
+            className='quantity-input'
           />
-
           <Button
             onClick={increment}
             disabled={quantity >= product.stock}
-            className='!text-[#007BFF] !p-0 small:!w-4 small:!h-4 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl'
+            className='quantity-btn'
           >
             <span className='!h-[35px]'>+</span>
           </Button>
@@ -122,11 +116,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Button
           onClick={addToCart}
           disabled={product.stock <= 0|| quantity <= 0}
-          className={`!p-0 !w-[74px] !h-[24px] small:![40px] small:!h-6 mobile:!w-[74px] mobile:!h-[24px] tablet:!w-[101px] tablet:!h-9 desktop:!w-[112px] small:!px-[2px] small:!py-[3px] mobile:!px-3 mobile:!py-[6px] font-inter font-normal small:!text-[9px] mobile:!text-[12px] tablet:!text-base leading-6 text-center align-middle rounded !shadow-none !border-none 
+          className={`add-to-cart-btn
          ${
            product.stock > 0
-             ? '!bg-[#007BFF] !text-white'
-             : '!bg-gray-300 !text-white cursor-not-allowed'
+             ? 'btn-enabled'
+             : 'btn-disabled'
          }
         `}
         >

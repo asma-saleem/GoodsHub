@@ -1,15 +1,13 @@
-
 'use client';
+
 import React from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import AuthLayout from '../auth-layout';
 import { toast } from 'react-toastify';
 
-
-type FieldType = {
-  email?: string;
-};
+import {FieldType} from '@/types/form';
+import '../auth.css';
 
 const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
   try {
@@ -37,11 +35,11 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout>
-      <div className='flex flex-col items-center justify-center min-h-screen !space-y-8 w-full !mx-4'>
-        <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
+      <div className='auth-container-spaced'>
+        <h2 className='auth-title'>
           Forgot Password
         </h2>
-         <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
+         <Card className='auth-card'>
           <Form
             name='forgot'
             layout='vertical'
@@ -59,7 +57,7 @@ export default function ForgotPasswordPage() {
             >
               <Input
                 placeholder='Please enter your email'
-                className='w-full !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
               />
             </Form.Item>
 
@@ -68,14 +66,14 @@ export default function ForgotPasswordPage() {
               <Button
                 type='primary'
                 htmlType='submit'
-                className='!mt-2 w-full !px-2 font-inter font-normal text-base leading-6 tracking-normal text-center align-middle'
+                className='auth-button'
               >
                 Forgot Password
               </Button>
             </Form.Item>
-            <p className='font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !mb-0 text-center'>
+            <p className='auth-text-spaced'>
                 No, I remember my password{' '}
-                <a href='/auth/login' className='text-[#3C76FF] hover:underline font-inter font-normal text-sm leading-[21px] tracking-normal'>
+                <a href='/auth/login' className='auth-link'>
                   Login
                 </a>
               </p>

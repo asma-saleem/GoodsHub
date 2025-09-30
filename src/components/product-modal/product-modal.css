@@ -1,0 +1,46 @@
+@import "tailwindcss";
+/* :root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+} */
+
+@theme inline {
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground); */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;     
+  --breakpoint-desktop: 1366px;
+}
+
+.product-form {
+  @apply grid grid-cols-2 gap-6;
+}
+
+.upload-section {
+  @apply flex flex-col items-center border border-dashed border-gray-300 rounded-md p-4;
+}
+
+.upload-placeholder {
+  @apply flex flex-col items-center;
+}
+
+.upload-icon {
+  @apply text-3xl text-blue-500;
+}
+
+.upload-text {
+  @apply text-sm text-gray-500;
+}
+
+.price-quantity-grid {
+  @apply grid grid-cols-2 gap-4;
+}
+
+.btn-submit {
+  @apply bg-[#007BFF] mt-2;
+}

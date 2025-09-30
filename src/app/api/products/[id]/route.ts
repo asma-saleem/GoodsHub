@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // UPDATE product
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
@@ -35,17 +36,18 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params; // 👈 await params
+    const { id } = await context.params; 
 
-    await prisma.product.delete({
-      where: { id }
+    await prisma.product.update({
+      where: { id },
+      data: { status: 'inactive' } 
     });
 
-    return NextResponse.json({ message: 'Deleted successfully' });
+    return NextResponse.json({ message: 'Product marked as inactive' });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: 'Failed to delete product' },
+      { error: 'Failed to deactivate product' },
       { status: 500 }
     );
   }

@@ -13,7 +13,9 @@ export interface OrderType {
   key: number;
   date: string;
   orderNo: number | string;
-  user: number;
+  user?: {
+    fullname: string;
+  };
   products: number;
   amount: number;
   createdAt: string;

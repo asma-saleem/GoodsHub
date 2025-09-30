@@ -1,15 +1,23 @@
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client'; 
 
-export const getProducts = async (page: number = 1, limit: number = 8, query = '', sortBy: string = 'createdAt_desc') => {
-  const where: Prisma.ProductWhereInput = query
-    ? { 
-        title: { 
-          contains: query, 
-          mode: 'insensitive' 
-        } 
-      }
-    : {};
+export const getProducts = async (
+  page: number = 1,
+  limit: number = 8,
+  query = '',
+  sortBy: string = 'createdAt_desc'
+) => {
+  const where: Prisma.ProductWhereInput = {
+    status: 'active',
+    ...(query
+      ? {
+          title: {
+            contains: query,
+            mode: 'insensitive'
+          }
+        }
+      : {})
+  };
   const skip = (page - 1) * limit;
 
   let order: Prisma.Enumerable<Prisma.ProductOrderByWithRelationInput>;
@@ -42,4 +50,3 @@ export const getProducts = async (page: number = 1, limit: number = 8, query = '
 
   return { products, total };
 };
-

@@ -7,6 +7,8 @@ import { useSession, signOut } from 'next-auth/react';
 import ProductsContent from '@/app/(admin)/admin/products';
 import OrdersContent from '@/app/(admin)/admin/orders';
 
+import './admin-layout.css';
+
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout: React.FC = () => {
@@ -17,16 +19,16 @@ const AdminLayout: React.FC = () => {
     <Layout style={{ minHeight: '100vh' }}>
       {/* Sidebar */}
       <Sider width={257} style={{ background: '#fff', paddingTop: 20 }}>
-        <p className='font-inter font-bold text-[16px] leading-6 pt-3 pb-6 pl-5'>
+        <p className='sidebar-title'>
           E-commerce
         </p>
 
-        <div className="flex flex-col items-center gap-4">
+        <div className="sidebar-buttons">
           <Button
             type={selectedKey === 'products' ? 'primary' : 'default'}
             icon={<ProductOutlined />}
             size="large"
-            className="!w-[217px] !h-[48px] font-inter !text-[16px]"
+            className="sidebar-button"
             onClick={() => setSelectedKey('products')}
           >
             Products
@@ -36,7 +38,7 @@ const AdminLayout: React.FC = () => {
             type={selectedKey === 'orders' ? 'primary' : 'default'}
             icon={<UnorderedListOutlined />}
             size="large"
-            className="!w-[217px] !h-[48px] font-inter !text-[16px]"
+            className="sidebar-button"
             onClick={() => setSelectedKey('orders')}
           >
             Orders
@@ -49,7 +51,7 @@ const AdminLayout: React.FC = () => {
             onClick={() => signOut()}
             danger
             icon={<LogoutOutlined style={{ color: '#EF1014' }} />}
-            className="!pl-0 font-inter !font-semibold text-[14px] !text-[#EF1014]"
+            className="logout-button"
           >
             Logout
           </Button>
@@ -70,7 +72,7 @@ const AdminLayout: React.FC = () => {
           }}
         >
           <h3 style={{ margin: 0 }}></h3>
-          <span className="font-inter font-medium text-[12px] text-[#007BFF]">
+          <span className="header-username">
             {session?.user?.name || 'Guest'}
           </span>
         </Header>

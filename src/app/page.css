@@ -1,0 +1,47 @@
+@import "tailwindcss";
+/* :root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+} */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-desktop: 1366px;
+}
+
+.dashboard-container {
+    @apply small:px-4 mobile:px-4 tablet:px-[105px] xl:px-14 desktop:px-[60px] bg-[#F8F9FA] max-w-[1920px] m-auto pb-15;
+}
+
+.dashboard-subcontainer {
+    @apply flex small:flex-col small:pt-5 small:pb-3 small:gap-y-2 mobile:flex-col mobile:pt-6 mobile:pb-4 mobile:gap-y-3 
+           tablet:flex-row tablet:justify-between tablet:items-center tablet:pt-8 tablet:pb-6;
+}
+
+.dashboard-title {
+    @apply font-inter font-medium text-2xl leading-[28.8px] text-[#007BFF] !mb-0;
+}
+
+.search-sort-container {
+    @apply flex items-center gap-6;
+}
+
+.search-container {
+    @apply [&_.ant-btn]:!bg-[#E2E8F0] [&_.ant-btn-icon]:!text-gray-600;
+}
+
+.input-search {
+    @apply mobile:!w-[234px] tablet:!w-[350px] [&_.ant-input-affix-wrapper]:!h-[36px] [&_.ant-input-search-button]:!h-[36px] rounded-lg;
+}
+
+.dashboard-select {
+   @apply !w-[138px] !h-[36px] rounded-lg;
+}

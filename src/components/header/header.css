@@ -1,0 +1,66 @@
+@import "tailwindcss";
+/* :root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+} */
+
+@theme inline {
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground); */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;     
+  --breakpoint-desktop: 1366px;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+.main-header-container {
+    @apply flex justify-between bg-white small:px-3 mobile:px-4 tablet:px-6 xl:px-9 desktop:px-9 py-3;
+}
+
+.header-title {
+    @apply font-inter font-bold text-base text-[#343A40] !mb-0;
+}
+
+.icons-container {
+    @apply flex items-center gap-5;
+}
+.belloutlined {
+    @apply w-4 h-4;
+}
+
+.cart-badge {
+    @apply [&_.ant-badge-count]:!min-w-[20px] [&_.ant-badge-count]:!h-[20px] [&_.ant-badge-count]:!leading-[20px] [&_.ant-badge-count]:!rounded-full [&_.ant-badge-count]:!text-[10px] [&_.ant-badge-count]:!p-0;
+}
+
+.dropdown-container {
+    @apply flex items-center gap-2 cursor-pointer;
+}
+
+.dropdown-useroutlined {
+    @apply w-4 h-4 cursor-pointer;
+}
+
+.header-username {
+    @apply text-sm text-[#007BFF];
+}
+
+.login-link {
+    @apply font-inter font-medium text-xs text-[#007BFF];
+}

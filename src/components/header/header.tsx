@@ -1,4 +1,5 @@
 'use client';
+
 import Link from 'next/link';
 import { MenuProps, Badge } from 'antd';
 import {
@@ -9,8 +10,9 @@ import {
 import { Dropdown } from 'antd';
 import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-// import { ProductType } from '@/types/product';
+
 import { CartItem } from '@/types/cart';
+import './header.css';
 
 export default function Header() {
   const { data: session } = useSession();
@@ -26,7 +28,6 @@ export default function Header() {
     // Quantity count
     const totalQty = cart.reduce((sum: number, item: CartItem) => sum + item.qty, 0);
     setCartCount(totalQty);
-
 };
 
   useEffect(() => {
@@ -61,12 +62,12 @@ export default function Header() {
     }
   ];
   return (
-    <header className='flex justify-between bg-white small:px-3 mobile:px-4 tablet:px-6 xl:px-9 desktop:px-9 py-3'>
-      <p className='font-inter font-bold text-base text-[#343A40] !mb-0'>
+    <header className='main-header-container'>
+      <p className='header-title'>
         E-commerce
       </p>
-      <div className='flex items-center gap-5'>
-        <Badge count={cartCount}  offset={[0, -3]} className="[&_.ant-badge-count]:!min-w-[20px] [&_.ant-badge-count]:!h-[20px] [&_.ant-badge-count]:!leading-[20px] [&_.ant-badge-count]:!rounded-full [&_.ant-badge-count]:!text-[10px] [&_.ant-badge-count]:!p-0">
+      <div className='icons-container'>
+        <Badge count={cartCount}  offset={[0, -3]} className="cart-badge">
         <ShoppingOutlined
           onClick={() => {
              (window.location.href = session ? '/shopping-bag' : '/auth/login');
@@ -75,19 +76,18 @@ export default function Header() {
           style={{ fontSize: 16,color: '#007BFF' }}
         />
         </Badge>
-        <BellOutlined className='w-4 h-4' style={{ color: '#007BFF' }} />
-
+        <BellOutlined className='belloutlined' style={{ color: '#007BFF' }} />
         {session ? (
           <Dropdown
             menu={{ items: menu, style: { padding: '0.5rem 2rem' } }}
             trigger={['click']}
           >
-            <span className='flex items-center gap-2 cursor-pointer'>
+            <span className='dropdown-container'>
               <UserOutlined
-                className='w-4 h-4 cursor-pointer'
+                className='dropdown-useroutlined'
                 style={{ color: '#007BFF'}}
               />
-              <span className='text-sm text-[#007BFF]'>
+              <span className='header-username'>
                 {session.user?.name}
               </span>
             </span>
@@ -95,7 +95,7 @@ export default function Header() {
         ) : (
           <Link
             href='/auth/login'
-            className='font-inter font-medium text-xs text-[#007BFF]'
+            className='login-link'
           >
             Login
           </Link>

@@ -1,16 +1,30 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { findUserByEmail } from './userService';
+
 import { CartItemType } from '../types/cart';
-import type { Prisma } from '@prisma/client'; 
 
 export async function getOrderById(id: string) {
   const order = await prisma.order.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,  
+      total: true, 
+      orderNo: true,
+      createdAt: true,
+      userId: true,
       items: {
-        include: { product: true }
-      },
-      user: true
+        select: {
+          quantity: true,
+          product: {
+            select: {
+              id:true,
+              image: true,
+              title: true,
+              price: true
+            }
+          }
+        }
+      }
     }
   });
 
@@ -24,50 +38,73 @@ export async function getOrderById(id: string) {
       qty: item.quantity
     }))
   };
-}
+};
 
-export async function getOrdersByEmail(email: string,page: number = 1,
-  pageSize: number = 10) {
-  const user = await findUserByEmail(email);
+export async function getOrdersByUserId(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 10,
+  query: string = ''
+) {
+  const baseCondition: Prisma.OrderWhereInput = {
+    userId
+  };
 
-  if (!user) return null;
+  const queryCondition: Prisma.OrderWhereInput = query
+     ? {
+        orderNo: { contains: query, mode: 'insensitive' }
+      }
+    : {};
+
+  const where: Prisma.OrderWhereInput = {
+    AND: [baseCondition, queryCondition]
+  };
 
   const orders = await prisma.order.findMany({
-    where: { userId: user.id },
-    include: {
-      items: { include: { product: true } }
+    where,
+    select: { 
+      id: true,
+      createdAt: true,
+      orderNo:true,
+      total: true,
+      items: { select: { id: true } } 
     },
     orderBy: { createdAt: 'desc' },
     skip: (page - 1) * pageSize,
     take: pageSize
   });
   const total = await prisma.order.count({
-    where: { userId: user.id }
+    where: { userId }
   });
 
   return { orders, total };
 }
 
-export async function createOrder(cart: CartItemType[], email: string) {
-  const user = await findUserByEmail(email);
-  if (!user) {
-    throw new Error('User not found');
-  }
+export async function createOrder(cart: CartItemType[], userId: string) {
 
   const subTotal = cart.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.qty),
     0
   );
-  const tax = subTotal * 0.1; // 10% tax
+  const tax = subTotal * 0.1; 
   const total = subTotal + tax;
 
-  // Run everything in a transaction
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}${String(
+    now.getMonth() + 1
+  ).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+
+  // Random 6 digit number
+  const randomPart = Math.floor(100000 + Math.random() * 900000);
+  const orderNo = `${dateStr}${randomPart}`;
+
   const order = await prisma.$transaction(async (tx) => {
     // 1. Create order
     const newOrder = await tx.order.create({
       data: {
-        userId: user.id,
+        userId,
         total,
+        orderNo,
         items: {
           create: cart.map((item) => ({
             productId: item.id,
@@ -94,12 +131,11 @@ export async function createOrder(cart: CartItemType[], email: string) {
           `Not enough stock for product ${product.title}. Only ${product.stock} left.`
         );
       }
-
       await tx.product.update({
         where: { id: item.id },
         data: {
           stock: {
-            decrement: item.qty 
+            decrement: item.qty
           }
         }
       });
@@ -116,19 +152,41 @@ export async function getAllOrders(
   pageSize: number = 10,
   query: string = ''
 ) {
-    const where: Prisma.OrderWhereInput = query
+  const where: Prisma.OrderWhereInput = query
     ? {
         OR: [
-          { id: { contains: query, mode: 'insensitive' } }, // order ID search
-          { userId: { equals: query } } // userId is string, so match exactly
+          { id: { contains: query, mode: 'insensitive' } },
+          {orderNo: { contains: query, mode: 'insensitive' }},
+          {
+          user: {
+            fullname: { contains: query, mode: 'insensitive' }
+          }
+        }
+
         ]
       }
     : {};
   const orders = await prisma.order.findMany({
     where,
-    include: {
-      user: true,
-      items: { include: { product: true } }
+    select: {
+      id: true,  
+      total: true, 
+      orderNo: true,
+      createdAt: true,
+      user: {select:{fullname:true}},
+      items: {
+        select: {
+          quantity: true,
+          product: {
+            select: {
+              id:true,
+              image: true,
+              title: true,
+              price: true
+            }
+          }
+        }
+      }
     },
     orderBy: { createdAt: 'desc' },
     skip: (page - 1) * pageSize,
@@ -136,6 +194,23 @@ export async function getAllOrders(
   });
 
   const total = await prisma.order.count();
+
+  const allOrders = await prisma.order.findMany({
+    // where,
+    include: { items: true }
+  });
+
+  const totalUnits = allOrders.reduce(
+    (sum, order) =>
+      sum +
+      (order.items?.reduce((s, item) => s + (item.quantity || 0), 0) || 0),
+    0
+  );
+
+  const totalAmount = allOrders.reduce(
+    (sum, order) => sum + (order.total || 0),
+    0
+  );
 
   // Map items: quantity → qty
   const mappedOrders = orders.map((order) => ({
@@ -146,5 +221,5 @@ export async function getAllOrders(
     }))
   }));
 
-  return { orders: mappedOrders, total };
+  return { orders: mappedOrders, total, totalUnits, totalAmount };
 }

@@ -1,167 +1,142 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Spin, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 
-import { OrderItemType, OrderType } from '@/types/order';
-// import { OrderItemType } from '@/types/order';
-// import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
-// import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/orderDetailSlice';
+import { OrderItemType } from '@/types/order';
+import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
+import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/order-detail-slice';
+
+import './page.css';
 
 // Table Columns
 const columns: TableColumnsType<OrderItemType> = [
   {
-    title: 'Title',
+    title: <span className='main-text-color'>Title</span>,
     dataIndex: 'product',
     render: (_, record: OrderItemType) => (
-      <div className='flex items-center gap-3'>
+      <div className='product-cell'>
         <Image
           src={record.product.image}
           alt={record.product.title}
           width={24}
           height={24}
-          className='object-cover rounded'
+          className='product-image'
         />
-        <span className='font-inter font-normal text-xs text-[#495057]'>
+        <span className='product-name'>
           {record.product.title}
         </span>
       </div>
     )
   },
   {
-    title: 'Price',
-    dataIndex: 'price',
-    render: (price: number) => `$${price.toFixed(2)}`
+    title: <span className='main-text-color'>Price</span>,
+    render: (_, record) => (
+    <span className="main-text-color">
+      ${record.product.price.toFixed(2)}
+    </span>)
   },
   {
-    title: 'Quantity',
-    dataIndex: 'qty'
+    title: <span className='main-text-color'>Quantity</span>,
+    dataIndex: 'qty',
+    render: (qty: number) => (
+    <span className='main-text-color'>
+      {qty}
+    </span>
+  )
   }
 ];
 
-// Page Component
-export default function OrderDetailPage() {
+ export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const id = params?.id;
-  const [order, setOrder] = useState<OrderType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { order, loading } = useAppSelector((state) => state.orderDetail);
 
-  // Fetch Order Data
   useEffect(() => {
-    if (!id) return;
-    const fetchOrder = async () => {
-      try {
-        const res = await fetch(`/api/orders/${id}`);
-        const json = await res.json();
-        console.log(res);
-        if (!res.ok) {
-          console.error('Failed to fetch order:', json.error);
-          return;
-        }
-        setOrder(json.order);
-      } catch (err) {
-        console.error('Error fetching order:', err);
-      } finally {
-        setLoading(false);
-      }
+    if (params?.id) dispatch(fetchOrderDetail(params.id));
+    return () => {
+      dispatch(clearOrder());
     };
-    fetchOrder();
-  }, [id]);
-
-// export default function OrderDetailPage() {
-//   const params = useParams<{ id: string }>();
-//   const router = useRouter();
-//   const dispatch = useAppDispatch();
-//   const { order, loading } = useAppSelector((state) => state.orderDetail);
-
-//   useEffect(() => {
-//     if (params?.id) dispatch(fetchOrderDetail(params.id));
-//     return () => {
-//       dispatch(clearOrder());
-//     };
-//   }, [dispatch, params?.id]);
+  }, [dispatch, params?.id]);
   
   // Loading & Error States
   if (loading) {
     return (
-      <div className='flex justify-center items-center min-h-screen'>
+      <div className='loading-container'>
         <Spin size='large' />
       </div>
     );
   }
   if (!order) {
     return (
-      <div className='flex justify-center items-center min-h-screen'>
-        <p className='text-gray-500'>Order not found!</p>
+      <div className='loading-container'>
+        <p className='error-text'>Order not found!</p>
       </div>
     );
   }
 
   // Data Source for Table
-  const dataSource: OrderItemType[] = order.items.map((item, index) => ({
+  const dataSource: OrderItemType[] = order.items.map((item,index:number) => ({
     key: index,
     product: item.product,
     image: item.product.image,
     qty: item.qty,
-    price: item.price
+    price: item.product.price
   }));
   
   // Render
   return (
-    <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA]'>
+    <div className='order-detail-container'>
       {/* Header */}
-      <div className='flex gap-2 pt-6 pb-6 xl:pt-8'>
+      <div className='order-header'>
         <ArrowLeftOutlined
           style={{ color: '#007BFF' }}
           onClick={() => router.back()}
-          className='cursor-pointer'
+          className='back-button'
         />
-        <h4 className='font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0'>
+        <h4 className='order-title'>
           Orders Detail
         </h4>
       </div>
-      <div className='border-t border-[#979797] mb-6'></div>
-
+      <div className='divider-main'></div>
       {/* Order Summary */}
-      <div className='grid tablet:grid-cols-4 small:grid-cols-2 mobile:grid-cols-2 tablet:gap-[122px] small:gap-6 mobile:gap-6 mb-6'>
+      <div className='order-summary-grid'>
         <div>
-          <p className='font-inter text-xs text-[#979797] pb-[5px]'>Date</p>
-          <p className='font-inter text-sm text-[#272B41]'>
+          <p className='summary-label'>Date</p>
+          <p className='summary-value'>
             {new Date(order.createdAt).toLocaleDateString()}
           </p>
         </div>
         <div>
-          <p className='font-inter text-xs text-[#979797] pb-[5px]'>Order #</p>
-          <p className='font-inter text-sm text-[#272B41]'>
-            ORD-#{order.id + 1}
+          <p className='summary-label'>Order #</p>
+          <p className='summary-value'>
+           {order.orderNo}
           </p>
         </div>
         <div>
-          <p className='font-inter text-xs text-[#979797] pb-[5px]'>Products</p>
-          <p className='font-inter text-sm text-[#272B41]'>
+          <p className='summary-label'>Products</p>
+          <p className='summary-value'>
             {order.items.length}
           </p>
         </div>
         <div>
-          <p className='font-inter text-xs text-[#979797] pb-[5px]'>Amount</p>
-          <p className='font-inter text-sm text-[#272B41]'>
+          <p className='summary-label'>Amount</p>
+          <p className='summary-value'>
             ${order.total.toFixed(2)}
           </p>
         </div>
       </div>
-
-      <div className='border-t border-[#DEE2E6] mb-6 mt-8'></div>
-      <h4 className='font-inter font-medium text-[20px] leading-[24px] text-[#002050] pb-4'>
+      <div className='divider-section'></div>
+      <h4 className='product-info-title'>
         Product Information
       </h4>
-
       {/* Product Table */}
-      <div className='overflow-x-auto'>
+      <div className='table-container'>
         <Table<OrderItemType>
           columns={columns}
           dataSource={dataSource}

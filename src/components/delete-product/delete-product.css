@@ -1,0 +1,58 @@
+@import "tailwindcss";
+/* :root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+} */
+
+@theme inline {
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground); */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-desktop: 1366px;
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-[#0000005e] flex items-center justify-center p-4 z-50;
+}
+
+.modal-container {
+  @apply bg-white rounded-[4px] border border-blue-500 p-8 max-w-md w-full mx-4 shadow-xl;
+}
+
+.modal-header {
+  @apply text-center mb-6 max-w-[212px] w-full mx-auto;
+}
+
+.modal-title {
+  @apply font-inter font-medium text-[24px] leading-[28.8px] tracking-[0px] text-[#007BFF] pb-[12px];
+}
+
+.modal-icon {
+  @apply flex justify-center mb-8;
+}
+
+.icon-warning {
+  @apply w-[72px] h-[72px] text-yellow-500;
+}
+
+.modal-message {
+  @apply font-inter font-bold text-base leading-5 tracking-normal text-center align-middle capitalize;
+}
+
+.modal-buttons {
+  @apply flex gap-3 justify-center !max-w-[212px] !w-full !mx-auto;
+}
+
+.btn-cancel {
+  @apply py-3 border-2 !border-blue-500 !text-blue-500 bg-white rounded-lg text-lg font-medium hover:bg-blue-50 transition-colors min-w-[120px];
+}
+
+.btn-confirm {
+  @apply py-3 border-2 !border-blue-500 !bg-blue-500 !text-white rounded-lg text-lg font-medium hover:bg-blue-600 transition-colors min-w-[120px];
+}

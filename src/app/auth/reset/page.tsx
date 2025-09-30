@@ -2,14 +2,13 @@
 import React from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
-import AuthLayout from '../auth-layout';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 
-type FieldType = {
-  password?: string;
-  confirmPassword?: string;
-};
+import {FieldType} from '@/types/form';
+import AuthLayout from '../auth-layout';
+
+import '../auth.css';
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Reset Password Failed:', errorInfo);
@@ -47,11 +46,11 @@ export default function ResetPasswordPage() {
   };
   return (
     <AuthLayout>
-      <div className='flex flex-col items-center justify-center min-h-screen !space-y-8'>
-        <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
+      <div className='auth-container'>
+        <h2 className='auth-title'>
           Reset Password
         </h2>
-        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
+        <Card className='auth-card'>
           <Form
             name='reset'
             layout='vertical'
@@ -75,7 +74,7 @@ export default function ResetPasswordPage() {
             >
               <Input.Password
                 placeholder='enter password'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -98,7 +97,7 @@ export default function ResetPasswordPage() {
             >
               <Input.Password
                 placeholder='confirm password'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -106,7 +105,7 @@ export default function ResetPasswordPage() {
               <Button
                 type='primary'
                 htmlType='submit'
-                className='mobile:!w-[364px] tablet:!w-[544px] !h-[36px] !px-2 font-inter font-normal text-base leading-6 tracking-normal text-center align-middle'
+                className='auth-button'
               >
                 Reset Password
               </Button>

@@ -1,0 +1,173 @@
+@import "tailwindcss";
+:root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;     
+  --breakpoint-desktop: 1366px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+/* Loading Spinner */
+.loading-container {
+  @apply flex justify-center items-center min-h-screen;
+}
+/* Main Container */
+.main-container {
+  @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA];
+}
+
+/* Header Section */
+.header-container {
+  @apply flex justify-between items-center pt-6 pb-6 xl:pt-8;
+}
+
+.header-left {
+  @apply flex gap-2 items-center;
+}
+
+.shopping-bag-title {
+  @apply font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0;
+}
+
+.delete-selected-btn {
+  @apply !py-[6px] !px-[15px] !h-[32px];
+}
+
+/* Table Container */
+.table-wrapper {
+  @apply overflow-x-auto;
+}
+
+/* Table Styles */
+.table-cell {
+  @apply !pl-0;
+}
+
+.table-row {
+  @apply h-12;
+}
+
+/* Product Column */
+.product-container {
+  @apply flex items-center gap-3;
+}
+
+.product-image {
+  @apply object-cover rounded;
+}
+
+.product-name {
+  @apply font-inter font-normal text-xs text-[#495057];
+}
+
+/* Color Column */
+.color-container {
+  @apply flex items-center gap-2;
+}
+
+.color-circle {
+  @apply w-3 h-3 rounded-full inline-block;
+}
+
+.color-text {
+  @apply font-inter font-normal text-[12px] leading-4 tracking-normal text-[#535E63];
+}
+
+/* Quantity Controls */
+.quantity-container {
+  @apply flex items-center gap-2;
+}
+
+.quantity-btn-decrement {
+  @apply border px-3 py-1 rounded text-blue-500 hover:!border-[#007BFF];
+}
+
+.quantity-btn-increment {
+  @apply border px-[10.5px] py-1 rounded text-blue-500 hover:!border-[#007BFF];
+}
+
+.quantity-display {
+  @apply border px-[31.5px] py-1 rounded;
+}
+
+/* Actions Column */
+.delete-icon {
+  @apply cursor-pointer;
+}
+
+/* Empty Cart State */
+.empty-cart-container {
+  @apply flex flex-col justify-center items-center py-10 gap-4;
+}
+
+.empty-cart-text {
+  @apply font-inter text-base text-[#495057];
+}
+
+.continue-shopping-btn {
+  @apply !bg-white !text-[#007BFF] !border !border-[#007BFF] hover:!bg-[#f0f8ff];
+}
+
+/* Price Summary */
+.price-row-subtotal {
+  @apply flex justify-end items-center gap-3 pt-6 pb-[14px];
+}
+
+.price-row-total {
+  @apply flex justify-end items-center gap-3 pb-6 pt-[14px];
+}
+
+.price-row-tax {
+  @apply flex justify-end items-center gap-3;
+}
+
+.price-label {
+  @apply font-inter font-normal text-sm leading-[21px] text-[#212529];
+}
+
+.price-value {
+  @apply font-inter font-bold text-sm leading-5 text-center text-[#343A40];
+}
+
+/* Place Order Section */
+.place-order-container {
+  @apply flex justify-end items-center pb-[11px] md:pb-[13px] lg:pb-[15px] xl:!pb-[23px];
+}
+
+.place-order-btn {
+  @apply small:!px-[85px] mobile:!px-[142.5] sm:!px-[50px] !py-[15px] !h-[46px] !bg-[#007BFF];
+}
+
+.place-order-text {
+  @apply font-inter font-normal text-xl leading-[30px] tracking-normal text-center align-middle text-white;
+}
+
+.summary {
+  @apply pr-4;
+}
+
+.remove-product-span {
+  @apply text-red-500;
+}

@@ -4,9 +4,10 @@ import './globals.css';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { Inter } from 'next/font/google';
 import React from 'react';
-import { Providers } from './providers';
+import { Providers } from './session-provider';
 import { ToastProvider } from './toast-provider';
 import { ReduxProvider } from '@/redux/store/provider';
+
 
 const inter = Inter({
   subsets: ['latin'],

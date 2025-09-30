@@ -7,12 +7,14 @@ import { Button } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-
-import Header from '@/components/header';
-import RemoveProductModal from '@/components/delete-product';
-import { CartItemType } from '@/types/cart';
 import { toast } from 'react-toastify';
 import { Spin } from 'antd';
+
+import './page.css';
+
+import Header from '@/components/header/header';
+import RemoveProductModal from '@/components/delete-product/delete-product';
+import { CartItemType } from '@/types/cart';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -98,7 +100,7 @@ const App: React.FC = () => {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart, email: session.user.email }),
+        body: JSON.stringify({ cart }),
         credentials: 'same-origin'
       });
 
@@ -155,17 +157,17 @@ const App: React.FC = () => {
     {
       title: 'Product',
       dataIndex: 'product',
-      className: '!pl-0',
+      className: 'table-cell',
       render: (_, record) => (
-        <div className='flex items-center gap-3'>
+        <div className='product-container'>
           <Image
             src={record.image}
             alt={record.title}
             width={24}
             height={24}
-            className='object-cover rounded'
+            className='product-image'
           />
-          <span className='font-inter font-normal text-xs text-[#495057]'>
+          <span className='product-name'>
             {record.title}
           </span>
         </div>
@@ -175,12 +177,12 @@ const App: React.FC = () => {
       title: 'Color',
       dataIndex: 'color',
       render: (_, record) => (
-        <div className='flex items-center gap-2'>
+        <div className='color-container'>
           <span
-            className='w-3 h-3 rounded-full inline-block'
+            className='color-circle'
             style={{ backgroundColor: record.colorCode }}
           />
-          <span className='font-inter font-normal text-[12px] leading-4 tracking-normal text-[#535E63]'>
+          <span className='color-text'>
             {record.color}
           </span>
         </div>
@@ -194,23 +196,23 @@ const App: React.FC = () => {
       title: 'Qty',
       dataIndex: 'qty',
       render: (qty, record) => (
-        <div className='flex items-center gap-2'>
+        <div className='quantity-container'>
           <button
-            className='border px-3 py-1 rounded text-blue-500 hover:!border-[#007BFF]'
+            className='quantity-btn-decrement'
             style={{ borderColor: '#DFDFDF' }}
             onClick={() => updateQty(record.key, 'dec')}
           >
             -
           </button>
           <span
-            className='border px-[31.5px] py-1 rounded'
+            className='quantity-display'
             style={{ borderColor: '#DFDFDF' }}
           >
             {qty.toString().padStart(2, '0')}
           </span>
 
           <button
-            className='border px-[10.5px] py-1 rounded text-blue-500 hover:!border-[#007BFF]'
+            className='quantity-btn-increment'
             style={{ borderColor: '#DFDFDF' }}
             onClick={() => updateQty(record.key, 'inc')}
           >
@@ -233,7 +235,7 @@ const App: React.FC = () => {
           alt='Delete'
           width={16}
           height={16}
-          className='cursor-pointer'
+          className='delete-icon'
           onClick={() => setDeleteTarget(record)}
         />
       )
@@ -252,25 +254,24 @@ const App: React.FC = () => {
   // Render
   if (loading) {
     return (
-      <div className='flex justify-center items-center min-h-screen'>
+      <div className='loading-container'>
         <Spin size='large' />
       </div>
     );
   }
-
   // Render
   return (
     <div>
       <Header />
-      <div className='pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA]'>
-        <div className='flex justify-between items-center pt-6 pb-6 xl:pt-8'>
+      <div className='main-container'>
+        <div className='header-container'>
           {/* Left side: back + title */}
-          <div className='flex gap-2 items-center'>
+          <div className='header-left'>
             <ArrowLeftOutlined
               style={{ color: '#007BFF' }}
               onClick={() => router.back()}
             />
-            <h4 className='font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0'>
+            <h4 className='shopping-bag-title'>
               Your Shopping Bag
             </h4>
           </div>
@@ -279,14 +280,14 @@ const App: React.FC = () => {
               type='primary'
               danger
               onClick={() => setDeleteSelectedOpen(true)}
-              className='!py-[6px] !px-[15px] !h-[32px]'
+              className='delete-selected-btn'
             >
               Delete Selected
             </Button>
           )}
         </div>
 
-        <div className='overflow-x-auto'>
+        <div className='table-wrapper'>
           <Table<CartItemType>
             rowSelection={rowSelection}
             columns={columns}
@@ -297,13 +298,13 @@ const App: React.FC = () => {
             rowClassName={() => 'h-12'}
             locale={{
               emptyText: (
-                <div className='flex flex-col justify-center items-center py-10 gap-4'>
-                  <p className='font-inter text-base text-[#495057]'>
+                <div className='empty-cart-container'>
+                  <p className='empty-cart-text'>
                     There are no items in this cart
                   </p>
                   <Button
                     onClick={() => router.push('/')}
-                    className='!bg-white !text-[#007BFF] !border !border-[#007BFF] hover:!bg-[#f0f8ff]'
+                    className='continue-shopping-btn'
                   >
                     Continue Shopping
                   </Button>
@@ -312,36 +313,36 @@ const App: React.FC = () => {
             }}
           />
         </div>
-        <div className='pr-4'>
-          <div className='flex justify-end items-center gap-3 pt-6 pb-[14px]'>
-            <p className='font-inter font-normal text-sm leading-[21px] text-[#212529]'>
+        <div className='summary'>
+          <div className='price-row-subtotal'>
+            <p className='price-label'>
               Sub Total:
             </p>
-            <p className='font-inter font-bold text-sm leading-5 text-center text-[#343A40]'>
+            <p className='price-value'>
               ${subTotal.toFixed(2)}
             </p>
           </div>
-          <div className='flex justify-end items-center gap-3'>
-            <p className='font-inter font-normal text-sm leading-[21px] text-[#212529]'>
+          <div className='price-row-tax'>
+            <p className='price-label'>
               Tax:
             </p>
-            <p className='font-inter font-bold text-sm leading-5 text-center text-[#343A40]'>
+            <p className='price-value'>
               ${tax.toFixed(2)}
             </p>
           </div>
-          <div className='flex justify-end items-center gap-3 pb-6 pt-[14px]'>
-            <p className='font-inter font-normal text-sm leading-[21px] text-[#212529]'>
+          <div className='price-row-total'>
+            <p className='price-label'>
               Total:
             </p>
-            <p className='font-inter font-bold text-sm leading-5 text-center text-[#343A40]'>
+            <p className='price-value'>
               ${total.toFixed(2)}
             </p>
           </div>
-          <div className='flex justify-end items-center pb-[11px] md:pb-[13px] lg:pb-[15px] xl:!pb-[23px]'>
-            <Button className='small:!px-[85px] mobile:!px-[142.5] sm:!px-[50px] !py-[15px] !h-[46px] !bg-[#007BFF]'>
+          <div className='place-order-container'>
+            <Button className='place-order-btn'>
               <div
                 onClick={handlePlaceOrder}
-                className='font-inter font-normal text-xl leading-[30px] tracking-normal text-center align-middle text-white'
+                className='place-order-text'
               >
                 Place Order
               </div>
@@ -355,7 +356,7 @@ const App: React.FC = () => {
           message={
             <>
               Are You Sure You Want To Delete{' '}
-              <span className='text-red-500'>
+              <span className='remove-product-span'>
                 &quot;{deleteTarget.title}&quot;
               </span>
               !

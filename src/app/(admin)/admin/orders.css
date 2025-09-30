@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans); */
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;     
+  --breakpoint-desktop: 1366px;
+}
+/* orders.css */
+
+/* Parent wrapper */
+.orders-wrapper {
+  @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F9FAFB] min-h-screen pt-6;
+}
+
+/* Stats Cards Grid */
+.orders-stats-grid {
+  @apply grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6;
+}
+
+/* Card */
+.orders-card {
+  @apply !p-4 !rounded-xl !shadow-md;
+}
+
+/* Card Inner Layout */
+.orders-card-inner {
+  @apply flex justify-between;
+}
+
+.orders-card-text {
+  @apply space-y-[6px];
+}
+
+.orders-card-title {
+  @apply font-inter font-medium text-sm leading-none tracking-normal text-[#0A0A0A];
+}
+
+.orders-card-value {
+  @apply font-inter font-bold text-xl leading-none tracking-normal text-[#007BFF];
+}
+
+.orders-card-icon {
+  @apply flex items-center gap-5;
+}
+
+/* Orders Header Section */
+.orders-header {
+  @apply flex small:flex-col small:pt-5 small:pb-3 small:gap-y-2 mobile:flex-col 
+         mobile:pt-6 mobile:pb-4 mobile:gap-y-3 tablet:flex-row tablet:justify-between 
+         tablet:items-center tablet:pt-8 tablet:pb-6;
+}
+
+.orders-header-title {
+  @apply font-inter font-medium text-2xl leading-[28.8px] text-[#007BFF] !mb-0;
+}
+
+.orders-search {
+  @apply flex items-center gap-6;
+}
+
+.orders-search-inner {
+  @apply [&_.ant-btn]:!bg-[#E2E8F0]
+        [&_.ant-btn-icon]:!text-gray-600;
+}
+
+.orders-search-input {
+  @apply mobile:!w-[234px] tablet:!w-[350px] [&_.ant-input-affix-wrapper]:!h-[36px] 
+         [&_.ant-input-search-button]:!h-[36px] rounded-lg;
+}
+
+/* Ant Table Custom */
+.orders-table {
+  @apply [&_.ant-table-cell]:!py-2 [&_.ant-table-thead_.ant-table-cell]:!text-[#535E63];
+}

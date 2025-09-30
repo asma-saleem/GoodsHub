@@ -6,14 +6,9 @@ import { Button, Form, Input, Card } from 'antd';
 import { toast } from 'react-toastify';
 
 import AuthLayout from '../auth-layout';
+import {FieldType} from '@/types/form';
 
-type FieldType = {
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  fullName?: string;
-  mobile?: string;
-};
+import '../auth.css';
 
 const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
   console.log('Signup Success:', values);
@@ -56,11 +51,11 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
 export default function SignupPage() {
   return (
     <AuthLayout>
-      <div className='flex flex-col items-center justify-center min-h-screen !space-y-8'>
-        <h2 className='font-inter font-medium text-[32px] leading-[38px] text-[#007BFF]'>
+      <div className='auth-container'>
+        <h2 className='auth-title'>
           SignUp
         </h2>
-        <Card className='[&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px]'>
+        <Card className='auth-card'>
           <Form
             name='signup'
             layout='vertical'
@@ -79,7 +74,7 @@ export default function SignupPage() {
             >
               <Input
                 placeholder='Fullname'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -97,7 +92,7 @@ export default function SignupPage() {
             >
               <Input
                 placeholder='email address'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -116,7 +111,7 @@ export default function SignupPage() {
             >
               <Input
                 placeholder='mobile number'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -136,7 +131,7 @@ export default function SignupPage() {
             >
               <Input.Password
                 placeholder='Password'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -160,7 +155,7 @@ export default function SignupPage() {
             >
               <Input.Password
                 placeholder='Password'
-                className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
+                className='auth-input'
               />
             </Form.Item>
 
@@ -169,16 +164,16 @@ export default function SignupPage() {
               <Button
                 type='primary'
                 htmlType='submit'
-                className='mobile:!w-[364px] tablet:!w-[544px] !h-[36px] !px-2 font-inter font-normal text-base leading-6 tracking-normal text-center align-middle'
+                className='auth-button'
               >
                 SignUp
               </Button>
             </Form.Item>
-            <p className='font-inter font-normal text-sm leading-[21px] text-[#5A5F7D] !mb-0 text-center'>
+            <p className='auth-text-spaced'>
               Already have an account!{' '}
               <a
                 href='/auth/login'
-                className='text-[#3C76FF] hover:underline font-inter font-normal text-sm leading-[21px] tracking-normal'
+                className='auth-link'
               >
                 Login
               </a>

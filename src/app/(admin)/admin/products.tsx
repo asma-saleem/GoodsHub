@@ -3,9 +3,13 @@
 // import React, { useState, useEffect } from 'react';
 // import { Table, Avatar, Space, Spin, Button } from 'antd';
 // import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+// import type { UploadFile } from 'antd/es/upload/interface';
+
 // import { ProductType } from '@/types/product';
-// // import { useRouter } from 'next/navigation';
-// import AddProductModal from '@/components/add_product';
+// import ProductModal, { ProductFormValues } from '@/components/product-modal';
+// import UploadProductsModal from '@/components/upload-product';
+// import RemoveProductModal from '@/components/delete-product';
+
 
 // const ProductsContent: React.FC = () => {
 //   const [products, setProducts] = useState<ProductType[]>([]);
@@ -13,8 +17,18 @@
 //   const [page, setPage] = useState(1);
 //   const [pageSize, setPageSize] = useState(12);
 //   const [total, setTotal] = useState(0);
-//   // const router = useRouter();
+//   const [openUploadModal, setOpenUploadModal] = useState(false);
+
 //   const [openModal, setOpenModal] = useState(false);
+//   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+//   const [editData, setEditData] = useState<ProductFormValues | undefined>(
+//     undefined
+//   );
+
+//   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+//   const [productToDelete, setProductToDelete] = useState<ProductType | null>(
+//     null
+//   );
 
 //   const fetchProducts = async (pageNum: number, limit: number) => {
 //     setLoading(true);
@@ -24,7 +38,7 @@
 //       setProducts(data.products);
 //       setTotal(data.total);
 //     } catch (err) {
-//       console.error('❌ Failed to fetch products:', err);
+//       console.error('Failed to fetch products:', err);
 //     }
 //     setLoading(false);
 //   };
@@ -32,6 +46,35 @@
 //   useEffect(() => {
 //     fetchProducts(page, pageSize);
 //   }, [page, pageSize]);
+
+//   const handleSubmit = (values: ProductFormValues) => {
+//     if (modalMode === 'add') {
+//       console.log('Add Product:', values);
+//     } else {
+//       console.log('Update Product:', values);
+//     }
+//   };
+//   const handleUpload = (files: UploadFile[]) => {
+//     console.log('👉 Upload Multiple Products:', files);
+//   };
+//   const handleDeleteConfirm = async () => {
+//     if (!productToDelete) return;
+
+//     try {
+//       console.log('Delete Product:', productToDelete.id);
+//       await fetch(`/api/products/${productToDelete.id}`, {
+//         method: 'DELETE'
+//       });
+
+//       // refresh list
+//       fetchProducts(page, pageSize);
+//     } catch (err) {
+//       console.error('Failed to delete product:', err);
+//     } finally {
+//       setOpenDeleteModal(false);
+//       setProductToDelete(null);
+//     }
+//   };
 
 //   const columns = [
 //     {
@@ -41,7 +84,9 @@
 //       render: (text: string, record: ProductType) => (
 //         <Space>
 //           <Avatar shape='square' size={24} src={record.image} />
-//           <span className='font-inter font-normal text-[12px] leading-[100%]'>{text}</span>
+//           <span className='font-inter font-normal text-[12px] leading-[100%]'>
+//             {text}
+//           </span>
 //         </Space>
 //       )
 //     },
@@ -59,50 +104,77 @@
 //     {
 //       title: 'Actions',
 //       key: 'actions',
-//       render: () => (
+//       render: (_: unknown, record: ProductType) => (
 //         <Space>
-//           <Button type='text' icon={<EditOutlined />} />
-//           <Button danger type='text' icon={<DeleteOutlined />} />
+//           <Button
+//             type='text'
+//             icon={<EditOutlined />}
+//             onClick={() => {
+//               setModalMode('edit');
+//               setEditData({
+//                 id:record.id,
+//                 name: record.title,
+//                 price: String(record.price),
+//                 quantity: String(record.stock),
+//                 image: record.image
+//               });
+//               setOpenModal(true);
+//             }}
+//           />
+//           <Button
+//             danger
+//             type="text"
+//             icon={<DeleteOutlined />}
+//             onClick={() => {
+//               setProductToDelete(record);
+//               setOpenDeleteModal(true);
+//             }}
+//           />
 //         </Space>
 //       )
 //     }
 //   ];
+//    if (loading) {
+//       return (
+//         <div className="flex justify-center items-center min-h-screen">
+//           <Spin size="large" />
+//         </div>
+//       );
+//     }
 
 //   return (
 //     <>
-//       <div className='flex small:flex-col small:pt-5 small:pb-3 small:gap-y-2 mobile:flex-col mobile:pt-6 mobile:pb-4 mobile:gap-y-3 tablet:flex-row tablet:justify-between tablet:items-center tablet:pt-8 tablet:pb-6'>
-//         <h4 className='font-inter font-medium text-2xl leading-[28.8px] text-[#007BFF] !mb-0'>
+//       <div className='flex justify-between items-center pt-6 pb-4'>
+//         <h4 className='font-inter font-medium text-2xl text-[#007BFF] !mb-0'>
 //           Products
 //         </h4>
 //         <div className='flex items-center gap-6'>
-//           {/* <Button onClick={() => {router.push('admin_dashboard/add_product');}} className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white font-inter font-normal text-base leading-6 tracking-normal text-center align-middle'>
-//             + Add a single Product
-//           </Button> */}
-//            <Button
-//             onClick={() => setOpenModal(true)}
-//             className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white font-inter font-normal text-base leading-6 tracking-normal text-center align-middle'
+//           <Button
+//             onClick={() => {
+//               setModalMode('add');
+//               setEditData(undefined);
+//               setOpenModal(true);
+//             }}
+//             className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white'
 //           >
 //             + Add a single Product
 //           </Button>
-//           <Button className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white font-inter font-normal text-base leading-6 tracking-normal text-center align-middle'>
+//           <Button
+//             onClick={() => setOpenUploadModal(true)}
+//             className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white'
+//           >
 //             + Add Multiple Products
 //           </Button>
 //         </div>
 //       </div>
-
-//       {loading ? (
-//         <div className='flex justify-center'>
-//           <Spin size='large' />
-//         </div>
-//       ) : (
 //         <Table
 //           dataSource={products}
 //           columns={columns}
 //           rowKey='id'
 //           pagination={{
 //             current: page,
-//             pageSize: pageSize,
-//             total: total,
+//             pageSize,
+//             total,
 //             onChange: (p, ps) => {
 //               setPage(p);
 //               setPageSize(ps);
@@ -110,11 +182,37 @@
 //           }}
 //           className='[&_.ant-table-cell]:!py-2 [&_.ant-table-thead_.ant-table-cell]:!text-[#535E63]'
 //         />
-//       )}
+
 //       {openModal && (
-//         <AddProductModal
+//         <ProductModal
 //           open={openModal}
 //           setOpen={setOpenModal}
+//           mode={modalMode}
+//           initialValues={editData}
+//           onSubmit={handleSubmit}
+//         />
+//       )}
+//       {openUploadModal && (
+//         <UploadProductsModal
+//           open={openUploadModal}
+//           setOpen={setOpenUploadModal}
+//           onUpload={handleUpload}
+//         />
+//       )}
+//       {openDeleteModal && productToDelete && (
+//         <RemoveProductModal
+//           onConfirm={handleDeleteConfirm}
+//           onCancel={() => setOpenDeleteModal(false)}
+//           title="Remove Product"
+//           message={
+//             <>
+//               Are You Sure You Want To Delete{' '}
+//               <span className='text-red-500'>
+//                 &quot;{productToDelete.title}&quot;
+//               </span>
+//               !
+//             </>
+//           }
 //         />
 //       )}
 //     </>
@@ -122,76 +220,94 @@
 // };
 
 // export default ProductsContent;
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Table, Avatar, Space, Spin, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Avatar, Space, Spin, Button, Input, Select } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { ProductType } from '@/types/product';
-import ProductModal, { ProductFormValues } from '@/components/product_modal';
-import UploadProductsModal from '@/components/upload_product';
 import type { UploadFile } from 'antd/es/upload/interface';
-import RemoveProductModal from '@/components/delete-product';
+
+import { ProductType } from '@/types/product';
+import ProductModal, { ProductFormValues } from '@/components/product-modal/product-modal';
+import UploadProductsModal from '@/components/upload-product';
+import RemoveProductModal from '@/components/delete-product/delete-product';
+
+import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
+import {
+  fetchProducts,
+  setSearchAndSort,
+  setPage
+} from '@/redux/store/slices/product-slice';
+
+import './product.css';
 
 const ProductsContent: React.FC = () => {
-  const [products, setProducts] = useState<ProductType[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
-  const [total, setTotal] = useState(0);
+  const dispatch = useAppDispatch();
+  const { products, loading, total, page, searchTerm, sortBy } = useAppSelector(
+    (state) => state.products
+  );
+  
+  // const [pageSize, setPageSize] = useState(12);
   const [openUploadModal, setOpenUploadModal] = useState(false);
-
   const [openModal, setOpenModal] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editData, setEditData] = useState<ProductFormValues | undefined>(
     undefined
   );
-
-   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<ProductType | null>(
     null
   );
 
-  const fetchProducts = async (pageNum: number, limit: number) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/products?page=${pageNum}&limit=${limit}`);
-      const data = await res.json();
-      setProducts(data.products);
-      setTotal(data.total);
-    } catch (err) {
-      console.error('❌ Failed to fetch products:', err);
-    }
-    setLoading(false);
+  // New local state
+const [localSearch, setLocalSearch] = useState(searchTerm);
+const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
+
+// Debounce effect
+useEffect(() => {
+  const handler = setTimeout(() => {
+    setDebouncedTerm(localSearch);
+  }, 500);
+
+  return () => {
+    clearTimeout(handler);
   };
+}, [localSearch]);
+
+// Run dispatch when debouncedTerm changes
+useEffect(() => {
+  dispatch(setSearchAndSort({ searchTerm: debouncedTerm, sortBy }));
+}, [debouncedTerm, sortBy, dispatch]);
+
+
 
   useEffect(() => {
-    fetchProducts(page, pageSize);
-  }, [page, pageSize]);
+    dispatch(fetchProducts({ page, query: searchTerm, sortBy, limit:12 }));
+  }, [dispatch, page, searchTerm, sortBy]);
 
   const handleSubmit = (values: ProductFormValues) => {
     if (modalMode === 'add') {
-      console.log('👉 Add Product:', values);
+      console.log('Add Product:', values);
     } else {
-      console.log('👉 Update Product:', values);
+      console.log('Update Product:', values);
     }
   };
+
   const handleUpload = (files: UploadFile[]) => {
     console.log('👉 Upload Multiple Products:', files);
   };
+
   const handleDeleteConfirm = async () => {
     if (!productToDelete) return;
-
     try {
-      console.log('👉 Delete Product:', productToDelete.id);
+      console.log('Delete Product:', productToDelete.id);
       await fetch(`/api/products/${productToDelete.id}`, {
         method: 'DELETE'
       });
-
-      // refresh list
-      fetchProducts(page, pageSize);
+      dispatch(fetchProducts({ page: 1, query: searchTerm, sortBy, limit:12 }));
     } catch (err) {
-      console.error('❌ Failed to delete product:', err);
+      console.error('Failed to delete product:', err);
     } finally {
       setOpenDeleteModal(false);
       setProductToDelete(null);
@@ -205,8 +321,8 @@ const ProductsContent: React.FC = () => {
       key: 'title',
       render: (text: string, record: ProductType) => (
         <Space>
-          <Avatar shape='square' size={24} src={record.image} />
-          <span className='font-inter font-normal text-[12px] leading-[100%]'>
+          <Avatar shape="square" size={24} src={record.image} />
+          <span className="product-title">
             {text}
           </span>
         </Space>
@@ -229,12 +345,12 @@ const ProductsContent: React.FC = () => {
       render: (_: unknown, record: ProductType) => (
         <Space>
           <Button
-            type='text'
+            type="text"
             icon={<EditOutlined />}
             onClick={() => {
               setModalMode('edit');
               setEditData({
-                id:record.id,
+                id: record.id,
                 name: record.title,
                 price: String(record.price),
                 quantity: String(record.stock),
@@ -259,52 +375,88 @@ const ProductsContent: React.FC = () => {
 
   return (
     <>
-      <div className='flex justify-between items-center pt-6 pb-4'>
-        <h4 className='font-inter font-medium text-2xl text-[#007BFF] !mb-0'>
-          Products
-        </h4>
-        <div className='flex items-center gap-6'>
-          <Button
-            onClick={() => {
-              setModalMode('add');
-              setEditData(undefined);
-              setOpenModal(true);
-            }}
-            className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white'
-          >
-            + Add a single Product
-          </Button>
-          <Button
-            onClick={() => setOpenUploadModal(true)}
-            className='!w-[203px] !h-[36px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white'
-          >
-            + Add Multiple Products
-          </Button>
+      <div className="products-wrapper">
+        {/* Header */}
+        <div className="products-header">
+          <h4 className="products-heading">
+            Products
+          </h4>
+          <div className="products-actions">
+            <Button
+              onClick={() => {
+                setModalMode('add');
+                setEditData(undefined);
+                setOpenModal(true);
+              }}
+              className="btn-outline"
+            >
+              + Add a single Product
+            </Button>
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              className="btn-outline"
+            >
+              + Add Multiple Products
+            </Button>
+          </div>
+        </div>
+
+        {/* 🔍 Search + Sort */}
+        <div className="search-sort-wrapper">
+          <div className='search-container'>
+          <Input.Search
+            placeholder="Search by title"
+            className="search-input"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            onSearch={(value) => setDebouncedTerm(value)}
+            allowClear
+          />
+          </div>
+          <Select
+            showSearch
+            style={{ width: 200 }}
+            className="dashboard-select"
+            placeholder="Sort by:"
+            optionFilterProp="label"
+            value={sortBy || 'createdAt_desc'}
+            onChange={(value) =>
+              dispatch(setSearchAndSort({ searchTerm, sortBy: value }))
+            }
+            options={[
+              { value: 'createdAt_desc', label: 'Newest' },
+              { value: 'price_asc', label: 'Price: Low to High' },
+              { value: 'price_desc', label: 'Price: High to Low' },
+              { value: 'title_asc', label: 'Title: A-Z' },
+              { value: 'title_desc', label: 'Title: Z-A' }
+            ]}
+          />
         </div>
       </div>
 
+      {/* Table */}
       {loading ? (
-        <div className='flex justify-center'>
-          <Spin size='large' />
+        <div className="loading-container">
+          <Spin size="large" />
         </div>
       ) : (
         <Table
           dataSource={products}
           columns={columns}
-          rowKey='id'
+          rowKey="id"
           pagination={{
             current: page,
-            pageSize,
+            pageSize: 12,
             total,
-            onChange: (p, ps) => {
-              setPage(p);
-              setPageSize(ps);
+            onChange: (p) => {
+              dispatch(setPage(p));
             }
           }}
-          className='[&_.ant-table-cell]:!py-2 [&_.ant-table-thead_.ant-table-cell]:!text-[#535E63]'
+          className="products-table"
         />
       )}
 
+      {/* Modals */}
       {openModal && (
         <ProductModal
           open={openModal}
@@ -326,7 +478,15 @@ const ProductsContent: React.FC = () => {
           onConfirm={handleDeleteConfirm}
           onCancel={() => setOpenDeleteModal(false)}
           title="Remove Product"
-          message={`Are You Sure You Want To Delete "${productToDelete.title}"?`}
+          message={
+            <>
+              Are You Sure You Want To Delete{' '}
+              <span className="text-red-500">
+                &quot;{productToDelete.title}&quot;
+              </span>
+              !
+            </>
+          }
         />
       )}
     </>
@@ -334,3 +494,4 @@ const ProductsContent: React.FC = () => {
 };
 
 export default ProductsContent;
+

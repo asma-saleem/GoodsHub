@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
-import {findUserByEmail} from '@/services/userService';
 import jwt from 'jsonwebtoken';
+
+import {findUserByEmail} from '@/services/user';
 
 export async function POST(req: Request) {
   try {

@@ -1,0 +1,39 @@
+@import "tailwindcss";
+/* :root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+} */
+
+@theme inline {
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground); */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-desktop: 1366px;
+}
+/* admin-layout.css */
+
+.sidebar-title {
+  @apply font-inter font-bold text-[16px] leading-6 pt-3 pb-6 pl-5;
+}
+
+.sidebar-buttons {
+  @apply flex flex-col items-center gap-4;
+}
+
+.sidebar-button {
+  @apply !w-[217px] !h-[48px] font-inter !text-[16px];
+}
+
+.logout-button {
+  @apply !pl-0 font-inter !font-semibold text-[14px] !text-[#EF1014];
+}
+
+.header-username {
+  @apply font-inter font-medium text-[12px] text-[#007BFF];
+}

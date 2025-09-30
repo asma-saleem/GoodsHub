@@ -1,8 +1,8 @@
 @import "tailwindcss";
-:root {
+/* :root {
   --background:#F8F9FA;
   --foreground: #171717;
-}
+} */
 
 @theme inline {
   --color-background: var(--background);
@@ -13,11 +13,11 @@
   --breakpoint-small: 320px;
   --breakpoint-mobile: 428px;
   --breakpoint-tablet: 1080px;
-  --breakpoint-xl: 1280px;      /* override default xl */
+  --breakpoint-xl: 1280px;
   --breakpoint-desktop: 1366px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #ffffff;
     --foreground: #ededed;
@@ -28,7 +28,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
 
 .my-custom-btn {
   @apply bg-pink-500 text-white font-bold hover:bg-pink-600 border-none rounded-lg;
@@ -42,9 +42,9 @@ body {
   padding: 0 !important;
 }
 
- .ant-form-item .ant-row .ant-col > label {
-    @apply font-inter font-normal text-[16px] leading-6 text-[#212529] mobile:w-[364px] tablet:w-[544px];
-  }
+.ant-form-item .ant-row .ant-col > label {
+  @apply font-inter font-normal text-[16px] leading-6 text-[#212529] mobile:w-[364px] tablet:w-[544px];
+}
 
  /* .ant-form-item-control-input .ant-form-item-control-input-content > input {
   @apply mobile:w-[364px] tablet:w-[544px];

@@ -2,7 +2,8 @@
 import { NextResponse } from 'next/server';
 import Joi from 'joi';
 import { hashPassword } from '@/utils/hash';
-import { createUser, findUserByEmail } from '@/services/userService';
+
+import { createUser, findUserByEmail } from '@/services/user';
 
 // ✅ Joi schema for validation
 const signupSchema = Joi.object({

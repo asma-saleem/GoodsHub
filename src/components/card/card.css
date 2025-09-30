@@ -1,0 +1,94 @@
+@import "tailwindcss";
+:root {
+  --background:#F8F9FA;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter:var(--font-inter), ui-sans-serif, system-ui;
+  --breakpoint-small: 320px;
+  --breakpoint-mobile: 428px;
+  --breakpoint-tablet: 1080px;
+  --breakpoint-xl: 1280px;     
+  --breakpoint-desktop: 1366px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.card-container {
+  @apply w-full rounded-md border border-[#DFDFDF] bg-white shadow-sm small:!px-2 mobile:!px-3 tablet:!px-4;
+}
+
+.product-image {
+  @apply object-contain block small:pt-2 mobile:pt-3 tablet:pt-4;
+}
+
+.title-price-container{
+  @apply small:pt-2 mobile:pt-3 tablet:pt-4 flex flex-col gap-y-2;
+}
+
+.product-title {
+  @apply font-inter font-medium text-[14px] leading-[19.2px] !mb-0;
+}
+
+.price-container {
+  @apply flex justify-start;
+}
+
+.price-label {
+  @apply font-inter font-bold text-[14px] leading-5 text-[#868E96] py-1.25 !mb-0;
+}
+
+.price-value {
+  @apply font-inter font-normal text-[20px] leading-[30px] text-center text-[#007BFF] !mb-0;
+}
+
+.quantity-container {
+  @apply flex justify-between pt-[35px] pb-4;
+}
+
+.quantity-subcontainer {
+   @apply flex items-center justify-center gap-[4px];
+}
+
+.quantity-btn {
+  @apply !text-[#007BFF] !p-0 small:!w-4 small:!h-4 mobile:!w-6 mobile:!h-6 desktop:!w-9 desktop:!h-9 !text-2xl;
+}
+
+.quantity-input {
+  @apply !p-0 text-center border border-[#DFDFDF] rounded small:!w-6 small:!h-4 mobile:!w-[29px] mobile:!h-6 
+         tablet:!w-[30px] desktop:!w-11 desktop:!h-9 [&::-webkit-inner-spin-button]:appearance-none 
+         [&::-webkit-outer-spin-button]:appearance-none 
+         [appearance:textfield];
+}
+
+.add-to-cart-btn {
+  @apply !p-0 !w-[74px] !h-[24px] small:!w-[60px] small:!h-6 mobile:!w-[74px] mobile:!h-[24px] tablet:!w-[101px] 
+         tablet:!h-9 desktop:!w-[112px] small:!px-[2px] small:!py-[3px] mobile:!px-3 mobile:!py-[6px] font-inter 
+         font-normal small:!text-[9px] mobile:!text-[12px] tablet:!text-base leading-6 text-center align-middle 
+         rounded !shadow-none !border-none
+}
+
+
+.btn-enabled {
+  @apply !bg-[#007BFF] !text-white;
+}
+
+.btn-disabled {
+  @apply !bg-gray-300 !text-white cursor-not-allowed;
+}
