@@ -1,11 +1,11 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Input, Select } from 'antd';
-// import './globals.css';
+import { Select, Input } from 'antd';
 
 import ProductGrid from '@/components/grid/grid';
 import Header from '@/components/header/header';
 import './page.css';
+
 export default function Page() {
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,7 +15,7 @@ export default function Page() {
   useEffect(() => {
   const timer = setTimeout(() => {
     setDebouncedTerm(searchTerm); 
-  }, 500);
+  }, 700);
 
   return () => clearTimeout(timer);
 }, [searchTerm]);

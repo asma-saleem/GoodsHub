@@ -39,69 +39,6 @@ const OrdersContent: React.FC = () => {
         fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
       );
     }, [dispatch, currentPage, debouncedTerm]);
-//   const [orders, setOrders] = useState<OrderType[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [total, setTotal] = useState(0);
-//   const [currentPage, setCurrentPage] = useState(1);
-  
-
-//   const [totalOrders, setTotalOrders] = useState(0);
-//   const [totalUnits, setTotalUnits] = useState(0);
-//   const [totalAmount, setTotalAmount] = useState(0);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [debouncedTerm, setDebouncedTerm] = useState('');
-//   useEffect(() => {
-//   const timer = setTimeout(() => {
-//     setDebouncedTerm(searchTerm);
-//     setCurrentPage(1); 
-//   }, 500);
-//   return () => clearTimeout(timer);
-// }, [searchTerm]);
-//   const fetchOrders = async (page = 1, pageSize = 12, query = '') => {
-//     try {
-//       setLoading(true);
-//       const res = await fetch(`/api/orders?page=${page}&pageSize=${pageSize}&q=${query}`);
-//       const json = await res.json();
-
-//       if (!res.ok) throw new Error(json.error || 'Failed to fetch orders');
-//       // console.log(JSON.stringify(json));
-
-//       const mappedOrders: OrderType[] = (json.orders || []).map((order: OrderType, index: number) => ({
-//         id: order.id,
-//         key: index,
-//         date: new Date(order.createdAt).toLocaleDateString(),
-//         orderNo: order.id,
-//         user: order.userId || 0,
-//         userId: order.userId || 0,
-//         products: order.items?.reduce((sum, item) => sum + (item.qty ?? 0), 0) || 0,
-//         amount: order.total || 0,
-//         createdAt: order.createdAt,
-//         total: order.total || 0,
-//         items: (order.items || []).map((item, i: number): OrderItemType => ({
-//           key: i,
-//           product: item.product,
-//           image: item.image || '',
-//           qty: item.qty,
-//           price: item.price
-//         }))
-//       }));
-
-//       setOrders(mappedOrders);
-//       setTotal(json.total || 0);
-//        // 👉 calculate summary
-//       setTotalOrders(json.total || mappedOrders.length);
-//       setTotalUnits(json.totalUnits||mappedOrders.reduce((sum, o) => sum + o.products, 0));
-//       setTotalAmount(json.totalAmount||mappedOrders.reduce((sum, o) => sum + (o.amount ?? 0), 0));
-//     } catch (err) {
-//       console.error(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchOrders(currentPage,12,debouncedTerm);
-//   }, [currentPage,debouncedTerm]);
 
   const columns = [
     { title: 'Date', 
@@ -233,6 +170,7 @@ const OrdersContent: React.FC = () => {
           total,
           onChange: (page) => dispatch(setPage(page))
         }}
+        bordered
         className="orders-table"
       />
     </div>

@@ -86,10 +86,6 @@ const handleFinish = async (values: ProductFormValues) => {
   onSubmit({ ...values, image: imageUrl });
   setOpen(false);
 };
-
-
-
-
   return (
     <Modal
       title={mode === 'add' ? 'Add a Single Product' : 'Edit Product'}

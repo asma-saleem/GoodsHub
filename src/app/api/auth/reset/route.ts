@@ -1,11 +1,9 @@
-
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import Joi from 'joi';
 
-// Joi schema
 const schema = Joi.object({
   token: Joi.string().required().messages({
     'string.empty': 'Reset token is required'
@@ -17,15 +15,14 @@ const schema = Joi.object({
     .messages({
       'string.empty': 'Password is required',
       'string.min': 'Password must be at least 8 characters',
-      'string.pattern.base': 'Password must contain uppercase, lowercase, number and special character'
+      'string.pattern.base':
+        'Password must contain uppercase, lowercase, number and special character'
     })
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    // ✅ Validate request body
     const { error, value } = schema.validate(body, { abortEarly: false });
     if (error) {
       return NextResponse.json(
@@ -35,24 +32,53 @@ export async function POST(req: Request) {
     }
 
     const { token, password } = value;
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        return NextResponse.json({ error: 'Token expired' }, { status: 401 });
+      }
+      if (err instanceof JsonWebTokenError) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
+      }
 
-    // 🔑 Verify JWT
-    const decoded = jwt.verify(token, process.env.EMAIL_PASS!) as { email: string };
+      return NextResponse.json(
+        { error: 'Something went wrong' },
+        { status: 500 }
+      );
+    }
+    const user = await prisma.user.findFirst({
+      where: {
+        email: decoded.email,
+        resetToken: token,
+        resetTokenExpiry: { gt: new Date() }
+      }
+    });
 
-    if (!decoded?.email) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Reset link has already been used or expired' },
+        { status: 400 }
+      );
     }
 
-    // 🔒 Hash and update password
     const hashedPassword = await bcrypt.hash(password, 10);
     await prisma.user.update({
       where: { email: decoded.email },
-      data: { password: hashedPassword }
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null
+      }
     });
 
     return NextResponse.json({ message: 'Password updated successfully' });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Unexpected server error' },
+      { status: 400 }
+    );
   }
 }

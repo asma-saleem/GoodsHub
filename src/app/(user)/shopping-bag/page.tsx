@@ -1,26 +1,27 @@
 'use client';
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { Table } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { toast } from 'react-toastify';
-import { Spin } from 'antd';
 
-import './page.css';
+import { Button, Input, Spin, Table } from 'antd';
+import type { TableColumnsType, TableProps } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { toast } from 'react-toastify';
 
 import Header from '@/components/header/header';
 import RemoveProductModal from '@/components/delete-product/delete-product';
 import { CartItemType } from '@/types/cart';
+import { formatPrice } from '@/lib/utils';
+
+import './page.css';
+import { Product } from '@prisma/client';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
 
-const App: React.FC = () => {
-  // Hooks (state & session)
+const ShoppingBagPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CartItemType | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [dataSource, setDataSource] = useState<CartItemType[]>([]);
@@ -31,17 +32,53 @@ const App: React.FC = () => {
   const { data: session } = useSession();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const storedCart = localStorage.getItem('cart');
-      if (storedCart) {
-        const parsed = JSON.parse(storedCart);
-        setDataSource(parsed);
-      }
-      setLoading(false);
-    }, 500);
+  if (!session?.user?.id) return;
 
-    return () => clearTimeout(timer);
-  }, []);
+  const timer = setTimeout(() => {
+    const storageKey = `cart_${session.user.id}`;
+    const storedCart = localStorage.getItem(storageKey);
+
+    if (!storedCart) {
+      setLoading(false);
+      return;
+    }
+
+    const parsed = JSON.parse(storedCart);
+    const ids = parsed.map((item: Product) => item.id);
+
+    fetch('/api/products', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    })
+      .then((res) => res.json())
+      .then((latestStock) => {
+        const updatedCart = parsed.map((item: CartItemType) => {
+          const latest = latestStock.find((p: Product) => p.id === item.id);
+          if (!latest) return item;
+
+          if (item.qty > latest.stock) {
+            toast.info(
+              `${item.title} stock reduced to ${latest.stock}. Quantity adjusted automatically.`
+            );
+            return { ...item, qty: latest.stock, stock: latest.stock };
+          }
+
+          return { ...item, stock: latest.stock };
+        });
+
+        setDataSource(updatedCart);
+        localStorage.setItem(storageKey, JSON.stringify(updatedCart));
+        setLoading(false);
+      })
+      .catch(() => {
+        setDataSource(parsed);
+        setLoading(false);
+      });
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [session]);
 
   const updateQty = (key: number, type: 'inc' | 'dec') => {
     let shouldShowToast = false;
@@ -61,7 +98,7 @@ const App: React.FC = () => {
         }
       });
 
-      localStorage.setItem('cart', JSON.stringify(updated));
+      localStorage.setItem(`cart_${session?.user.id}`, JSON.stringify(updated));
       setTimeout(() => {
       window.dispatchEvent(new Event('cartUpdated'));
     }, 0);
@@ -75,7 +112,7 @@ const App: React.FC = () => {
   const handleDelete = (key: number) => {
     setDataSource((prev) => {
       const updated = prev.filter((item) => item.key !== key);
-      localStorage.setItem('cart', JSON.stringify(updated));
+      localStorage.setItem(`cart_${session?.user.id}`, JSON.stringify(updated));
       setTimeout(() => {
       window.dispatchEvent(new Event('cartUpdated'));
     }, 0);
@@ -85,14 +122,14 @@ const App: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (!session?.user?.id) {
+    router.push('/auth/login');
+    return;
+  }
+  const storageKey = `cart_${session.user.id}`;
+  const cart = JSON.parse(localStorage.getItem(storageKey) || '[]');
     if (!cart || cart.length === 0) {
       toast.error('Your cart is empty!');
-      return;
-    }
-
-    if (!session?.user?.email) {
-      router.push('/auth/login');
       return;
     }
 
@@ -111,7 +148,7 @@ const App: React.FC = () => {
         return;
       }
 
-      localStorage.removeItem('cart');
+      localStorage.removeItem(storageKey);
       toast.success('Order placed successfully!');
       router.push('/orders');
     } catch (error) {
@@ -130,34 +167,37 @@ const App: React.FC = () => {
       const updated = prev.filter(
         (item) => !selectedRowKeys.includes(item.key)
       );
-      localStorage.setItem('cart', JSON.stringify(updated));
+      localStorage.setItem(`cart_${session?.user.id}`, JSON.stringify(updated));
       setTimeout(() => {
       window.dispatchEvent(new Event('cartUpdated'));
     }, 0);
       return updated;
     });
 
-    setSelectedRowKeys([]); // reset selection
+    setSelectedRowKeys([]); 
     toast.success('Selected products removed!');
   };
 
-  // Computed values
   const { subTotal, tax, total } = useMemo(() => {
     const subTotal = dataSource.reduce(
       (sum, item) => sum + item.qty * item.price,
       0
     );
-    const tax = subTotal * 0.1; // 10% tax
+    const tax = subTotal * 0.1; 
     const total = subTotal + tax;
     return { subTotal, tax, total };
   }, [dataSource]);
 
-  // Table configuration
   const columns: TableColumnsType<CartItemType> = [
     {
       title: 'Product',
       dataIndex: 'product',
       className: 'table-cell',
+       onCell: () => ({
+        style:{
+          minWidth: '200px'
+        }
+      }),
       render: (_, record) => (
         <div className='product-container'>
           <Image
@@ -176,6 +216,11 @@ const App: React.FC = () => {
     {
       title: 'Color',
       dataIndex: 'color',
+       onCell: () => ({
+        style:{
+          minWidth: '200px'
+        }
+      }),
       render: (_, record) => (
         <div className='color-container'>
           <span
@@ -195,40 +240,93 @@ const App: React.FC = () => {
     {
       title: 'Qty',
       dataIndex: 'qty',
+      onCell: () => ({
+        style:{
+          minWidth: '200px'
+        }
+      }),
       render: (qty, record) => (
         <div className='quantity-container'>
-          <button
+          <Button
             className='quantity-btn-decrement'
             style={{ borderColor: '#DFDFDF' }}
+            disabled={qty <= 1}
             onClick={() => updateQty(record.key, 'dec')}
           >
             -
-          </button>
-          <span
+          </Button>
+          {/* <span
             className='quantity-display'
             style={{ borderColor: '#DFDFDF' }}
           >
             {qty.toString().padStart(2, '0')}
-          </span>
+          </span> */}
 
-          <button
+      <Input
+        type="number"
+        min={1}
+        max={record.stock}
+        value={qty}
+        className="quantity-display"
+        onFocus={(e) => e.target.select()}
+        onChange={(e) => {
+          const value = Number(e.target.value);
+          if (value > record.stock) {
+            toast.error(`Only ${record.stock} items in stock!`);
+            return;
+          }
+          if (value >= 1) {
+            setDataSource((prev) => {
+              const updated = prev.map((item) =>
+                item.key === record.key
+                  ? { ...item, qty: value }
+                  : item
+              );
+              localStorage.setItem(
+                `cart_${session?.user.id}`,
+                JSON.stringify(updated)
+              );
+              window.dispatchEvent(new Event('cartUpdated'));
+              return updated;
+            });
+          }
+        }}
+      />
+
+          <Button
             className='quantity-btn-increment'
             style={{ borderColor: '#DFDFDF' }}
+            disabled={qty >= record.stock}
             onClick={() => updateQty(record.key, 'inc')}
           >
             +
-          </button>
+          </Button>
         </div>
       )
     },
     {
-      title: 'Price',
+      title: 'Unit Price',
       dataIndex: 'price',
-      render: (price, record) => `$${(price * record.qty).toFixed(2)}` // show price * qty
+      render: (price) => formatPrice(price)
+    },
+    {
+      title: 'Total Price',
+      dataIndex: 'price',
+       onCell: () => ({
+        style:{
+          minWidth: '200px'
+        }
+      }),
+      render: (price, record) => formatPrice(price * record.qty) 
     },
     {
       title: 'Actions',
       dataIndex: 'actions',
+       onCell: () => ({
+        style:{
+          minWidth: '200px'
+        }
+      }),
       render: (_, record) => (
         <Image
           src='/delete.png'
@@ -251,7 +349,7 @@ const App: React.FC = () => {
     selectedRowKeys,
     onChange: onSelectChange
   };
-  // Render
+
   if (loading) {
     return (
       <div className='loading-container'>
@@ -259,13 +357,12 @@ const App: React.FC = () => {
       </div>
     );
   }
-  // Render
+
   return (
     <div>
       <Header />
       <div className='main-container'>
         <div className='header-container'>
-          {/* Left side: back + title */}
           <div className='header-left'>
             <ArrowLeftOutlined
               style={{ color: '#007BFF' }}
@@ -292,7 +389,7 @@ const App: React.FC = () => {
             rowSelection={rowSelection}
             columns={columns}
             dataSource={dataSource}
-            pagination={{ pageSize: 10 }}
+            pagination={{ pageSize: 8 }}
             scroll={{ x: 1000 }}
             bordered
             rowClassName={() => 'h-12'}
@@ -319,15 +416,15 @@ const App: React.FC = () => {
               Sub Total:
             </p>
             <p className='price-value'>
-              ${subTotal.toFixed(2)}
+              {formatPrice(subTotal)}
             </p>
           </div>
           <div className='price-row-tax'>
             <p className='price-label'>
-              Tax:
+              Tax (10%):
             </p>
             <p className='price-value'>
-              ${tax.toFixed(2)}
+              {formatPrice(tax)}
             </p>
           </div>
           <div className='price-row-total'>
@@ -335,7 +432,7 @@ const App: React.FC = () => {
               Total:
             </p>
             <p className='price-value'>
-              ${total.toFixed(2)}
+              {formatPrice(total)}
             </p>
           </div>
           <div className='place-order-container'>
@@ -357,9 +454,9 @@ const App: React.FC = () => {
             <>
               Are You Sure You Want To Delete{' '}
               <span className='remove-product-span'>
-                &quot;{deleteTarget.title}&quot;
+                {deleteTarget.title}
               </span>
-              !
+              ?
             </>
           }
           onConfirm={() => handleDelete(deleteTarget.key)}
@@ -381,4 +478,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default ShoppingBagPage;

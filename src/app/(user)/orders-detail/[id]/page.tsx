@@ -9,11 +9,11 @@ import Image from 'next/image';
 
 import { OrderItemType } from '@/types/order';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
-import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/order-detail-slice';
+import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/order-slice';
+import { formatPrice } from '@/lib/utils';
 
 import './page.css';
 
-// Table Columns
 const columns: TableColumnsType<OrderItemType> = [
   {
     title: <span className='main-text-color'>Title</span>,
@@ -34,20 +34,35 @@ const columns: TableColumnsType<OrderItemType> = [
     )
   },
   {
-    title: <span className='main-text-color'>Price</span>,
+    title: <span className='main-text-color'>Unit Price</span>,
     render: (_, record) => (
     <span className="main-text-color">
-      ${record.product.price.toFixed(2)}
+      {formatPrice(record.product.price)}
+    </span>)
+  }, 
+  {
+    title: <span className='main-text-color'>Quantity</span>,
+    dataIndex: 'quantity',
+    render: (quantity: number) => (
+    <span className='main-text-color'>
+      {quantity}
+    </span>
+  )
+  },
+  {
+    title: <span className='main-text-color'>Total Price</span>,
+    render: (_, record) => (
+    <span className="main-text-color">
+      {formatPrice(record.product.price * record.quantity)}
     </span>)
   },
   {
-    title: <span className='main-text-color'>Quantity</span>,
-    dataIndex: 'qty',
-    render: (qty: number) => (
-    <span className='main-text-color'>
-      {qty}
-    </span>
-  )
+    title: <span className='main-text-color'>Tax(10%)</span>,
+    dataIndex: 'quantity',
+    render: (_, record) => (
+    <span className="main-text-color">
+      {formatPrice(record.product.price * record.quantity * 0.1)}
+    </span>)
   }
 ];
 
@@ -55,16 +70,17 @@ const columns: TableColumnsType<OrderItemType> = [
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { order, loading } = useAppSelector((state) => state.orderDetail);
+  const { order, loading } = useAppSelector((state) => state.orders);
 
   useEffect(() => {
-    if (params?.id) dispatch(fetchOrderDetail(params.id));
+    if (params?.id) {
+      dispatch(fetchOrderDetail(params.id));
+    };
     return () => {
       dispatch(clearOrder());
     };
   }, [dispatch, params?.id]);
   
-  // Loading & Error States
   if (loading) {
     return (
       <div className='loading-container'>
@@ -79,20 +95,16 @@ const columns: TableColumnsType<OrderItemType> = [
       </div>
     );
   }
-
-  // Data Source for Table
   const dataSource: OrderItemType[] = order.items.map((item,index:number) => ({
     key: index,
     product: item.product,
     image: item.product.image,
-    qty: item.qty,
+    quantity: item.quantity,
     price: item.product.price
   }));
   
-  // Render
   return (
     <div className='order-detail-container'>
-      {/* Header */}
       <div className='order-header'>
         <ArrowLeftOutlined
           style={{ color: '#007BFF' }}
@@ -104,7 +116,6 @@ const columns: TableColumnsType<OrderItemType> = [
         </h4>
       </div>
       <div className='divider-main'></div>
-      {/* Order Summary */}
       <div className='order-summary-grid'>
         <div>
           <p className='summary-label'>Date</p>
@@ -127,7 +138,7 @@ const columns: TableColumnsType<OrderItemType> = [
         <div>
           <p className='summary-label'>Amount</p>
           <p className='summary-value'>
-            ${order.total.toFixed(2)}
+            {formatPrice(order.total)}
           </p>
         </div>
       </div>
@@ -135,7 +146,6 @@ const columns: TableColumnsType<OrderItemType> = [
       <h4 className='product-info-title'>
         Product Information
       </h4>
-      {/* Product Table */}
       <div className='table-container'>
         <Table<OrderItemType>
           columns={columns}

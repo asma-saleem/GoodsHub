@@ -7,10 +7,10 @@ import { prisma } from '@/lib/prisma';
 interface CsvProduct {
   image: string;
   title: string;
-  price: string;  // CSV se string
+  price: string; 
   color: string;
   colorCode: string;
-  stock: string;  // CSV se string
+  stock: string; 
   size: string;
 }
 
@@ -24,22 +24,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'File not found' }, { status: 400 });
     }
 
-    // ✅ read & parse CSV
+    // read & parse CSV
     const csvData = fs.readFileSync(filePath, 'utf-8');
     const records = parse(csvData, {
       columns: true,
       skip_empty_lines: true
     }) as CsvProduct[];
 
-    // ✅ Bulk Insert (faster)
+    // Bulk Insert (faster)
     await prisma.product.createMany({
       data: records.map((record) => ({
         image: record.image,
         title: record.title,
-        price: parseFloat(record.price),    // 👈 number me convert
+        price: parseFloat(record.price),  
         color: record.color,
         colorCode: record.colorCode,
-        stock: parseInt(record.stock, 10),  // 👈 number me convert
+        stock: parseInt(record.stock, 10),  
         size: record.size
       }))
     });
@@ -47,6 +47,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Products uploaded successfully!' });
   } catch (error) {
     console.error('Bulk upload error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 }); // 👈 debug ke liye
+    return NextResponse.json({ error: String(error) }, { status: 500 }); 
   }
 }

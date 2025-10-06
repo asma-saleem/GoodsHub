@@ -5,8 +5,6 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter:var(--font-inter), ui-sans-serif, system-ui;
@@ -17,32 +15,20 @@
   --breakpoint-desktop: 1366px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* orders.css */
-
-/* Loading Spinner */
 .loading-container {
   @apply flex justify-center items-center min-h-screen;
 }
 
-/* Main Container */
 .orders-container {
   @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F9FAFB] min-h-screen;
 }
 
-/* Header Section */
 .orders-header {
   @apply flex items-center gap-2 pt-[30px] pb-6 xl:pt-8;
 }
@@ -55,18 +41,14 @@ body {
   @apply font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] !mb-0;
 }
 
-/* Table Container */
 .table-container {
   @apply overflow-x-auto;
 }
 
-/* Order Number */
 .order-number {
   @apply text-[#000000];
 }
 
-
-/* Pagination Text */
 .pagination-total {
   @apply absolute left-0 font-inter font-normal text-[16px] leading-6 text-[#868E96];
 }

@@ -5,7 +5,6 @@ import { hashPassword } from '@/utils/hash';
 
 import { createUser, findUserByEmail } from '@/services/user';
 
-// ✅ Joi schema for validation
 const signupSchema = Joi.object({
   fullname: Joi.string().min(3).max(50).required().messages({
     'string.empty': 'Full name is required',
@@ -22,7 +21,7 @@ const signupSchema = Joi.object({
     .messages({
       'string.empty': 'Mobile number is required',
       'string.pattern.base':
-        'Enter a valid Pakistani mobile number (e.g. 03001234567 or +923001234567)'
+        'Enter a valid mobile number (e.g. 03001234567 or +923001234567)'
     }),
   password: Joi.string()
     .pattern(
@@ -39,8 +38,6 @@ const signupSchema = Joi.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    // ✅ Joi validation
     const { error, value } = signupSchema.validate(body, { abortEarly: false });
     if (error) {
       return NextResponse.json(
@@ -51,16 +48,13 @@ export async function POST(req: Request) {
 
     const { fullname, email, mobile, password } = value;
 
-    // Check if user already exists
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
     }
 
-    // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Save user via service
     const user = await createUser({
       fullname,
       email,

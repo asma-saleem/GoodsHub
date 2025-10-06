@@ -32,7 +32,18 @@ export default function ResetPasswordPage() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message);
+      // if (!res.ok) throw new Error(data.error || data.message || 'Something went wrong');
+      if (!res.ok) {
+       if (data.error === 'Token expired') {
+          toast.error('This reset link has expired. Please request a new one.');
+          setTimeout(() => {
+            window.location.href = '/auth/forgot';
+          }, 2000);
+       } else {
+        toast.error(data.error || 'Something went wrong!');
+      }
+      return;
+     }
 
       toast.success('Password reset successful! Redirecting to login...');
 
@@ -62,8 +73,9 @@ export default function ResetPasswordPage() {
             <Form.Item<FieldType>
               label='Enter new Password'
               name='password'
+              validateTrigger="onBlur"
               rules={[
-                { required: true, message: 'Please enter a new password' },
+                { required: true, message: 'Enter a valid password' },
                 {
                   pattern:
                     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -73,7 +85,7 @@ export default function ResetPasswordPage() {
               ]}
             >
               <Input.Password
-                placeholder='enter password'
+                placeholder='Enter a new password e.g. Mypass@123'
                 className='auth-input'
               />
             </Form.Item>
@@ -84,7 +96,7 @@ export default function ResetPasswordPage() {
               dependencies={['password']}
               hasFeedback
               rules={[
-                { required: true, message: 'Please confirm your password' },
+                { required: true, message: 'Confirm your password' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('password') === value) {
@@ -96,7 +108,7 @@ export default function ResetPasswordPage() {
               ]}
             >
               <Input.Password
-                placeholder='confirm password'
+                placeholder='Confirm your new password e.g. Mypass@123'
                 className='auth-input'
               />
             </Form.Item>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
-/* :root {
+:root {
   --background:#F8F9FA;
   --foreground: #171717;
-} */
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -17,7 +17,7 @@
   --breakpoint-desktop: 1366px;
 }
 
-/* @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
   :root {
     --background: #ffffff;
     --foreground: #ededed;
@@ -28,7 +28,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-} */
+}
 
 .my-custom-btn {
   @apply bg-pink-500 text-white font-bold hover:bg-pink-600 border-none rounded-lg;

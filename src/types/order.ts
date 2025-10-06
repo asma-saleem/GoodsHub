@@ -3,8 +3,7 @@ export interface OrderItemType {
   key: number;
   product: ProductType;
   image: string;
-  // stock: number;
-  qty: number;
+  quantity: number;
   price: number;
 }
 

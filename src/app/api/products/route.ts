@@ -1,9 +1,6 @@
 import { getProducts } from '@/services/product';
 import { NextResponse } from 'next/server';
-// import { PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-
-// const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   try {
@@ -22,6 +19,30 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ products: [], total: 0, error: 'Failed to fetch products' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const ids = body.ids || [];
+
+    if(!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    const products = await prisma.product.findMany({
+      where: { id: { in: ids }},
+      select: { id: true, stock: true, title: true }
+    });
+    
+    return NextResponse.json(products);
+  } catch(error) {
+    console.error(error);
+    return NextResponse.json(
+      {error: 'Failed to fetch stock'},
+      {status: 500}
+    );
   }
 }
 

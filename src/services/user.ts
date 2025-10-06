@@ -16,3 +16,13 @@ export const findUserByEmail = async (email: string) => {
     where: { email }
   });
 };
+
+export const updateUser = async (email: string, token: string, expiry: Date) => {
+  return prisma.user.update({
+    where: { email },
+    data: {
+      resetToken: token,
+      resetTokenExpiry: expiry
+    }
+  });
+};

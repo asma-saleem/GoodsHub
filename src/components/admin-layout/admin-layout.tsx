@@ -18,7 +18,8 @@ const AdminLayout: React.FC = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {/* Sidebar */}
-      <Sider width={257} style={{ background: '#fff', paddingTop: 20 }}>
+      <Sider width={257} style={{ background: '#fff', paddingTop: 20, height: '100vh', 
+              position: 'sticky', top: 0, overflow: 'hidden', borderRight: '1px solid #eee'}}>
         <p className='sidebar-title'>
           E-commerce
         </p>
@@ -68,7 +69,9 @@ const AdminLayout: React.FC = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             borderBottom: '1px solid #eee',
-            height:'48px'
+            height:'48px',
+            boxShadow: '0px 4px 24px 0px #00000012',
+            zIndex: 1000 
           }}
         >
           <h3 style={{ margin: 0 }}></h3>
@@ -77,7 +80,7 @@ const AdminLayout: React.FC = () => {
           </span>
         </Header>
 
-        <Content style={{ margin: '16px', padding: 24, background: '#fff' }}>
+        <Content style={{ padding: 24, background: '#fff' }}>
           {selectedKey === 'products' ? <ProductsContent /> : <OrdersContent />}
         </Content>
       </Layout>

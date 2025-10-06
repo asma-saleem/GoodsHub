@@ -4,21 +4,38 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button, Card } from 'antd';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 import { ProductType } from '@/types/product';
+import { formatPrice } from '@/lib/utils';
 import './card.css';
 
 interface ProductCardProps {
   product: ProductType;
 }
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-
+  
+  const router = useRouter();
+  const { data: session } = useSession();
   const [quantity, setQuantity] = useState(1);
   const increment = () => setQuantity((prev) => prev + 1);
   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   
   const addToCart = () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (!session) {
+      router.push('/auth/login');
+      return;
+    }
+
+    if(session.user.role==='ADMIN'){
+      toast.error('Admins cannot add items to cart from public store');
+      router.push('/admin-dashboard');
+      return; 
+    }
+    const userId = session.user.id;
+    const storageKey = `cart_${userId}`;
+    const cart = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
     const newItem = {
       key: Date.now(),
@@ -37,11 +54,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       (item: ProductType) => item.id === newItem.id
     );
     if (existingIndex !== -1) {
-      if (cart[existingIndex].qty + quantity < cart[existingIndex].stock) {
+      if (cart[existingIndex].qty + quantity <= product.stock) {
+        cart[existingIndex].stock = product.stock;
         cart[existingIndex].qty += quantity;
         toast.success('Quantity updated in cart!');
       } else {
-        toast.error('Not enough stock!');
+        toast.error(`${cart[existingIndex].qty+quantity} can not be added to cart. 
+          The quantity is limited to ${product.stock}.`);
         return;
       }
     } else {
@@ -54,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       }
     }
 
-    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem(storageKey, JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
@@ -80,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             Price:
           </p>
           <p className='price-value'>
-            ${Number(product.price).toFixed(2)}
+            {formatPrice(product.price)}
           </p>
         </div>
       </div>

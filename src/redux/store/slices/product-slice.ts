@@ -1,4 +1,3 @@
-// src/redux/slices/productSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { ProductType } from '@/types/product';
 
@@ -22,7 +21,6 @@ const initialState: ProductState = {
   limit: 8
 };
 
-// ✅ Async thunk for fetching products
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (

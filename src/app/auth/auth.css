@@ -28,7 +28,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-/* Container */
+
 .auth-container {
   @apply flex flex-col items-center justify-center min-h-screen !space-y-8;
 }
@@ -36,27 +36,23 @@ body {
 .auth-container-spaced {
   @apply flex flex-col items-center justify-center min-h-screen !space-y-8 w-full !mx-4;
 }
-/* Title */
+
 .auth-title {
   @apply font-inter font-medium text-[32px] leading-[38px] text-[#007BFF];
 }
 
-/* Card */
 .auth-card {
   @apply [&_.ant-card-body]:!p-0 mobile:[&_.ant-card-body]:!p-4 tablet:[&_.ant-card-body]:!p-[32px];
 }
 
-/* Input */
 .auth-input {
   @apply mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D];
 }
 
-/* Checkbox */
 .auth-checkbox {
   @apply mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-[12.8px] leading-[19.2px];
 }
 
-/* Button */
 .auth-button {
   @apply mobile:!w-[364px] tablet:!w-[544px] !h-[36px] !px-2 font-inter font-normal text-base leading-6 tracking-normal text-center align-middle;
 }

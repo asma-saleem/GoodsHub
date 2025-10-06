@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
-// import { PrismaClient } from '@prisma/client';
-
-// const prisma = new PrismaClient();
 import { prisma } from '@/lib/prisma';
 
 // UPDATE product
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await context.params;
+    const params = await context.params;
+    const { id } = params;
     const body = await req.json();
 
     const product = await prisma.product.update({
@@ -36,7 +34,8 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params; 
+    const params = await context.params;
+    const { id } = params;
 
     await prisma.product.update({
       where: { id },

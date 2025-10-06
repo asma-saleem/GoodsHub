@@ -1,36 +1,20 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { OrderType } from '@/types/order';
 
-interface OrdersState {
-  data: OrderType[];
-  total: number;
-  loading: boolean;
-  error: string | null;
-  currentPage: number;
-  query: string;
-  totalOrders: number;
-  totalUnits: number;
-  totalAmount: number;
-}
+export const fetchOrderDetail = createAsyncThunk(
+  'orders/fetchOrderDetail',
+  async (id: string) => {
+    const res = await fetch(`/api/orders/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch order');
+    const json = await res.json();
+    return json.order;
+  }
+);
 
-const initialState: OrdersState = {
-  data: [],
-  total: 0,
-  loading: false,
-  error: null,
-  currentPage: 1,
-  query: '',
-  totalOrders: 0,
-  totalUnits: 0,
-  totalAmount: 0
-};
-
-// Async thunk
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async ({ page, pageSize, query }: { page: number; pageSize: number; query?: string }) => {
-    const res = await fetch(`/api/orders?page=${page}&pageSize=${pageSize}&q=${query}`, {
+    const res = await fetch(`/api/orders?page=${page}&pageSize=${pageSize}&q=${query || ''}`, {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin'
     });
@@ -48,16 +32,47 @@ export const fetchOrders = createAsyncThunk(
   }
 );
 
+interface OrdersState {
+  data: OrderType[];
+  total: number;
+  currentPage: number;
+  query: string;
+  totalOrders: number;
+  totalUnits: number;
+  totalAmount: number;
+  order: OrderType | null;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: OrdersState = {
+  data: [],
+  total: 0,
+  currentPage: 1,
+  query: '',
+  totalOrders: 0,
+  totalUnits: 0,
+  totalAmount: 0,
+  order: null,
+  loading: false,
+  error: null
+};
+
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    setPage: (state, action) => {
+    setPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
     },
-    setQuery: (state, action) => {
+    setQuery: (state, action: PayloadAction<string>) => {
       state.query = action.payload;
-      state.currentPage = 1; 
+      state.currentPage = 1;
+    },
+    clearOrder: (state) => {
+      state.order = null;
+      state.error = null;
+      state.loading = false;
     }
   },
   extraReducers: (builder) => {
@@ -86,8 +101,21 @@ const ordersSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Error fetching orders';
       });
+    builder
+      .addCase(fetchOrderDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrderDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload;
+      })
+      .addCase(fetchOrderDetail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Error fetching order';
+      });
   }
 });
 
-export const { setPage, setQuery  } = ordersSlice.actions;
+export const { setPage, setQuery, clearOrder } = ordersSlice.actions;
 export const ordersReducer = ordersSlice.reducer;

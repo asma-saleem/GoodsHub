@@ -7,19 +7,19 @@ import { IncomingMessage } from 'http';
 
 export const dynamic = 'force-dynamic';
 
-// ✅ uploads dir
+// uploads dir
 const uploadDir = path.join(process.cwd(), 'public/uploads/home');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// ✅ safe conversion helper
+// safe conversion helper
 function toNodeReadable(req: NextRequest): IncomingMessage {
   if (!req.body) {
     throw new Error('Request body is empty');
   }
 
-  // 👇 convert DOM stream → unknown → Node stream
+  // convert DOM stream → unknown → Node stream
   const webStream = req.body as unknown as import('stream/web').ReadableStream<Uint8Array>;
   const readable = Readable.fromWeb(webStream);
 

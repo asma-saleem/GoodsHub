@@ -16,7 +16,7 @@
 
 /* Parent wrapper */
 .orders-wrapper {
-  @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F9FAFB] min-h-screen pt-6;
+  @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 min-h-screen pt-6;
 }
 
 /* Stats Cards Grid */

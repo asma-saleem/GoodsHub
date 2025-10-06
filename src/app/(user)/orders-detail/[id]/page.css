@@ -5,8 +5,6 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter:var(--font-inter), ui-sans-serif, system-ui;
@@ -17,22 +15,12 @@
   --breakpoint-desktop: 1366px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* order-detail.css */
-
-/* Loading & Error States */
 .loading-container {
   @apply flex justify-center items-center min-h-screen;
 }
@@ -41,12 +29,10 @@ body {
   @apply text-gray-500;
 }
 
-/* Main Container */
 .order-detail-container {
   @apply pl-4 sm:px-7 md:px-10 lg:px-14 xl:!px-15 bg-[#F8F9FA];
 }
 
-/* Header Section */
 .order-header {
   @apply flex gap-2 pt-6 pb-6 xl:pt-8;
 }
@@ -59,7 +45,6 @@ body {
   @apply font-inter font-medium text-[24px] leading-[28.8px] text-[#007BFF] mb-0;
 }
 
-/* Divider Lines */
 .divider-main {
   @apply border-t border-[#979797] mb-6;
 }
@@ -68,7 +53,6 @@ body {
   @apply border-t border-[#DEE2E6] mb-6 mt-8;
 }
 
-/* Order Summary Grid */
 .order-summary-grid {
   @apply grid tablet:grid-cols-4 small:grid-cols-2 mobile:grid-cols-2 tablet:gap-[122px] small:gap-6 mobile:gap-6 mb-6;
 }
@@ -82,30 +66,26 @@ body {
   @apply font-inter text-sm text-[#272B41];
 }
 
-/* Product Information */
 .product-info-title {
   @apply font-inter font-medium text-[20px] leading-[24px] text-[#002050] pb-4;
 }
 
-/* Table Container */
 .table-container {
   @apply overflow-x-auto;
 }
 
-/* Product Column */
 .product-cell {
   @apply flex items-center gap-3;
 }
 
 .product-image {
-  @apply object-cover rounded;
+  @apply object-cover rounded !pt-0;
 }
 
 .product-name {
   @apply font-inter font-normal text-xs text-[#495057];
 }
 
-/* Price Column */
 .price-text {
   @apply text-[#000000];
 }

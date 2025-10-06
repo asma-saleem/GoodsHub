@@ -1,8 +1,4 @@
 @import "tailwindcss";
-/* :root {
-  --background:#F8F9FA;
-  --foreground: #171717;
-} */
 
 @theme inline {
   --color-background: var(--background);
@@ -18,7 +14,7 @@
 }
 
 .dashboard-container {
-    @apply small:px-4 mobile:px-4 tablet:px-[105px] xl:px-14 desktop:px-[60px] bg-[#F8F9FA] max-w-[1920px] m-auto pb-15;
+    @apply small:px-4 mobile:px-4 tablet:px-[105px] xl:px-14 desktop:px-[60px] bg-[#F8F9FA] max-w-[1920px] m-auto;
 }
 
 .dashboard-subcontainer {

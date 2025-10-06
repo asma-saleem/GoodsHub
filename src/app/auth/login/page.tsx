@@ -30,7 +30,7 @@ export default function LoginPage() {
     try {
       const res = await signIn('credentials', {
         redirect: false,
-        email: values.email,
+        email: values.email?.toLowerCase(),
         password: values.password,
         rememberMe: values.remember ? 'true' : 'false',
         callbackUrl: '/'
@@ -40,12 +40,9 @@ export default function LoginPage() {
 
       if (res?.ok) {
         toast.success('Login successful!');
-        // setTimeout(() => {
-        //  window.location.href = res.url || '/';
-        // }, 2000);
       } else {
         toast.error(
-          'Wrong username password, please enter correct credentials'
+          'Wrong email password, please enter correct credentials'
         );
       }
     } catch (error) {
@@ -53,7 +50,6 @@ export default function LoginPage() {
       toast.error('Something went wrong, please try again!');
     }
   };
-  // 🔹 Google Login
   const handleGoogleLogin = async () => {
     try {
       const res = await signIn('google', {
@@ -65,9 +61,6 @@ export default function LoginPage() {
 
       if (!res?.error) {
         toast.success('Google Login successful!');
-        // setTimeout(() => {
-        //   window.location.href = res.url || '/';
-        // }, 10000);
       } else {
         toast.error('No account found. Please sign up first');
       }
@@ -92,28 +85,28 @@ export default function LoginPage() {
             onFinishFailed={onFinishFailed}
             autoComplete='off'
           >
-            {/* Email */}
             <Form.Item<FieldType>
               label='Enter email address'
               name='email'
+              validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter a valid email address' },
                 {
                   pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Please enter a valid email address'
+                  message: 'Enter a valid email address'
                 }
               ]}
             >
               <Input
-                placeholder='Please enter your email'
+                placeholder='Enter your email e.g. user@gmail.com'
                 className='auth-input'
               />
             </Form.Item>
 
-            {/* Password */}
             <Form.Item<FieldType>
               label='Password'
               name='password'
+              validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter a valid password' },
                 {
@@ -125,7 +118,7 @@ export default function LoginPage() {
               ]}
             >
               <Input.Password
-                placeholder='Please enter password'
+                placeholder='Enter your password'
                 className='auth-input'
               />
             </Form.Item>
@@ -152,7 +145,7 @@ export default function LoginPage() {
               <p className='auth-text'>
                 Forgot Password?{' '}
                 <a
-                  href='/auth/reset'
+                  href='/auth/forgot'
                   className='auth-link'
                 >
                   Reset

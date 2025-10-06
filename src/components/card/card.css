@@ -5,8 +5,6 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter:var(--font-inter), ui-sans-serif, system-ui;
@@ -17,18 +15,11 @@
   --breakpoint-desktop: 1366px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+} 
 
 .card-container {
   @apply w-full rounded-md border border-[#DFDFDF] bg-white shadow-sm small:!px-2 mobile:!px-3 tablet:!px-4;
@@ -47,7 +38,7 @@ body {
 }
 
 .price-container {
-  @apply flex justify-start;
+  @apply flex justify-start gap-[2px];
 }
 
 .price-label {

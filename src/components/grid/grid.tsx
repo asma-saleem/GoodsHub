@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Col, Row, Spin, Empty } from 'antd';
+import { Col, Empty, Row, Spin  } from 'antd';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import { fetchProducts, setSearchAndSort } from '@/redux/store/slices/product-slice';
@@ -20,14 +20,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
   );
   const hasFetched = useRef(false);
 
-  // Update search & sort on props change
   useEffect(() => {
     hasFetched.current = true;
     dispatch(setSearchAndSort({ searchTerm, sortBy }));
     dispatch(fetchProducts({ page: 1, query: searchTerm, sortBy, limit:8 }));
   }, [searchTerm, sortBy, dispatch]);
 
-  // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -63,7 +61,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
           </Col>
         ))}
       </Row>
-      )};
+      )}
       <div className="grid-loading">
         {loading && <Spin size="large" />}
       </div>

@@ -26,6 +26,8 @@ model User {
   mobile    String?  
   role      Role     @default(USER)
   orders    Order[]
+  resetToken String?
+  resetTokenExpiry DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

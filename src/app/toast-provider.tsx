@@ -9,12 +9,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <>
       {children}
       <ToastContainer
-        position='top-right'
-        autoClose={3000}
+        position='top-center'
+        autoClose={1000}
         hideProgressBar={false}
         newestOnTop
         closeOnClick
         pauseOnHover
+        limit={3}
       />
     </>
   );

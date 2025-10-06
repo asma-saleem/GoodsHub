@@ -11,6 +11,7 @@ import { ArrowLeftOutlined, ExportOutlined } from '@ant-design/icons';
 
 import { OrderType } from '@/types/order';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
+import { formatPrice } from '@/lib/utils';
 
 import {
   fetchOrders,
@@ -33,7 +34,7 @@ const Orders: React.FC = () => {
     const timer = setTimeout(() => {
       setDebouncedTerm(searchTerm);
       dispatch(setQuery(searchTerm));
-    }, 500);
+    }, 700);
     return () => clearTimeout(timer);
   }, [searchTerm, dispatch]);
 
@@ -61,7 +62,7 @@ const Orders: React.FC = () => {
     {
       title: 'Amount',
       dataIndex: 'amount',
-      render: (amount: number) => <span>${amount.toFixed(2)}</span>
+      render: (amount: number) => <span>{formatPrice(amount)}</span>
     },
     {
       title: 'Actions',
@@ -76,7 +77,6 @@ const Orders: React.FC = () => {
       )
     }
   ];
-  // Loading State
   if (loading) {
     return (
       <div className='loading-container'>
@@ -84,7 +84,7 @@ const Orders: React.FC = () => {
       </div>
     );
   }
-  // Render
+
   return (
     <div>
       <div className='orders-container'>

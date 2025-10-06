@@ -4,57 +4,63 @@ import React from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 import AuthLayout from '../auth-layout';
-import {FieldType} from '@/types/form';
+import { FieldType } from '@/types/form';
 
 import '../auth.css';
+export default function SignupPage() {
+  const router = useRouter();
 
-const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-  console.log('Signup Success:', values);
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    console.log('Signup Success:', values);
 
-  const payload = {
-    fullname: values.fullName,
-    email: values.email,
-    mobile: values.mobile,
-    password: values.password
+    const payload = {
+      fullname: values.fullName,
+      email: values.email,
+      mobile: values.mobile,
+      password: values.password
+    };
+
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log('User created:', data.user);
+        toast.success('Signup successful!');
+        // router.push('/auth/login');
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
+      } else {
+        console.error('Signup failed:', data.error);
+        toast.error(`Signup failed: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.error('Something went wrong');
+    }
   };
 
-  try {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
+    errorInfo
+  ) => {
+    console.log('Signup Failed:', errorInfo);
+  };
 
-    const data = await res.json();
-
-    if (res.ok) {
-      console.log('User created:', data.user);
-      toast.success('Signup successful!');
-    } else {
-      console.error('Signup failed:', data.error);
-      toast.error(`Signup failed: ${data.error}`);
-    }
-  } catch (error) {
-    console.error('Signup error:', error);
-    toast.error('Something went wrong');
-  }
-};
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  console.log('Signup Failed:', errorInfo);
-};
-
-export default function SignupPage() {
   return (
     <AuthLayout>
       <div className='auth-container'>
-        <h2 className='auth-title'>
-          SignUp
-        </h2>
+        <h2 className='auth-title'>SignUp</h2>
         <Card className='auth-card'>
           <Form
             name='signup'
@@ -64,63 +70,58 @@ export default function SignupPage() {
             onFinishFailed={onFinishFailed}
             autoComplete='off'
           >
-            {/* Full name */}
             <Form.Item<FieldType>
               label='Fullname'
               name='fullName'
+              validateTrigger="onBlur"
               rules={[
-                { required: true, message: 'Please enter your full name!' }
-              ]}
-            >
-              <Input
-                placeholder='Fullname'
-                className='auth-input'
-              />
-            </Form.Item>
-
-            {/* Email */}
-            <Form.Item<FieldType>
-              label='Email address'
-              name='email'
-              rules={[
+                { required: true, message: 'Enter your full name' },
                 {
-                  required: true,
-                  message: 'Please enter a valid email address'
-                },
-                { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
-              ]}
-            >
-              <Input
-                placeholder='email address'
-                className='auth-input'
-              />
-            </Form.Item>
-
-            {/* Mobile number */}
-            <Form.Item<FieldType>
-              label='Mobile'
-              name='mobile'
-              rules={[
-                { required: true, message: 'Please enter your mobile number!' },
-                {
-                  pattern: /^(?:\+92|0)[0-9]{10}$/,
-                  message:
-                    'Enter a valid mobile number (e.g. 03001234567 or +923001234567)'
+                   pattern: /^[a-zA-Z\s]+$/, 
+                   message: 'Full name can only contain letters and spaces!'
                 }
               ]}
             >
-              <Input
-                placeholder='mobile number'
-                className='auth-input'
-              />
+              <Input placeholder='Enter your full name e.g. Asma Saleem' className='auth-input' />
             </Form.Item>
-
-            {/* Password */}
+            <Form.Item<FieldType>
+              label='Email address'
+              name='email'
+              validateTrigger="onBlur"
+              rules={[
+                {
+                  required: true,
+                  message: 'Enter a valid email address'
+                },
+                {
+                  pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: 'Enter a valid email address'
+                }
+              ]}
+            >
+              <Input placeholder='Enter email address e.g. user@gmail.com' className='auth-input' />
+            </Form.Item>
+            <Form.Item<FieldType>
+              label='Mobile'
+              name='mobile'
+              validateTrigger="onBlur"
+              rules={[
+                { required: true, message: 'Enter a valid mobile number' },
+                {
+                  pattern: /^(?:\+92|0)[0-9]{10}$/,
+                  message:
+                    'Enter a valid mobile number'
+                }
+              ]}
+            >
+              <Input placeholder='Enter your number e.g. 03001234567 or +923001234567' className='auth-input' />
+            </Form.Item>
             <Form.Item<FieldType>
               label='Password'
               name='password'
+              validateTrigger="onBlur"
               rules={[
-                { required: true, message: 'Please enter a password' },
+                { required: true, message: 'Enter a valid password' },
                 {
                   pattern:
                     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -129,20 +130,16 @@ export default function SignupPage() {
                 }
               ]}
             >
-              <Input.Password
-                placeholder='Password'
-                className='auth-input'
-              />
+              <Input.Password placeholder='Enter your password' className='auth-input' />
             </Form.Item>
-
-            {/* Confirm Password */}
             <Form.Item<FieldType>
               label='Confirm Password'
               name='confirmPassword'
+              validateTrigger="onBlur"
               dependencies={['password']}
               hasFeedback
               rules={[
-                { required: true, message: 'Please confirm your password' },
+                { required: true, message: 'Confirm your password' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('password') === value) {
@@ -153,28 +150,16 @@ export default function SignupPage() {
                 })
               ]}
             >
-              <Input.Password
-                placeholder='Password'
-                className='auth-input'
-              />
+              <Input.Password placeholder='Enter your password again' className='auth-input' />
             </Form.Item>
-
-            {/* Submit button */}
             <Form.Item label={null}>
-              <Button
-                type='primary'
-                htmlType='submit'
-                className='auth-button'
-              >
+              <Button type='primary' htmlType='submit' className='auth-button'>
                 SignUp
               </Button>
             </Form.Item>
             <p className='auth-text-spaced'>
               Already have an account!{' '}
-              <a
-                href='/auth/login'
-                className='auth-link'
-              >
+              <a href='/auth/login' className='auth-link'>
                 Login
               </a>
             </p>

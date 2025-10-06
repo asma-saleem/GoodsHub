@@ -38,7 +38,6 @@ export const getProducts = async (
     default:
       order = { createdAt: 'desc' };
   }
-  // Fetch products with pagination
   const products = await prisma.product.findMany({
     skip,
     take: limit,

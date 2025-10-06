@@ -14,7 +14,7 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     const res = await fetch('/api/auth/forgot', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: values.email })
+      body: JSON.stringify({ email: values.email?.toLowerCase() })
     });
 
     const data = await res.json();
@@ -26,7 +26,6 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     toast.error('Something went wrong with Forgot Password!');
 };
 };
-
 
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Forgot Password Failed:', errorInfo);
@@ -47,21 +46,19 @@ export default function ForgotPasswordPage() {
             onFinishFailed={onFinishFailed}
             autoComplete='off'
           >
-            {/* Email address */}
             <Form.Item<FieldType>
               label='Enter email address'
               name='email'
-              rules={[{ required: true, message: 'Please enter your email' },
-                      { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please enter a valid email address' }
+              validateTrigger="onBlur"
+              rules={[{ required: true, message: 'Enter your email' },
+                      { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email address' }
               ]}
             >
               <Input
-                placeholder='Please enter your email'
+                placeholder='Enter your email e.g. user@gmail.com'
                 className='mobile:!w-[364px] tablet:!w-[544px] h-[40px] !px-2 font-inter font-normal text-base leading-6 text-[#6C757D]'
               />
             </Form.Item>
-
-            {/* Submit button */}
             <Form.Item label={null}>
               <Button
                 type='primary'

@@ -1,14 +1,32 @@
 // app/api/orders/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import Joi from 'joi';
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getOrdersByUserId, getAllOrders } from '@/services/order';
+
+const querySchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  pageSize: Joi.number().integer().min(1).max(100).default(10),
+  q: Joi.string().allow('').default('')
+});
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const { searchParams } = new URL(req.url);
+
+    const queryObj = {
+      page: searchParams.get('page'),
+      pageSize: searchParams.get('pageSize'),
+      q: searchParams.get('q') || ''
+    };
+    const { error, value } = querySchema.validate(queryObj, { convert: true });
+    if (error) {
+      return NextResponse.json({ error: 'Invalid query parameters', details: error.details }, { status: 400 });
+    }
+    const { page, pageSize, q: searchQuery } = value;
     const userId = session?.user?.id;
     
     if (!userId) {
@@ -16,10 +34,6 @@ export async function GET(req: NextRequest) {
     }
     
     const role = session.user.role;
-    const page = parseInt(searchParams.get('page') || '1' , 10);
-    const pageSize = parseInt(searchParams.get('pageSize') || '10', 10);
-
-    const searchQuery = searchParams.get('q') || '';
     let result;
 
     if (role === 'ADMIN') {

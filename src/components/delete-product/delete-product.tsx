@@ -9,7 +9,7 @@ interface RemoveProductModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   title?: string;
-  message?: React.ReactNode;  //JSX 
+  message?: React.ReactNode; 
 }
 
 export default function RemoveProductModal({
@@ -20,15 +20,11 @@ export default function RemoveProductModal({
 }: RemoveProductModalProps) {
   return (
     <div className='modal-overlay'>
-      {/* Modal Container */}
       <div className='modal-container'>
-        {/* Header */}
         <div className='modal-header'>
           <h4 className='modal-title'>
             {title}
           </h4>
-
-          {/* Warning Icon */}
           <div className='modal-icon'>
             <svg
               className='icon-warning'
@@ -44,14 +40,10 @@ export default function RemoveProductModal({
               />
             </svg>
           </div>
-
-          {/* Confirmation Text */}
           <p className='modal-message'>
             {message}
           </p>
         </div>
-
-        {/* Buttons */}
         <div className='modal-buttons'>
           <Button
             onClick={onCancel}

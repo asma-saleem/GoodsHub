@@ -29,15 +29,7 @@ export async function getOrderById(id: string) {
   });
 
   if (!order) return null;
-
-  // Map items: quantity → qty
-  return {
-    ...order,
-    items: order.items.map((item) => ({
-      ...item,
-      qty: item.quantity
-    }))
-  };
+  return order;
 };
 
 export async function getOrdersByUserId(
@@ -73,6 +65,7 @@ export async function getOrdersByUserId(
     skip: (page - 1) * pageSize,
     take: pageSize
   });
+
   const total = await prisma.order.count({
     where: { userId }
   });
@@ -94,12 +87,10 @@ export async function createOrder(cart: CartItemType[], userId: string) {
     now.getMonth() + 1
   ).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 
-  // Random 6 digit number
   const randomPart = Math.floor(100000 + Math.random() * 900000);
   const orderNo = `${dateStr}${randomPart}`;
 
   const order = await prisma.$transaction(async (tx) => {
-    // 1. Create order
     const newOrder = await tx.order.create({
       data: {
         userId,
@@ -115,8 +106,6 @@ export async function createOrder(cart: CartItemType[], userId: string) {
       },
       include: { items: true }
     });
-
-    // 2. Update stock for each product
     for (const item of cart) {
       const product = await tx.product.findUnique({
         where: { id: item.id }
@@ -196,7 +185,6 @@ export async function getAllOrders(
   const total = await prisma.order.count();
 
   const allOrders = await prisma.order.findMany({
-    // where,
     include: { items: true }
   });
 
@@ -211,15 +199,5 @@ export async function getAllOrders(
     (sum, order) => sum + (order.total || 0),
     0
   );
-
-  // Map items: quantity → qty
-  const mappedOrders = orders.map((order) => ({
-    ...order,
-    items: order.items.map((item) => ({
-      ...item,
-      qty: item.quantity
-    }))
-  }));
-
-  return { orders: mappedOrders, total, totalUnits, totalAmount };
+  return { orders, total, totalUnits, totalAmount };
 }
