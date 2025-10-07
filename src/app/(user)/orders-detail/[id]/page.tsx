@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { Spin, Table } from 'antd';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Image from 'next/image';
@@ -14,7 +14,9 @@ import { fetchOrderDetail, clearOrder } from '@/redux/store/slices/order-slice';
 import { formatPrice } from '@/lib/utils';
 
 import './page.css';
-
+interface OrderDetailPageProps {
+  orderId: string; // 🔹 naya prop
+}
 const columns: TableColumnsType<OrderItemType> = [
   {
     title: <span className='main-text-color'>Title</span>,
@@ -67,28 +69,30 @@ const columns: TableColumnsType<OrderItemType> = [
   }
 ];
 
- export default function OrderDetailPage() {
-  const params = useParams<{ id: string }>();
-  const router = useRouter();
+//  export default function OrderDetailPage() {
+//   const params = useParams<{ id: string }>();
+//   const router = useRouter();
+export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => {
   const dispatch = useAppDispatch();
-  const { order, loading } = useAppSelector((state) => state.orders);
+  const router = useRouter();
+  const { order } = useAppSelector((state) => state.orders);
 
   useEffect(() => {
-    if (params?.id) {
-      dispatch(fetchOrderDetail(params.id));
+    if (orderId) {
+      dispatch(fetchOrderDetail(orderId));
     };
     return () => {
       dispatch(clearOrder());
     };
-  }, [dispatch, params?.id]);
+  }, [dispatch, orderId]);
   
-  if (loading) {
-    return (
-      <div className='loading-container'>
-        <Spin size='large' />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className='loading-container'>
+  //       <Spin size='large' />
+  //     </div>
+  //   );
+  // }
   if (!order) {
     return (
       <div className='loading-container'>
@@ -160,4 +164,4 @@ const columns: TableColumnsType<OrderItemType> = [
       </div>
     </div>
   );
-}
+};

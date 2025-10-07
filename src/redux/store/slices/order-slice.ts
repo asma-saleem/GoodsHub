@@ -41,7 +41,8 @@ interface OrdersState {
   totalUnits: number;
   totalAmount: number;
   order: OrderType | null;
-  loading: boolean;
+  loadingList: boolean;
+  loadingDetail: boolean; 
   error: string | null;
 }
 
@@ -54,7 +55,8 @@ const initialState: OrdersState = {
   totalUnits: 0,
   totalAmount: 0,
   order: null,
-  loading: false,
+  loadingList: false,     // 👈 for main Orders table
+  loadingDetail: false,
   error: null
 };
 
@@ -72,17 +74,17 @@ const ordersSlice = createSlice({
     clearOrder: (state) => {
       state.order = null;
       state.error = null;
-      state.loading = false;
+      state.loadingDetail = false;
     }
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchOrders.pending, (state) => {
-        state.loading = true;
+        state.loadingList = true;
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingList = false;
         state.data = action.payload.orders.map((order: OrderType) => ({
           key: order.id,
           id: order.id,
@@ -98,20 +100,20 @@ const ordersSlice = createSlice({
         state.totalAmount = action.payload.totalAmount;
       })
       .addCase(fetchOrders.rejected, (state, action) => {
-        state.loading = false;
+        state.loadingList = false;
         state.error = action.error.message || 'Error fetching orders';
       });
     builder
       .addCase(fetchOrderDetail.pending, (state) => {
-        state.loading = true;
+        state.loadingDetail = true;
         state.error = null;
       })
       .addCase(fetchOrderDetail.fulfilled, (state, action) => {
-        state.loading = false;
+       state.loadingDetail = false;
         state.order = action.payload;
       })
       .addCase(fetchOrderDetail.rejected, (state, action) => {
-        state.loading = false;
+        state.loadingDetail = false;
         state.error = action.error.message || 'Error fetching order';
       });
   }

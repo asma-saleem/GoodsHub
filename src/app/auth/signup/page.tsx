@@ -130,7 +130,7 @@ export default function SignupPage() {
                 }
               ]}
             >
-              <Input.Password placeholder='Enter your password' className='auth-input' />
+              <Input.Password placeholder='Enter your password e.g. User@123' className='auth-input' />
             </Form.Item>
             <Form.Item<FieldType>
               label='Confirm Password'
@@ -150,7 +150,7 @@ export default function SignupPage() {
                 })
               ]}
             >
-              <Input.Password placeholder='Enter your password again' className='auth-input' />
+              <Input.Password placeholder='Enter your password again e.g. User@123' className='auth-input' />
             </Form.Item>
             <Form.Item label={null}>
               <Button type='primary' htmlType='submit' className='auth-button'>

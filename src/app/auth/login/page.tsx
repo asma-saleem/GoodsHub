@@ -118,7 +118,7 @@ export default function LoginPage() {
               ]}
             >
               <Input.Password
-                placeholder='Enter your password'
+                placeholder='Enter your password e.g. User@123'
                 className='auth-input'
               />
             </Form.Item>

@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import moment from 'moment';
 
-import { Table, Button, Input } from 'antd';
+import { Table, Button, Input, Drawer, Spin } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { Spin } from 'antd';
 import { ArrowLeftOutlined, ExportOutlined } from '@ant-design/icons';
 
 import { OrderType } from '@/types/order';
@@ -18,19 +17,25 @@ import { formatPrice } from '@/lib/utils';
 import {
   fetchOrders,
   setPage,
-  setQuery
+  setQuery,
+  clearOrder
 } from '@/redux/store/slices/order-slice';
+import { OrderDetailPage } from '../orders-detail/OrderDetailPage';
 
 import './page.css';
 
 const Orders: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data, total, loading, currentPage, query } = useAppSelector(
+
+  const { data, total, loadingList, currentPage, query } = useAppSelector(
     (state) => state.orders
   );
+
   const [searchTerm, setSearchTerm] = useState(query || '');
   const [debouncedTerm, setDebouncedTerm] = useState(query || '');
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,27 +46,24 @@ const Orders: React.FC = () => {
   }, [searchTerm, dispatch]);
 
   useEffect(() => {
-    dispatch(
-      fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
-    );
+    dispatch(fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm }));
   }, [dispatch, currentPage, debouncedTerm]);
 
-  //  Table columns
   const columns: TableColumnsType<OrderType> = [
     {
       title: 'Date',
       dataIndex: 'date',
       render: (val: string | Date) => {
-     const dateObj = moment(val);
-    return (
-    <div>
-      <div>{dateObj.format('MM/DD/YYYY')}</div> 
-      <div style={{ fontSize: '0.85em', color: '#555' }}>
-        {dateObj.format('hh:mm:ss A')} 
-      </div>
-    </div>
-  );
-}
+        const dateObj = moment(val);
+        return (
+          <div>
+            <div>{dateObj.format('MM/DD/YYYY')}</div>
+            <div style={{ fontSize: '0.85em', color: '#555' }}>
+              {dateObj.format('hh:mm:ss A')}
+            </div>
+          </div>
+        );
+      }
     },
     {
       title: 'Order #',
@@ -85,12 +87,15 @@ const Orders: React.FC = () => {
           type='text'
           icon={<ExportOutlined />}
           className='order-number'
-          onClick={() => router.push(`/orders-detail/${record.id}`)}
+          onClick={() => {
+            setSelectedOrderId(record.id);
+            setOpenDrawer(true);
+          }}
         />
       )
     }
   ];
-  if (loading) {
+  if (loadingList) {
     return (
       <div className='loading-container'>
         <Spin size='large' />
@@ -112,20 +117,18 @@ const Orders: React.FC = () => {
             </Link>
             <h4 className='orders-title'>Orders</h4>
           </div>
-            <div
-              className='ant-search-icon'
-            >
-              <Input.Search
-                placeholder='Search by order ID'
-                className='ant-input-search'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onSearch={(value) => setDebouncedTerm(value)}
-                allowClear
-              />
-            </div>
-      
+          <div className='ant-search-icon'>
+            <Input.Search
+              placeholder='Search by order ID'
+              className='ant-input-search'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onSearch={(value) => setDebouncedTerm(value)}
+              allowClear
+            />
+          </div>
         </div>
+
         <div className='table-container'>
           <Table<OrderType>
             columns={columns}
@@ -147,6 +150,28 @@ const Orders: React.FC = () => {
           />
         </div>
       </div>
+      <Drawer
+        title={<h2 className='orders-title'>Order Details</h2>}
+        className="
+    [&_.ant-drawer-content]:bg-[#F9FAFB]
+    [&_.ant-drawer-header]:bg-[#F9FAFB]
+    [&_.ant-drawer-body]:bg-[#F9FAFB]
+    [&_.ant-drawer-body]:p-6
+    [&_.ant-drawer-content]:rounded-l-2xl
+    [&_.ant-drawer-content]:shadow-lg
+  "
+        open={openDrawer}
+        onClose={() => {
+          setOpenDrawer(false);
+        }}
+        afterOpenChange={(open) => {
+        if (!open) dispatch(clearOrder());
+        }}
+        width={1050}
+        destroyOnClose
+      >
+        {selectedOrderId && <OrderDetailPage orderId={selectedOrderId} />}
+      </Drawer>
     </div>
   );
 };

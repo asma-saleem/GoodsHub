@@ -406,7 +406,8 @@ const ShoppingBagPage: React.FC = () => {
             rowSelection={rowSelection}
             columns={columns}
             dataSource={dataSource}
-            pagination={{ pageSize: 8 }}
+            // pagination={{ pageSize: 8 }}
+            pagination={false} 
             scroll={{ x: 1000 }}
             bordered
             rowClassName={() => 'h-12'}
