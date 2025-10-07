@@ -86,7 +86,7 @@ const ordersSlice = createSlice({
         state.data = action.payload.orders.map((order: OrderType) => ({
           key: order.id,
           id: order.id,
-          date: new Date(order.createdAt).toLocaleDateString(),
+          date: order.createdAt,
           userName: order.user?.fullname ?? '',
           orderNo: order.orderNo,
           products: order.items?.length || 0,

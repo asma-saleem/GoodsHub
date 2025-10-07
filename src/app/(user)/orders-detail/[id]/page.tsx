@@ -6,6 +6,7 @@ import { Spin, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Image from 'next/image';
+import moment from 'moment';
 
 import { OrderItemType } from '@/types/order';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
@@ -119,9 +120,10 @@ const columns: TableColumnsType<OrderItemType> = [
       <div className='order-summary-grid'>
         <div>
           <p className='summary-label'>Date</p>
-          <p className='summary-value'>
-            {new Date(order.createdAt).toLocaleDateString()}
-          </p>
+          <div>{moment(order.createdAt).format('MM/DD/YYYY')}</div>
+          <div style={{ fontSize: '0.85em', color: '#555' }}>
+          {moment(order.createdAt).format('hh:mm:ss A')}
+          </div>
         </div>
         <div>
           <p className='summary-label'>Order #</p>

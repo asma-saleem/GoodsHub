@@ -16,7 +16,7 @@ import { CartItemType } from '@/types/cart';
 import { formatPrice } from '@/lib/utils';
 
 import './page.css';
-import { Product } from '@prisma/client';
+// import { Product } from '@prisma/client';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -31,50 +31,67 @@ const ShoppingBagPage: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  useEffect(() => {
+//   useEffect(() => {
+//   if (!session?.user?.id) return;
+
+//   const timer = setTimeout(() => {
+//     const storageKey = `cart_${session.user.id}`;
+//     const storedCart = localStorage.getItem(storageKey);
+
+//     if (!storedCart) {
+//       setLoading(false);
+//       return;
+//     }
+
+//     const parsed = JSON.parse(storedCart);
+//     const ids = parsed.map((item: Product) => item.id);
+
+//     fetch('/api/products', {
+//       method: 'PUT',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ ids })
+//     })
+//       .then((res) => res.json())
+//       .then((latestStock) => {
+//         const updatedCart = parsed.map((item: CartItemType) => {
+//           const latest = latestStock.find((p: Product) => p.id === item.id);
+//           if (!latest) return item;
+
+//           if (item.qty > latest.stock) {
+//             toast.info(
+//               `${item.title} stock reduced to ${latest.stock}. Quantity adjusted automatically.`
+//             );
+//             return { ...item, qty: latest.stock, stock: latest.stock };
+//           }
+
+//           return { ...item, stock: latest.stock };
+//         });
+
+//         setDataSource(updatedCart);
+//         localStorage.setItem(storageKey, JSON.stringify(updatedCart));
+//         setLoading(false);
+//       })
+//       .catch(() => {
+//         setDataSource(parsed);
+//         setLoading(false);
+//       });
+//   }, 500);
+
+//   return () => clearTimeout(timer);
+// }, [session]);
+   useEffect(() => {
   if (!session?.user?.id) return;
 
   const timer = setTimeout(() => {
     const storageKey = `cart_${session.user.id}`;
     const storedCart = localStorage.getItem(storageKey);
 
-    if (!storedCart) {
-      setLoading(false);
-      return;
+    if (storedCart) {
+      const parsed = JSON.parse(storedCart);
+      setDataSource(parsed);
     }
 
-    const parsed = JSON.parse(storedCart);
-    const ids = parsed.map((item: Product) => item.id);
-
-    fetch('/api/products', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids })
-    })
-      .then((res) => res.json())
-      .then((latestStock) => {
-        const updatedCart = parsed.map((item: CartItemType) => {
-          const latest = latestStock.find((p: Product) => p.id === item.id);
-          if (!latest) return item;
-
-          if (item.qty > latest.stock) {
-            toast.info(
-              `${item.title} stock reduced to ${latest.stock}. Quantity adjusted automatically.`
-            );
-            return { ...item, qty: latest.stock, stock: latest.stock };
-          }
-
-          return { ...item, stock: latest.stock };
-        });
-
-        setDataSource(updatedCart);
-        localStorage.setItem(storageKey, JSON.stringify(updatedCart));
-        setLoading(false);
-      })
-      .catch(() => {
-        setDataSource(parsed);
-        setLoading(false);
-      });
+    setLoading(false);
   }, 500);
 
   return () => clearTimeout(timer);
@@ -142,8 +159,8 @@ const ShoppingBagPage: React.FC = () => {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        console.error('Checkout failed:', err);
+        // const err = await res.json();
+        // console.error('Checkout failed:', err);
         toast.error('Failed to place order');
         return;
       }
@@ -479,3 +496,4 @@ const ShoppingBagPage: React.FC = () => {
 };
 
 export default ShoppingBagPage;
+

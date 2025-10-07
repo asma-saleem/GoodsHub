@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 
-import { findUserByEmail, updateUser } from '@/services/user';
+import {  updateUser, findUserByEmail } from '@/services/user';
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const user = await findUserByEmail(email);
 
     if (!user) {
-      return new Response(JSON.stringify({ message: 'User not found' }), {
+      return new Response(JSON.stringify({ message: 'If your email exists in our system, a password reset link has been sent.' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
   `
     });
 
-    return new Response(JSON.stringify({ message: 'Reset email sent' }), {
+    return new Response(JSON.stringify({ message: 'If your email exists in our system, a password reset link has been sent.' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

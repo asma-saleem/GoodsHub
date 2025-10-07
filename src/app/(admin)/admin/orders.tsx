@@ -5,6 +5,7 @@ import { Table, Input, Spin, Button, Card } from 'antd';
 import { useRouter } from 'next/navigation';
 import { ArrowRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
+import moment from 'moment';
 
 import { OrderType } from '@/types/order';
 
@@ -41,10 +42,21 @@ const OrdersContent: React.FC = () => {
     }, [dispatch, currentPage, debouncedTerm]);
 
   const columns = [
-    { title: 'Date', 
-      dataIndex: 'date', 
-      key: 'date' 
-    },
+    {
+          title: 'Date',
+          dataIndex: 'date',
+          render: (val: string | Date) => {
+         const dateObj = moment(val);
+        return (
+        <div>
+          <div>{dateObj.format('MM/DD/YYYY')}</div> 
+          <div style={{ fontSize: '0.85em', color: '#555' }}>
+            {dateObj.format('hh:mm:ss A')} 
+          </div>
+        </div>
+      );
+    }
+        },
     {
       title: 'Order #',
       dataIndex: 'orderNo',

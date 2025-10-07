@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import moment from 'moment';
 
 import { Table, Button, Input } from 'antd';
 import type { TableColumnsType } from 'antd';
@@ -10,6 +11,7 @@ import { Spin } from 'antd';
 import { ArrowLeftOutlined, ExportOutlined } from '@ant-design/icons';
 
 import { OrderType } from '@/types/order';
+import Header from '@/components/header/header';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import { formatPrice } from '@/lib/utils';
 
@@ -48,7 +50,18 @@ const Orders: React.FC = () => {
   const columns: TableColumnsType<OrderType> = [
     {
       title: 'Date',
-      dataIndex: 'date'
+      dataIndex: 'date',
+      render: (val: string | Date) => {
+     const dateObj = moment(val);
+    return (
+    <div>
+      <div>{dateObj.format('MM/DD/YYYY')}</div> 
+      <div style={{ fontSize: '0.85em', color: '#555' }}>
+        {dateObj.format('hh:mm:ss A')} 
+      </div>
+    </div>
+  );
+}
     },
     {
       title: 'Order #',
@@ -87,6 +100,7 @@ const Orders: React.FC = () => {
 
   return (
     <div>
+      <Header />
       <div className='orders-container'>
         <div className='orders-header-with-search'>
           <div className='orders-header'>
