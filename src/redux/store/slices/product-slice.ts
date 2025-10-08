@@ -8,7 +8,7 @@ interface ProductState {
   loading: boolean;
   searchTerm: string;
   sortBy: string;
-  limit: number; 
+  limit: number;
 }
 
 const initialState: ProductState = {
@@ -17,24 +17,32 @@ const initialState: ProductState = {
   total: 0,
   loading: false,
   searchTerm: '',
-  sortBy: '',
+  sortBy: 'createdAt_desc', 
   limit: 8
 };
 
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (
-    { page, query, sortBy, limit }: { page: number; query: string; sortBy: string; limit: number },
+    {
+      page,
+      query,
+      sortBy,
+      limit
+    }: { page: number; query: string; sortBy: string; limit: number },
     { rejectWithValue }
   ) => {
     try {
       const res = await fetch(
         `/api/products?page=${page}&limit=${limit}&q=${query}&sortBy=${sortBy}`
       );
+
+      if (!res.ok) throw new Error('Failed to fetch products');
+
       const data = await res.json();
       return { ...data, page, limit };
     } catch (error) {
-        console.log(error);
+      console.error(error);
       return rejectWithValue('Failed to fetch products');
     }
   }
@@ -74,11 +82,11 @@ const productSlice = createSlice({
           page: number;
           limit: number;
         };
-        if (page === 1) {
-          state.products = products;
-        } else {
-          state.products = [...state.products, ...products];
-        }
+
+        // ✅ Handle first page vs infinite scroll
+        state.products =
+          page === 1 ? products : [...state.products, ...products];
+
         state.total = total;
         state.page = page;
         state.limit = limit;

@@ -1,7 +1,8 @@
-import {ProductType} from './product';
+import {ProductVariantType} from './product';
 export interface OrderItemType {
   key: number;
-  product: ProductType;
+  variant: ProductVariantType;
+  variantId: string;
   image: string;
   quantity: number;
   price: number;

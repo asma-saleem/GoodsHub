@@ -1,10 +1,26 @@
-export interface ProductType {
+export interface ProductVariantType {
+  id: string;
+  color?: string;
+  colorCode?: string;
+  product: {
     id: string;
-    image: string;
     title: string;
-    price: number;
-    stock: number;
-    size: string;
-    color?: string;
-    colorCode?: string;
   };
+  size?: string;
+  price: number;
+  image?: string;
+  stock: number;
+}
+
+export interface ProductType {
+  id: string;
+  title: string;
+  image?: string; 
+  createdAt: string;
+  variants: ProductVariantType[];
+
+  defaultVariant?: ProductVariantType | null;
+  minPrice?: number | null;
+
+  isDeleted?: string;
+}

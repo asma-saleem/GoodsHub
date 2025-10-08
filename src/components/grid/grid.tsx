@@ -41,6 +41,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, products.length, total, page, searchTerm, sortBy, dispatch]);
 
+  
+
   return (
     <>
     {products.length === 0 && !loading  && hasFetched.current? (

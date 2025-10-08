@@ -83,3 +83,53 @@ body {
 .btn-disabled {
   @apply !bg-gray-300 !text-white cursor-not-allowed;
 }
+
+/* Color Selection Container */
+.color-selection {
+  @apply px-3 mt-2;
+}
+
+.color-selection .label {
+  @apply text-xs text-gray-600 mb-1;
+}
+
+.color-selection .flex {
+  @apply flex space-x-2;
+}
+
+.color-selection .color-swatch {
+  @apply w-6 h-6 rounded-full border-2 transition-all duration-200;
+}
+
+.color-selection .color-swatch.selected {
+  @apply border-black;
+}
+
+.color-selection .color-swatch:not(.selected) {
+  @apply border-gray-300;
+}
+
+/* Size Selection Container */
+.size-selection {
+  @apply px-3 mt-2;
+}
+
+.size-selection .label {
+  @apply text-xs text-gray-600 mb-1;
+}
+
+.size-selection .flex {
+  @apply flex space-x-2;
+}
+
+.size-selection .size-block {
+  @apply px-2 py-1 border rounded text-xs transition-all duration-200;
+}
+
+.size-selection .size-block.selected {
+  @apply border-black font-semibold;
+}
+
+.size-selection .size-block:disabled {
+  @apply border-gray-200 text-gray-300 cursor-not-allowed;
+}

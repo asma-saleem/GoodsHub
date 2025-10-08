@@ -85,7 +85,8 @@ export const authOptions: NextAuthOptions = {
           const newUser = await createUser({
             fullname: user.name || 'No Name',
             email: user.email,
-            password: 'google123@'
+            password: ''
+            // password: 'google123@'
           });
           user.id = newUser.id.toString();
           user.role = 'user';

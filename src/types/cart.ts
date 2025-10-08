@@ -6,6 +6,13 @@ export interface CartItem {
 }
 
 export interface CartItemType extends ProductType {
+  variantId: string;
   key: number;
   qty: number;
+  stock: number;
+  color?: string;
+  colorCode?: string;
+  size?: string;
+  price: number;
+  image?: string;
 }

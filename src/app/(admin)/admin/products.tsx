@@ -103,37 +103,61 @@ const ProductsContent: React.FC = () => {
         </Space>
       )
     },
+    // {
+    //   title: 'Price',
+    //   dataIndex: 'price',
+    //   key: 'price',
+    //   render: (price: number) => `$${price.toFixed(2)}`
+    // },
     {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price: number) => `$${price.toFixed(2)}`
-    },
+  title: 'Price',
+  dataIndex: 'variants',
+  key: 'price',
+  render: (_: unknown, record: ProductType) => {
+    const price = record.minPrice ?? Math.min(...record.variants.map(v => v.price));
+    return `$${price.toFixed(2)}`;
+  }
+},
+
+    // {
+    //   title: 'Stock',
+    //   dataIndex: 'stock',
+    //   key: 'stock'
+    // },
     {
-      title: 'Stock',
-      dataIndex: 'stock',
-      key: 'stock'
-    },
+  title: 'Stock',
+  dataIndex: 'variants',
+  key: 'stock',
+  render: (_: unknown, record: ProductType) => {
+    const totalStock = record.variants.reduce((sum, v) => sum + v.stock, 0);
+    return totalStock;
+  }
+},
+
     {
       title: 'Actions',
       key: 'actions',
       render: (_: unknown, record: ProductType) => (
         <Space>
-          <Button
-            type='text'
-            icon={<EditOutlined />}
-            onClick={() => {
-              setModalMode('edit');
-              setEditData({
-                id: record.id,
-                name: record.title,
-                price: String(record.price),
-                quantity: String(record.stock),
-                image: record.image
-              });
-              setOpenModal(true);
-            }}
-          />
+         <Button
+  type='text'
+  icon={<EditOutlined />}
+  onClick={() => {
+    const price = record.minPrice ?? Math.min(...record.variants.map(v => v.price));
+    const stock = record.variants.reduce((sum, v) => sum + v.stock, 0);
+
+    setModalMode('edit');
+    setEditData({
+      id: record.id,
+      name: record.title,
+      price: String(price),
+      quantity: String(stock),
+      image: record.image
+    });
+    setOpenModal(true);
+  }}
+/>
+
           <Button
             danger
             type='text'
@@ -214,7 +238,7 @@ const ProductsContent: React.FC = () => {
         </div>
       ) : (
         <Table
-          dataSource={products}
+          dataSource={products.slice(0, 12)}
           columns={columns}
           rowKey='id'
           pagination={{

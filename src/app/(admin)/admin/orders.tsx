@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Spin, Button, Card } from 'antd';
-import { useRouter } from 'next/navigation';
+import { Table, Input, Spin, Button, Card, Drawer } from 'antd';
+// import { useRouter } from 'next/navigation';
 import { ArrowRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
@@ -14,18 +14,23 @@ import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import {
   fetchOrders,
   setPage,
-  setQuery
+  setQuery,
+  clearOrder
 } from '@/redux/store/slices/order-slice';
 import './orders.css';
 
+import { OrderDetailPage } from '@/app/(user)/orders-detail/OrderDetailPage';
+
 const OrdersContent: React.FC = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const dispatch = useAppDispatch();
-    const { data, total,totalOrders, totalUnits, totalAmount, loading, currentPage, query } = useAppSelector(
+    const { data, total,totalOrders, totalUnits, totalAmount, loadingList, currentPage, query } = useAppSelector(
       (state) => state.orders
     );
     const [searchTerm, setSearchTerm] = useState(query || '');
     const [debouncedTerm, setDebouncedTerm] = useState(query || '');
+    const [openDrawer, setOpenDrawer] = useState(false);
+      const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   
     useEffect(() => {
       const timer = setTimeout(() => {
@@ -84,13 +89,16 @@ const OrdersContent: React.FC = () => {
         <Button
           type="text"
           icon={<ArrowRightOutlined />}
-          onClick={() => router.push(`/orders-detail/${record.id}`)}
+          onClick={() => {
+            setSelectedOrderId(record.id);
+            setOpenDrawer(true);
+          }}
         />
       )
     }
   ];
 
-  if (loading) {
+  if (loadingList) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Spin size="large" />
@@ -185,6 +193,28 @@ const OrdersContent: React.FC = () => {
         bordered
         className="orders-table"
       />
+      <Drawer
+        title={<h2 className='orders-title'>Order Details</h2>}
+        className="
+    [&_.ant-drawer-content]:bg-[#F9FAFB]
+    [&_.ant-drawer-header]:bg-[#F9FAFB]
+    [&_.ant-drawer-body]:bg-[#F9FAFB]
+    [&_.ant-drawer-body]:p-6
+    [&_.ant-drawer-content]:rounded-l-2xl
+    [&_.ant-drawer-content]:shadow-lg
+  "
+        open={openDrawer}
+        onClose={() => {
+          setOpenDrawer(false);
+        }}
+        afterOpenChange={(open) => {
+        if (!open) dispatch(clearOrder());
+        }}
+        width={1050}
+        destroyOnClose
+      >
+        {selectedOrderId && <OrderDetailPage orderId={selectedOrderId} />}
+      </Drawer>
     </div>
   );
 };

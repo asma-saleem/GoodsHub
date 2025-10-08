@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth';
 const cartItemSchema = Joi.object({
   key: Joi.number().required(),
   id: Joi.string().uuid().required(),
+  variantId: Joi.string().uuid().required(),
   title: Joi.string().required(),
   image: Joi.string().required(),
   price: Joi.number().min(0).required(),

@@ -48,13 +48,15 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
   }
 
   const dataSource: OrderItemType[] =
-    order.items?.map((item, index: number) => ({
-      key: index,
-      product: item.product,
-      image: item.product.image,
-      quantity: item.quantity,
-      price: item.product.price
-    })) || [];
+  order.items?.map((item, index: number) => ({
+    key: index,
+    product: item.variant.product, 
+    variantId: item.variantId,
+    variant: item.variant,    
+    image: item.variant?.image || '',     
+    quantity: item.quantity,
+    price: item.variant?.price || item.price 
+  })) || [];
 
   const columns: TableColumnsType<OrderItemType> = [
     {
@@ -63,20 +65,20 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
       render: (_, record: OrderItemType) => (
         <div className="product-cell">
           <Image
-            src={record.product.image}
-            alt={record.product.title}
-            width={40}
-            height={40}
+            src={record.variant?.image || '/placeholder.png'}
+            alt={record.variant.product?.title}
+            width={24}
+            height={24}
             className="product-image"
           />
-          <span className="product-name">{record.product.title}</span>
+          <span className="product-name">{record.variant.product?.title}</span>
         </div>
       )
     },
     {
       title: <span className="main-text-color">Unit Price</span>,
       render: (_, record) => (
-        <span className="main-text-color">{formatPrice(record.product.price)}</span>
+        <span className="main-text-color">{formatPrice(record.variant?.price)}</span>
       )
     },
     {
@@ -90,7 +92,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
       title: <span className="main-text-color">Total Price</span>,
       render: (_, record) => (
         <span className="main-text-color">
-          {formatPrice(record.product.price * record.quantity)}
+          {formatPrice(record.variant?.price * record.quantity)}
         </span>
       )
     }

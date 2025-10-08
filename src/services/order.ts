@@ -15,12 +15,20 @@ export async function getOrderById(id: string) {
       items: {
         select: {
           quantity: true,
-          product: {
+          variant: {  
             select: {
-              id:true,
+              id: true,
               image: true,
-              title: true,
-              price: true
+              price: true,
+              size: true,
+              color: true,
+              colorCode: true,
+              product: {
+                select: {
+                  id: true,
+                  title: true
+                }
+              }
             }
           }
         }
@@ -99,6 +107,7 @@ export async function createOrder(cart: CartItemType[], userId: string) {
         items: {
           create: cart.map((item) => ({
             productId: item.id,
+            variantId: item.variantId,
             quantity: item.qty,
             price: Number(item.price)
           }))
@@ -108,26 +117,30 @@ export async function createOrder(cart: CartItemType[], userId: string) {
     });
     for (const item of cart) {
       const product = await tx.product.findUnique({
-        where: { id: item.id }
+        where: { id: item.id },
+        include: { variants: true }
       });
 
       if (!product) {
         throw new Error(`Product with id ${item.id} not found`);
       }
-
-      if (product.stock < item.qty) {
+      const variant = product.variants.find(v => v.id === item.variantId);
+      if (!variant) {
+          throw new Error(`Variant with id ${item.variantId} not found for product ${product.title}`);
+      }
+      if (variant.stock < item.qty) {
         throw new Error(
-          `Not enough stock for product ${product.title}. Only ${product.stock} left.`
+          `Not enough stock for product ${product.title}. Only ${variant.stock} left.`
         );
       }
-      await tx.product.update({
-        where: { id: item.id },
-        data: {
-          stock: {
-            decrement: item.qty
-          }
-        }
-      });
+      await tx.productVariant.update({
+      where: { id: variant.id },
+      data: {
+      stock: {
+        decrement: item.qty
+      }
+    }
+  });
     }
 
     return newOrder;
@@ -166,12 +179,20 @@ export async function getAllOrders(
       items: {
         select: {
           quantity: true,
-          product: {
+           variant: {  
             select: {
-              id:true,
+              id: true,
               image: true,
-              title: true,
-              price: true
+              price: true,
+              size: true,
+              color: true,
+              colorCode: true,
+              product: {
+                select: {
+                  id: true,
+                  title: true
+                }
+              }
             }
           }
         }

@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import Header from '@/components/header/header';
 import RemoveProductModal from '@/components/delete-product/delete-product';
 import { CartItemType } from '@/types/cart';
+
 import { formatPrice } from '@/lib/utils';
 
 import './page.css';
@@ -31,54 +32,6 @@ const ShoppingBagPage: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
-//   useEffect(() => {
-//   if (!session?.user?.id) return;
-
-//   const timer = setTimeout(() => {
-//     const storageKey = `cart_${session.user.id}`;
-//     const storedCart = localStorage.getItem(storageKey);
-
-//     if (!storedCart) {
-//       setLoading(false);
-//       return;
-//     }
-
-//     const parsed = JSON.parse(storedCart);
-//     const ids = parsed.map((item: Product) => item.id);
-
-//     fetch('/api/products', {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ ids })
-//     })
-//       .then((res) => res.json())
-//       .then((latestStock) => {
-//         const updatedCart = parsed.map((item: CartItemType) => {
-//           const latest = latestStock.find((p: Product) => p.id === item.id);
-//           if (!latest) return item;
-
-//           if (item.qty > latest.stock) {
-//             toast.info(
-//               `${item.title} stock reduced to ${latest.stock}. Quantity adjusted automatically.`
-//             );
-//             return { ...item, qty: latest.stock, stock: latest.stock };
-//           }
-
-//           return { ...item, stock: latest.stock };
-//         });
-
-//         setDataSource(updatedCart);
-//         localStorage.setItem(storageKey, JSON.stringify(updatedCart));
-//         setLoading(false);
-//       })
-//       .catch(() => {
-//         setDataSource(parsed);
-//         setLoading(false);
-//       });
-//   }, 500);
-
-//   return () => clearTimeout(timer);
-// }, [session]);
    useEffect(() => {
   if (!session?.user?.id) return;
 
@@ -218,7 +171,7 @@ const ShoppingBagPage: React.FC = () => {
       render: (_, record) => (
         <div className='product-container'>
           <Image
-            src={record.image}
+            src={record.image|| '/placeholder.png'}
             alt={record.title}
             width={24}
             height={24}
