@@ -26,7 +26,7 @@ body {
 }
 
 .product-image {
-  @apply object-contain block small:pt-2 mobile:pt-3 tablet:!pt-4;
+  @apply object-cover block small:pt-2 mobile:pt-3 tablet:!pt-4;
 }
 
 .title-price-container{
@@ -84,52 +84,66 @@ body {
   @apply !bg-gray-300 !text-white cursor-not-allowed;
 }
 
-/* Color Selection Container */
+/* === COLOR SELECTION (Responsive with Image) === */
 .color-selection {
-  @apply px-3 mt-2;
+  @apply mt-3;
 }
 
 .color-selection .label {
-  @apply text-xs text-gray-600 mb-1;
+  @apply text-sm text-gray-700 font-medium mb-2;
 }
 
-.color-selection .flex {
-  @apply flex space-x-2;
+/* Use responsive grid instead of just flex */
+.color-selection .color-grid {
+  @apply grid gap-3 small:grid-cols-4 mobile:grid-cols-5 tablet:grid-cols-6 desktop:grid-cols-8;
 }
 
-.color-selection .color-swatch {
-  @apply w-6 h-6 rounded-full border-2 transition-all duration-200;
+/* Each color item (with image) */
+.color-selection .color-item {
+  @apply relative flex flex-col items-center cursor-pointer border-2 border-gray-200 rounded-md p-1 transition-all duration-200 hover:scale-[1.05];
 }
 
-.color-selection .color-swatch.selected {
-  @apply border-black;
+.color-selection .color-item.selected {
+  @apply border-orange-500 ring-2 ring-orange-300;
 }
 
-.color-selection .color-swatch:not(.selected) {
-  @apply border-gray-300;
+.color-selection .color-item img {
+  @apply w-10 h-10 object-cover rounded-md small:w-8 small:h-8;
 }
 
-/* Size Selection Container */
+.color-selection .color-item p {
+  @apply text-[11px] text-gray-600 mt-1 text-center truncate;
+}
+
+.color-selection .color-item .check {
+  @apply absolute top-0 right-0 text-orange-500 font-bold text-xs;
+}
+
+/* === SIZE SELECTION (Responsive + Touch-friendly) === */
 .size-selection {
-  @apply px-3 mt-2;
+  @apply mt-3;
 }
 
 .size-selection .label {
-  @apply text-xs text-gray-600 mb-1;
+  @apply text-sm text-gray-700 font-medium mb-2;
 }
 
-.size-selection .flex {
-  @apply flex space-x-2;
+/* Grid for sizes */
+.size-selection .size-grid {
+  @apply grid gap-2 small:grid-cols-5 mobile:grid-cols-6 tablet:grid-cols-8 desktop:grid-cols-10;
 }
 
+/* Each size block */
 .size-selection .size-block {
-  @apply px-2 py-1 border rounded text-xs transition-all duration-200;
+  @apply px-3 py-1.5 border border-gray-300 rounded-md text-[13px] text-gray-800 
+         transition-all duration-200 text-center cursor-pointer select-none hover:border-orange-400 hover:text-orange-500;
 }
 
 .size-selection .size-block.selected {
-  @apply border-black font-semibold;
+  @apply border-orange-500 text-orange-500 font-semibold;
 }
 
 .size-selection .size-block:disabled {
-  @apply border-gray-200 text-gray-300 cursor-not-allowed;
+  @apply border-gray-200 text-gray-300 cursor-not-allowed opacity-50;
 }
+

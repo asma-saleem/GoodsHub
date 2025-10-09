@@ -76,6 +76,33 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
       )
     },
     {
+      title: <span className="main-text-color">Color</span>,
+      dataIndex: 'color',
+       onCell: () => ({
+        style:{
+          minWidth: '200px'
+        }
+      }),
+      render: (_, record) => (
+        <div className='color-container'>
+          <span
+            className='color-circle'
+            style={{ backgroundColor: record.variant.colorCode }}
+          />
+          <span className='color-text'>
+            {record.variant.color}
+          </span>
+        </div>
+      )
+    },
+    {
+      title: <span className="main-text-color">Size</span>,
+      dataIndex: 'size',
+      render: (_, record) => (
+        <span className="main-text-color">{record.variant?.size}</span>
+      )
+    },
+    {
       title: <span className="main-text-color">Unit Price</span>,
       render: (_, record) => (
         <span className="main-text-color">{formatPrice(record.variant?.price)}</span>

@@ -6,6 +6,7 @@ import { Table, Input, Spin, Button, Card, Drawer } from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
+import { formatPrice } from '@/lib/utils';
 
 import { OrderType } from '@/types/order';
 
@@ -80,7 +81,7 @@ const OrdersContent: React.FC = () => {
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
-      render: (amount: number) => <span>${amount.toFixed(2)}</span>
+      render: (amount: number) => <span>{formatPrice(amount)}</span>
     },
     {
       title: 'Actions',
@@ -147,7 +148,7 @@ const OrdersContent: React.FC = () => {
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className="orders-card-title">Total Amount:</p>
-              <h2 className="orders-card-value">${totalAmount.toLocaleString()}</h2>
+              <h2 className="orders-card-value">{formatPrice(totalAmount)}</h2>
             </div>         
           <div className='orders-card-icon'>
             <Image

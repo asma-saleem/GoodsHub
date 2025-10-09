@@ -79,7 +79,7 @@ body {
 }
 
 .product-image {
-  @apply object-cover rounded !pt-0;
+  @apply object-cover rounded !pt-0 !mt-0;
 }
 
 .product-name {
@@ -92,4 +92,16 @@ body {
 
 .main-text-color {
   @apply text-[#535E63];
+}
+
+.color-container {
+  @apply flex items-center gap-2;
+}
+
+.color-circle {
+  @apply w-3 h-3 rounded-full inline-block;
+}
+
+.color-text {
+  @apply font-inter font-normal text-[12px] leading-4 tracking-normal text-[#535E63];
 }

@@ -44,3 +44,63 @@
 .btn-submit {
   @apply bg-[#007BFF] mt-2;
 }
+
+.product-modal .ant-modal-body {
+  padding-top: 10px;
+}
+
+.upload-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #999;
+}
+
+.upload-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.variant-item:hover {
+  background-color: #fafafa;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit {
+  margin-top: 10px;
+}
+
+/* upload.css */
+
+.variant-upload-item {
+  @apply mt-3;
+}
+
+/* AntD Upload custom styling */
+.variant-upload .ant-upload-select {
+  @apply w-full;
+}
+
+.variant-upload .ant-upload-list-picture-card-container {
+  @apply w-[100px] h-[100px] rounded-lg overflow-hidden;
+}
+
+/* Upload button style */
+.upload-btn-wrapper {
+  @apply flex flex-col items-center justify-center border border-dashed border-gray-300 
+  rounded-lg p-3 bg-gray-50 hover:border-orange-500 hover:bg-orange-50 transition-all duration-300;
+}
+
+.upload-icon {
+  @apply text-orange-500 text-xl;
+}
+
+.upload-text {
+  @apply mt-1 text-xs text-gray-600;
+}

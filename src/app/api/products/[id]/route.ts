@@ -1,32 +1,83 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+// import {ProductVariantType} from '@/types/product';
 
-// UPDATE product
-export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+// UPDATE single product variant
+export async function PUT(
+  req: Request,
+  context: { params: { id: string } }
+) {
   try {
-    const params = await context.params;
-    const { id } = params;
-    const body = await req.json();
+    const { id } = context.params;
 
-    const product = await prisma.product.update({
-      where: { id },
+    const body = (await req.json()) as {
+      variantId: string;
+      name: string;
+      color?: string;
+      size?: string;
+      price: string;
+      stock: string;
+      image?: string | { url?: string }[];
+    };
+
+    if (!body.variantId) {
+      return NextResponse.json(
+        { error: 'variantId is required' },
+        { status: 400 }
+      );
+    }
+
+    // Find existing variant
+    const existingVariant = await prisma.productVariant.findUnique({
+      where: { id: body.variantId }
+    });
+
+    if (!existingVariant) {
+      return NextResponse.json(
+        { error: 'Variant not found' },
+        { status: 404 }
+      );
+    }
+
+    // Determine image URL
+    let imageUrl = '';
+    if (typeof body.image === 'string') {
+      imageUrl = body.image;
+    } else if (Array.isArray(body.image) && body.image[0]?.url) {
+      imageUrl = body.image[0].url!;
+    }
+
+    // Update variant
+    const updatedVariant = await prisma.productVariant.update({
+      where: { id: body.variantId },
       data: {
-        image: body.image,
-        title: body.name,
-        price: parseFloat(body.price),
-        stock: parseInt(body.quantity),
-        color: body.color || null,
-        colorCode: body.colorCode || null,
-        size: body.size || null
+        color: body.color ?? existingVariant.color,
+        size: body.size ?? existingVariant.size,
+        price: Number(body.price),
+        stock: Number(body.stock),
+        image: imageUrl
       }
     });
 
-    return NextResponse.json(product);
+    // Update product title if provided
+    if (body.name) {
+      await prisma.product.update({
+        where: { id },
+        data: { title: body.name }
+      });
+    }
+
+    return NextResponse.json({ updatedVariant });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
+    console.error('❌ Single variant update failed:', error);
+    return NextResponse.json(
+      { error: 'Failed to update single variant' },
+      { status: 500 }
+    );
   }
 }
+
+
 
 // DELETE product
 export async function DELETE(
@@ -39,7 +90,7 @@ export async function DELETE(
 
     await prisma.product.update({
       where: { id },
-      data: { status: 'inactive' } 
+      data: { isDeleted: 'inactive' } 
     });
 
     return NextResponse.json({ message: 'Product marked as inactive' });

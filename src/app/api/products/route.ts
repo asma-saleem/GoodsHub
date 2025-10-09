@@ -1,6 +1,7 @@
 import { getProducts } from '@/services/product';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import {ProductVariantType} from '@/types/product';
 
 export async function GET(req: Request) {
   try {
@@ -22,50 +23,42 @@ export async function GET(req: Request) {
   }
 }
 
-export async function PUT(req: Request) {
-  try {
-    const body = await req.json();
-    const ids = body.ids || [];
-
-    if(!Array.isArray(ids) || ids.length === 0) {
-      return NextResponse.json([]);
-    }
-
-    const products = await prisma.product.findMany({
-      where: { id: { in: ids }},
-      select: { id: true, stock: true, title: true }
-    });
-    
-    return NextResponse.json(products);
-  } catch(error) {
-    console.error(error);
-    return NextResponse.json(
-      {error: 'Failed to fetch stock'},
-      {status: 500}
-    );
-  }
-}
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
     const product = await prisma.product.create({
       data: {
-        image: body.image,
-        title: body.name, 
-        price: parseFloat(body.price),
-        stock: parseInt(body.quantity),
-        color: body.color || null,
-        colorCode: body.colorCode || null,
-        size: body.size || null
-      }
+        title: body.name,
+        variants: {
+          create: body.variants.map((variant: ProductVariantType) => {
+            // 👇 define imageData correctly using "const" and a semicolon
+            const imageData = variant.image as string | { url?: string }[] | undefined;
+
+            return {
+              color: variant.color ?? null,
+              size: variant.size ?? null,
+              price: Number(variant.price),
+              stock: Number(variant.stock),
+              image:
+                typeof imageData === 'string'
+                  ? imageData
+                  : imageData?.[0]?.url ?? null
+            };
+          })
+        }
+      },
+      include: { variants: true }
     });
 
     return NextResponse.json(product);
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    console.error('Product creation failed:', error);
+    return NextResponse.json(
+      { error: 'Failed to create product' },
+      { status: 500 }
+    );
   }
 }
+
 

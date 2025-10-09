@@ -167,9 +167,10 @@ import './card.css';
 
 interface ProductCardProps {
   product: ProductType;
+  hideCart?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, hideCart = false }) => {
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -180,10 +181,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
 
   // Update selectedVariant if product changes
+  // useEffect(() => {
+  //   setSelectedVariant(product.defaultVariant || (product.variants.length ? product.variants[0] : null));
+  //   setQuantity(1);
+  // }, [product]);
+
   useEffect(() => {
-    setSelectedVariant(product.defaultVariant || (product.variants.length ? product.variants[0] : null));
-    setQuantity(1);
-  }, [product]);
+  // Filter variants for selected color (or all colors if no selection)
+  const variantsForColor = selectedVariant
+    ? product.variants.filter(v => v.color === selectedVariant.color && v.stock > 0)
+    : product.variants.filter(v => v.stock > 0);
+
+  // Agar selectedVariant null ya out-of-stock ho, select first available
+  if (!selectedVariant || !variantsForColor.find(v => v.id === selectedVariant.id)) {
+    if (variantsForColor.length > 0) {
+      setSelectedVariant(variantsForColor[0]); // first available variant
+      setQuantity(1);
+    } else {
+      // koi variant available nahi
+      setSelectedVariant(null);
+      setQuantity(0);
+    }
+  }
+}, [product, selectedVariant]);
+
 
   const increment = () => setQuantity((prev) => Math.min(prev + 1, selectedVariant?.stock ?? 1));
   const decrement = () => setQuantity((prev) => Math.max(prev - 1, 1));
@@ -230,7 +251,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         cart[existingIndex].stock = selectedVariant.stock;
         toast.success('Quantity updated in cart!');
       } else {
-        toast.error(`Cannot add ${cart[existingIndex].qty + quantity} items. Max stock: ${selectedVariant.stock}`);
+        toast.error(`${cart[existingIndex].qty + quantity} can not be added to cart. The quantity is limited to ${selectedVariant.stock}`);
         return;
       }
     } else {
@@ -256,7 +277,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <Card
-      className='card-container'
+      className={`card-container ${hideCart ? '!py-4' : ''}`}
       cover={
         <Image
           alt={product.title}
@@ -276,7 +297,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       {/* Color Selection */}
-{colors.length > 1 && (
+{/* {colors.length > 1 && (
   <div className='color-selection'>
     <p className='label'>Color Family:</p>
     <div className='flex gap-2'>
@@ -312,10 +333,68 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       })}
     </div>
   </div>
+)} */}
+{/* Color Selection */}
+{colors.length > 1 && (
+  <div className='color-selection mt-2'>
+    <div className='flex items-center gap-2'>
+      <p className='label font-semibold'>
+        Color Family:
+        {selectedVariant?.color && (
+          <span className='ml-1 font-normal text-gray-700'>
+            {selectedVariant.color}
+          </span>
+        )}
+      </p>
+    </div>
+
+    <div className='flex gap-2 mt-2'>
+      {colors.map((color) => {
+        const variantForColor = product.variants.find(
+          (v) => v.color === color && v.stock > 0
+        );
+
+        if (!variantForColor) return null;
+
+        return (
+          <div
+            key={color}
+            className={`relative cursor-pointer border-2 ${
+              selectedVariant?.color === color
+                ? 'border-orange-500'
+                : 'border-gray-200'
+            } rounded-md`}
+            onClick={() => {
+              const firstAvailable = product.variants.find(
+                (v) => v.color === color && v.stock > 0
+              );
+              if (firstAvailable) setSelectedVariant(firstAvailable);
+              setQuantity(1);
+            }}
+          >
+            <Image
+              src={variantForColor.image || '/placeholder.png'}
+              alt={color}
+              width={45}
+              height={45}
+              className='rounded-md'
+            />
+            {selectedVariant?.color === color && (
+              <span className='absolute top-0 right-0 text-orange-500 font-bold'>
+                ✓
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
 )}
 
 
-{/* Size Selection */}
+
+
+{/* Size Selection
 {sizes.length > 1 && (
   <div className='size-selection mt-2'>
     <p className='label'>Size:</p>
@@ -340,10 +419,44 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       })}
     </div>
   </div>
+)} */}
+
+{/* Size Selection */}
+{sizes.length > 1 && (
+  <div className='size-selection mt-2'>
+    <p className='label'>Size:</p>
+    <div className='flex gap-2'>
+      {sizes
+        .filter((size) => {
+          const variantForSize = variantsByColor.find((v) => v.size === size);
+          return variantForSize && variantForSize.stock > 0;
+        })
+        .map((size) => {
+          const variantForSize = variantsByColor.find((v) => v.size === size);
+
+          return (
+            <button
+              key={size}
+              className={`px-2 py-1 border rounded-md ${
+                selectedVariant?.size === size ? 'border-orange-500 text-orange-500' : 'border-gray-300'
+              }`}
+              onClick={() => {
+                if (variantForSize) setSelectedVariant(variantForSize);
+                setQuantity(1);
+              }}
+            >
+              {size}
+            </button>
+          );
+        })}
+    </div>
+  </div>
 )}
 
 
+
       {/* Quantity + Add to Cart */}
+      {!hideCart && (
       <div className='quantity-container'>
         <div className='flex items-center justify-center gap-[4px]'>
           <Button onClick={decrement} disabled={quantity <= 1} className='quantity-btn'>
@@ -375,7 +488,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         >
           {(selectedVariant?.stock ?? 0) > 0 ? 'Add to Cart' : 'Out of Stock'}
         </Button>
+        {/* <div className='price-container'>
+          <p className='price-label'>Stock:</p>
+          <p className='price-value'>{selectedVariant?.stock}</p>
+        </div> */}
       </div>
+      )}
     </Card>
   );
 };

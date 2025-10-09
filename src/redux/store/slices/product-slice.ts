@@ -47,6 +47,27 @@ export const fetchProducts = createAsyncThunk(
     }
   }
 );
+export const fetchProductsReplace = createAsyncThunk(
+  'products/fetchProductsReplace',
+  async (
+    { page, query, sortBy, limit }: { page: number; query: string; sortBy: string; limit: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(
+        `/api/products?page=${page}&limit=${limit}&q=${query}&sortBy=${sortBy}`
+      );
+
+      if (!res.ok) throw new Error('Failed to fetch products');
+
+      const data = await res.json();
+      return { ...data, page, limit };
+    } catch (error) {
+      console.error(error);
+      return rejectWithValue('Failed to fetch products');
+    }
+  }
+);
 
 const productSlice = createSlice({
   name: 'products',
@@ -93,6 +114,28 @@ const productSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchProducts.rejected, (state) => {
+        state.loading = false;
+      });
+      builder
+      .addCase(fetchProductsReplace.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchProductsReplace.fulfilled, (state, action) => {
+        const { products, total, page, limit } = action.payload as {
+          products: ProductType[];
+          total: number;
+          page: number;
+          limit: number;
+        };
+
+        // ✅ Always replace products
+        state.products = products;
+        state.total = total;
+        state.page = page;
+        state.limit = limit;
+        state.loading = false;
+      })
+      .addCase(fetchProductsReplace.rejected, (state) => {
         state.loading = false;
       });
   }
