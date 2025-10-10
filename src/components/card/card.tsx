@@ -263,7 +263,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, hideCart = false }) 
         return;
       }
     }
-
+    console.log( JSON.stringify(cart));
     localStorage.setItem(storageKey, JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
   };
@@ -335,7 +335,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, hideCart = false }) 
   </div>
 )} */}
 {/* Color Selection */}
-{colors.length > 1 && (
+{colors.length > 0 && (
   <div className='color-selection mt-2'>
     <div className='flex items-center gap-2'>
       <p className='label font-semibold'>
@@ -422,7 +422,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, hideCart = false }) 
 )} */}
 
 {/* Size Selection */}
-{sizes.length > 1 && (
+{sizes.length > 0 && (
   <div className='size-selection mt-2'>
     <p className='label'>Size:</p>
     <div className='flex gap-2'>

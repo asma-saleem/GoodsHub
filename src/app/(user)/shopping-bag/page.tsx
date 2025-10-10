@@ -112,9 +112,9 @@ const ShoppingBagPage: React.FC = () => {
       });
 
       if (!res.ok) {
-        // const err = await res.json();
+        const data = await res.json();
         // console.error('Checkout failed:', err);
-        toast.error('Failed to place order');
+        toast.error(data.error || 'Failed to place order');
         return;
       }
 

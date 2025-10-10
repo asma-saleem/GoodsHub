@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+
 import { Table, Avatar, Space, Spin, Button, Input, Select, Modal } from 'antd';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
-import SingleVariantEditModal, {
-  SingleVariantFormValues
-} from '@/components/product-modal/edit-modal';
-import Image from 'next/image';
 
-import { ProductType, ProductVariantType } from '@/types/product';
 import ProductModal, {
   ProductFormValues
 } from '@/components/product-modal/product-modal';
+import SingleVariantEditModal, {
+  SingleVariantFormValues
+} from '@/components/product-modal/edit-modal';
 import UploadProductsModal from '@/components/upload-product';
 import RemoveProductModal from '@/components/delete-product/delete-product';
+
+import { ProductType, ProductVariantType } from '@/types/product';
 
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import {
@@ -22,6 +26,7 @@ import {
   setSearchAndSort,
   setPage
 } from '@/redux/store/slices/product-slice';
+import { toast } from 'react-toastify';
 
 import './product.css';
 
@@ -31,19 +36,15 @@ const ProductsContent: React.FC = () => {
     (state) => state.products
   );
 
-  const [openUploadModal, setOpenUploadModal] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [editData, setEditData] = useState<ProductFormValues | undefined>(
-    undefined
-  );
+  const [editData, setEditData] = useState<ProductFormValues | undefined>();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<ProductType | null>(
     null
   );
 
-  const [localSearch, setLocalSearch] = useState(searchTerm);
-  const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
 
   const [openViewModal, setOpenViewModal] = useState(false);
   const [viewProduct, setViewProduct] = useState<ProductType | null>(null);
@@ -51,7 +52,16 @@ const ProductsContent: React.FC = () => {
   const [openSingleVariantModal, setOpenSingleVariantModal] = useState(false);
   const [singleVariantData, setSingleVariantData] = useState<
     SingleVariantFormValues | undefined
-  >(undefined);
+  >();
+
+  const [localSearch, setLocalSearch] = useState(searchTerm);
+  const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
+
+  const [openVariantDeleteModal, setOpenVariantDeleteModal] = useState(false);
+  const [variantToDelete, setVariantToDelete] = useState<{
+    productId: string;
+    variantId: string;
+  } | null>(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -82,7 +92,7 @@ const ProductsContent: React.FC = () => {
   };
 
   const handleUpload = (files: UploadFile[]) => {
-    console.log('👉 Upload Multiple Products:', files);
+    console.log('Upload Multiple Products:', files);
   };
 
   const handleDeleteConfirm = async () => {
@@ -114,7 +124,7 @@ const ProductsContent: React.FC = () => {
           <span className='product-title'>{text}</span>
         </Space>
       )
-    }, 
+    },
     {
       title: 'Price',
       dataIndex: 'variants',
@@ -148,38 +158,19 @@ const ProductsContent: React.FC = () => {
               setOpenViewModal(true);
             }}
           />
-          {/* <Button
+          <Button
             type='text'
             icon={<EditOutlined />}
             onClick={() => {
-              if (record.variants.length === 1) {
-                const v = record.variants[0];
-                setSingleVariantData({
-                  id: record.id,
-                  color: v.color || '',
-                  size: v.size || '',
-                  price: String(v.price ?? ''),
-                  stock: String(v.stock ?? ''),
-                  image: v.image || ''
-                });
-                setOpenSingleVariantModal(true); // open directly here
-              } else {
-                setModalMode('edit');
-                setEditData({
-                  id: record.id,
-                  name: record.title,
-                  variants: record.variants.map((v: ProductVariantType) => ({
-                    color: v.color || '',
-                    size: v.size || '',
-                    price: String(v.price ?? ''),
-                    stock: String(v.stock ?? ''),
-                    image: v.image || ''
-                  }))
-                });
-                setOpenModal(true);
-              }
-            }} */}
-          {/* /> */}
+              setModalMode('edit');
+              setEditData({
+                id: record.id,
+                name: record.title,
+                variants: []
+              });
+              setOpenModal(true);
+            }}
+          />
 
           <Button
             danger
@@ -190,6 +181,23 @@ const ProductsContent: React.FC = () => {
               setOpenDeleteModal(true);
             }}
           />
+          <Button
+            type='text'
+            className='!w-[100px] !h-[25px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white'
+            onClick={() => {
+              setSingleVariantData({
+                id: record.id,
+                color: '',
+                size: '',
+                price: '',
+                stock: '',
+                image: ''
+              });
+              setOpenSingleVariantModal(true);
+            }}
+          >
+            + Variant
+          </Button>
         </Space>
       )
     }
@@ -349,6 +357,13 @@ const ProductsContent: React.FC = () => {
                     <p className='font-semibold text-gray-800'>
                       {variant.color || '-'}
                     </p>
+                    {variant.colorCode && (
+                      <span
+                        className='inline-block w-5 h-5 rounded-full border border-gray-300'
+                        style={{ backgroundColor: variant.colorCode }}
+                        title={variant.colorCode}
+                      />
+                    )}
                     <p className='text-gray-600'>Size: {variant.size || '-'}</p>
                     <p className='text-gray-700 font-bold'>${variant.price}</p>
                     <p className='text-gray-500'>Stock: {variant.stock}</p>
@@ -363,8 +378,9 @@ const ProductsContent: React.FC = () => {
                       onClick={() => {
                         setOpenViewModal(false);
                         setSingleVariantData({
-                          id: viewProduct.id, // pass productId
-                          variantId: variant.id, // pass variantId!
+                          id: viewProduct.id, 
+                          variantId: variant.id, 
+                          colorCode: variant.colorCode,
                           color: variant.color || '',
                           size: variant.size || '',
                           price: String(variant.price ?? ''),
@@ -377,17 +393,20 @@ const ProductsContent: React.FC = () => {
                       Edit
                     </Button>
                     <Button
-                      danger
-                      size='small'
-                      icon={<DeleteOutlined />}
-                      onClick={() => {
-                        setOpenViewModal(false);
-                        setProductToDelete(viewProduct);
-                        setOpenDeleteModal(true);
-                      }}
-                    >
-                      Delete
-                    </Button>
+                        danger
+                        size='small'
+                        icon={<DeleteOutlined />}
+                        onClick={() => {
+                          setOpenViewModal(false);
+                          setVariantToDelete({
+                            productId: viewProduct.id,
+                            variantId: variant.id
+                          });
+                          setOpenVariantDeleteModal(true);
+                        }}
+                      >
+                        Delete
+                      </Button>
                   </div>
                 </div>
               )
@@ -404,34 +423,86 @@ const ProductsContent: React.FC = () => {
           onSubmit={async (values) => {
             try {
               console.log(JSON.stringify(values));
-              const response = await fetch(`/api/products/${values.id}`, {
-                method: 'PUT', // or PATCH depending on your API
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(values)
-              });
+              let response;
+
+              if (values.variantId) {
+                
+                response = await fetch(
+                  `/api/products/${values.id}/variants/${values.variantId}`,
+                  {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(values)
+                  }
+                );
+              } else {
+                
+                response = await fetch(`/api/products/${values.id}/variants`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(values)
+                });
+              }
+              const updatedVariant = await response.json();
 
               if (!response.ok) {
-                throw new Error('Failed to update variant');
-              }
-
-              const updatedVariant = await response.json();
+               toast.error(updatedVariant.error || 'Failed to add/update variant');
+               return;
+              }             
               console.log('Variant updated successfully:', updatedVariant);
 
-              // Close modal & reset
               setOpenSingleVariantModal(false);
               setSingleVariantData(undefined);
 
-              // Optionally, update local state if you want instant UI update
-              // setVariants(prev => prev.map(v => v.id === updatedVariant.id ? updatedVariant : v));
+              dispatch(
+                fetchProductsReplace({
+                  page: 1,
+                  query: searchTerm,
+                  sortBy,
+                  limit: 12
+                })
+              );
             } catch (error) {
               console.error('Error updating variant:', error);
             }
           }}
-
         />
       )}
+      {openVariantDeleteModal && variantToDelete && (
+            <RemoveProductModal
+              onConfirm={async () => {
+                try {
+                  await fetch(
+                    `/api/products/${variantToDelete.productId}/variants/${variantToDelete.variantId}`,
+                    { method: 'DELETE' }
+                  );
+
+                  dispatch(
+                    fetchProductsReplace({
+                      page: 1,
+                      query: searchTerm,
+                      sortBy,
+                      limit: 12
+                    })
+                  );
+                } catch (error) {
+                  console.error('Failed to delete variant:', error);
+                } finally {
+                  setOpenVariantDeleteModal(false);
+                  setVariantToDelete(null);
+                }
+              }}
+              onCancel={() => setOpenVariantDeleteModal(false)}
+              title='Remove Variant'
+              message={
+                <>
+                  Are you sure you want to delete this <b>variant</b>?  
+                  It will be marked as <span className='text-red-500'>inactive</span>.
+                </>
+              }
+            />
+          )}
+
     </>
   );
 };

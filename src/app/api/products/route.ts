@@ -3,6 +3,25 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import {ProductVariantType} from '@/types/product';
 
+async function createVariants(variants: ProductVariantType[]) {
+  return variants.map((variant) => {
+    const imageData =
+      variant.image as string | { url?: string }[] | undefined;
+
+    return {
+      color: variant.color ?? null,
+      colorCode: variant.colorCode ?? null,
+      size: variant.size ?? null,
+      price: Number(variant.price),
+      stock: Number(variant.stock),
+      image:
+        typeof imageData === 'string'
+          ? imageData
+          : imageData?.[0]?.url ?? null
+    };
+  });
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -26,26 +45,19 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    if (!body?.name || !Array.isArray(body?.variants)) {
+      return NextResponse.json(
+        { error: 'Invalid product data' },
+        { status: 400 }
+      );
+    }
+    const variantData = await createVariants(body.variants);
 
     const product = await prisma.product.create({
       data: {
         title: body.name,
         variants: {
-          create: body.variants.map((variant: ProductVariantType) => {
-            // 👇 define imageData correctly using "const" and a semicolon
-            const imageData = variant.image as string | { url?: string }[] | undefined;
-
-            return {
-              color: variant.color ?? null,
-              size: variant.size ?? null,
-              price: Number(variant.price),
-              stock: Number(variant.stock),
-              image:
-                typeof imageData === 'string'
-                  ? imageData
-                  : imageData?.[0]?.url ?? null
-            };
-          })
+          create: variantData
         }
       },
       include: { variants: true }

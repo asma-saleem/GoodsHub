@@ -10,6 +10,7 @@ export interface ProductVariantType {
   price: number;
   image?: string;
   stock: number;
+  availabilityStatus: string;
 }
 
 export interface ProductType {
