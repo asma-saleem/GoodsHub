@@ -55,7 +55,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     { name: 'Brown', code: '#8B4513' },
     { name: 'Beige', code: '#F5F5DC' },
     { name: 'Pink', code: '#FFC0CB' }
-];
+  ];
   useEffect(() => {
     if (open) {
       if (initialValues) {
@@ -88,49 +88,37 @@ const ProductModal: React.FC<ProductModalProps> = ({
       } else {
         form.setFieldsValue({
           name: '',
-          variants: [{ color: undefined, size: undefined, price: '', stock: '', image: [] }]
+          variants: [
+            {
+              color: undefined,
+              size: undefined,
+              price: '',
+              stock: '',
+              image: []
+            }
+          ]
         });
       }
     }
   }, [open, initialValues, mode, form]);
 
   const handleFinish = async (values: ProductFormValues) => {
-    // if (mode === 'edit') {
-
-    //   const payload: ProductFormValues = {
-    //     ...initialValues,
-    //     name: values.name,
-    //     variants: initialValues?.variants || []
-    //   };
-
-    //   await fetch(`/api/products/${initialValues?.id ?? ''}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(payload)
-    //   });
-
-    //   onSubmit(payload);
-    //   setOpen(false);
-    //   return; 
-    // }
-
     if (mode === 'edit') {
-    // ✅ Update only title in edit mode
-    const payload = {
-      id: initialValues?.id,
-      name: values.name
-    };
+      const payload = {
+        id: initialValues?.id,
+        name: values.name
+      };
 
-    await fetch(`/api/products/${initialValues?.id ?? ''}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+      await fetch(`/api/products/${initialValues?.id ?? ''}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    onSubmit(payload as ProductFormValues);
-    setOpen(false);
-    return;
-  }
+      onSubmit(payload as ProductFormValues);
+      setOpen(false);
+      return;
+    }
     const variants = await Promise.all(
       values.variants.map(async (variant) => {
         let imageUrl = '';
@@ -263,7 +251,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           ]}
                         >
                           <Select
-                           placeholder="Select Color"
+                            placeholder='Select Color'
                             style={{ width: '100%' }}
                             onChange={(value: string) => {
                               const color = colorOptions.find(
@@ -305,7 +293,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           label='Size'
                           rules={[{ required: true, message: 'Select a size' }]}
                         >
-                          <Select placeholder="Select Size" style={{ width: '100%' }}>
+                          <Select
+                            placeholder='Select Size'
+                            style={{ width: '100%' }}
+                          >
                             {['S', 'M', 'L', 'XL'].map((size) => (
                               <Option key={size} value={size}>
                                 {size}
@@ -335,32 +326,36 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <Form.Item
                           {...rest}
                           name={[name, 'image']}
-                          label="Image"
-                          valuePropName="fileList"
-                          getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-                          className="variant-upload-item"
+                          label='Image'
+                          valuePropName='fileList'
+                          getValueFromEvent={(e) =>
+                            Array.isArray(e) ? e : e?.fileList
+                          }
+                          className='variant-upload-item'
                         >
                           <Upload
-                            listType="picture-card"
+                            listType='picture-card'
                             beforeUpload={() => false}
                             multiple={false}
                             maxCount={1}
-                            className="variant-upload"
+                            className='variant-upload'
                             onChange={() => {
                               form.setFieldsValue({
                                 variants: [...form.getFieldValue('variants')]
                               });
                             }}
                           >
-                            {!(form.getFieldValue(['variants', name, 'image']) || []).length && (
-                              <div className="upload-btn-wrapper">
-                                <UploadOutlined className="upload-icon" />
-                                <p className="upload-text">Upload</p>
+                            {!(
+                              form.getFieldValue(['variants', name, 'image']) ||
+                              []
+                            ).length && (
+                              <div className='upload-btn-wrapper'>
+                                <UploadOutlined className='upload-icon' />
+                                <p className='upload-text'>Upload</p>
                               </div>
                             )}
                           </Upload>
-                    </Form.Item>
-
+                        </Form.Item>
                       </div>
 
                       <div className='flex justify-end mt-2'>

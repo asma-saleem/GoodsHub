@@ -223,7 +223,6 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
   const handleFinish = async (values: SingleVariantFormValues) => {
     let imageUrl = initialValues?.image || '';
 
-    // Upload new image if selected
     if (fileList[0]?.originFileObj) {
       const fd = new FormData();
       fd.append('file', fileList[0].originFileObj as File);

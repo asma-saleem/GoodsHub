@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
-import { Button, Input, Spin, Table } from 'antd';
+import { Button, Input, Spin, Table, Modal, Form } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
@@ -22,12 +22,22 @@ import './page.css';
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
 
+interface CustomerInfo {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+}
+
 const ShoppingBagPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CartItemType | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [dataSource, setDataSource] = useState<CartItemType[]>([]);
   const [loading, setLoading] = useState(true); 
   const [deleteSelectedOpen, setDeleteSelectedOpen] = useState(false);
+
+  const [checkoutModal, setCheckoutModal] = useState(false);
+  const [form] = Form.useForm();
 
   const router = useRouter();
   const { data: session } = useSession();
@@ -91,41 +101,44 @@ const ShoppingBagPage: React.FC = () => {
     setDeleteTarget(null);
   };
 
-  const handlePlaceOrder = async () => {
-    if (!session?.user?.id) {
+  const handleCheckout = async (customerInfo: CustomerInfo) => {
+  if (!session?.user?.id) {
     router.push('/auth/login');
     return;
   }
-  const storageKey = `cart_${session.user.id}`;
-  const cart = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    if (!cart || cart.length === 0) {
-      toast.error('Your cart is empty!');
+
+  const cart = JSON.parse(localStorage.getItem(`cart_${session.user.id}`) || '[]');
+  if (!cart.length) {
+    toast.error('Your cart is empty!');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerInfo,
+        cart,
+        userId: session.user.id
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.error || 'Checkout failed!');
       return;
     }
 
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart }),
-        credentials: 'same-origin'
-      });
+    // Redirect to Stripe
+    window.location.href = data.url;
+  } catch (error) {
+    console.error(error);
+    toast.error('Unexpected error during checkout');
+  }
+};
 
-      if (!res.ok) {
-        const data = await res.json();
-        // console.error('Checkout failed:', err);
-        toast.error(data.error || 'Failed to place order');
-        return;
-      }
-
-      localStorage.removeItem(storageKey);
-      toast.success('Order placed successfully!');
-      router.push('/orders');
-    } catch (error) {
-      console.error(error);
-      toast.error('Unexpected error during checkout');
-    }
-  };
   
   const handleDeleteSelected = () => {
     if (selectedRowKeys.length === 0) {
@@ -224,14 +237,7 @@ const ShoppingBagPage: React.FC = () => {
             onClick={() => updateQty(record.key, 'dec')}
           >
             -
-          </Button>
-          {/* <span
-            className='quantity-display'
-            style={{ borderColor: '#DFDFDF' }}
-          >
-            {qty.toString().padStart(2, '0')}
-          </span> */}
-
+         </Button>
       <Input
         type="number"
         min={1}
@@ -407,15 +413,14 @@ const ShoppingBagPage: React.FC = () => {
             </p>
           </div>
           <div className='place-order-container'>
-            <Button className='place-order-btn'>
-              <div
-                onClick={handlePlaceOrder}
-                className='place-order-text'
+              <Button
+                className='place-order-btn'
+                onClick={() => setCheckoutModal(true)}
               >
-                Place Order
-              </div>
-            </Button>
+                <div className='place-order-text'>Buy Now</div>
+              </Button>
           </div>
+
         </div>
       </div>
       {deleteTarget && (
@@ -445,6 +450,51 @@ const ShoppingBagPage: React.FC = () => {
           onCancel={() => setDeleteSelectedOpen(false)}
         />
       )}
+      <Modal
+          title="Enter Shipping Details"
+          open={checkoutModal}
+          onCancel={() => setCheckoutModal(false)}
+          onOk={() => form.submit()}
+          okText="Proceed to Payment"
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={async (values) => {
+              await handleCheckout(values);
+            }}
+          >
+            <Form.Item
+              name="name"
+              label="Full Name"
+              rules={[{ required: true, message: 'Please enter your name' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="phone"
+              label="Phone Number"
+              rules={[{ required: true, message: 'Please enter your phone number' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="address"
+              label="Address"
+              rules={[{ required: true, message: 'Please enter your address' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="city"
+              label="City"
+              rules={[{ required: true, message: 'Please enter your city' }]}
+            >
+              <Input />
+            </Form.Item>
+          </Form>
+        </Modal>
+
     </div>
   );
 };
