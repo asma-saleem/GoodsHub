@@ -2,12 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+  
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const body = await req.json();
 
     if (!body?.name) {

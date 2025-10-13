@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string; variantId: string } }
-) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
   try {
-    const { id, variantId } = params;
+    const { id, variantId } = await context.params;
     const body = await req.json();
 
     if (!variantId) {
@@ -56,12 +53,9 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string; variantId: string } }
-) {
+export async function DELETE(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
   try {
-    const { variantId } = params;
+    const { variantId } = await context.params;
 
     const existingVariant = await prisma.productVariant.findUnique({
       where: { id: variantId }

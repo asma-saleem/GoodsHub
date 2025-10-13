@@ -2,12 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ProductVariantType } from '@/types/product';
 
-export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const body = (await req.json()) as ProductVariantType;
 
     const existingVariant = await prisma.productVariant.findFirst({
