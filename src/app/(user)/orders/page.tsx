@@ -80,6 +80,10 @@ const Orders: React.FC = () => {
       render: (amount: number) => <span>{formatPrice(amount)}</span>
     },
     {
+      title: 'Order Status',
+      dataIndex: 'OrderStatus'
+    },
+    {
       title: 'Actions',
       dataIndex: 'actions',
       render: (_, record) => (

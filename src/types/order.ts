@@ -22,5 +22,6 @@ export interface OrderType {
   userId: number;
   total: number;
   items: OrderItemType[]; 
+  orderStatus: string
 }
 

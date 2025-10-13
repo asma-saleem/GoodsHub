@@ -67,6 +67,7 @@ export async function getOrdersByUserId(
       createdAt: true,
       orderNo:true,
       total: true,
+      orderStatus: true,
       items: { select: { id: true } } 
     },
     orderBy: { createdAt: 'desc' },
