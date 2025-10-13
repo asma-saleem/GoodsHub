@@ -81,7 +81,7 @@ export async function getOrdersByUserId(
   return { orders, total };
 }
 
-export async function createOrder(cart: CartItemType[], userId: string) {
+export async function createOrder(cart: CartItemType[], userId: string ) {
 
   const subTotal = cart.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.qty),
