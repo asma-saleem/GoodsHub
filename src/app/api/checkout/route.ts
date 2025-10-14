@@ -105,20 +105,18 @@ const cartSchema = Joi.array().items(cartItemSchema).min(1).required();
 
 export async function POST(req: Request) {
   try {
-    const { cart } = await req.json(); // only cart is needed
+    const { cart } = await req.json(); 
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // 1️⃣ Validate cart (same as before)
     const { error } = cartSchema.validate(cart, { abortEarly: false });
     if (error) return NextResponse.json({ error: 'Invalid cart', details: error.details }, { status: 400 });
 
-    // 2️⃣ Create order with PENDING status
-    const order = await createOrder(cart, userId); // PENDING by default
+   
+    const order = await createOrder(cart, userId); 
 
-    // 3️⃣ Create Stripe customer using only userId info from DB
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     const stripeCustomer = await stripe.customers.create({
@@ -126,22 +124,20 @@ export async function POST(req: Request) {
       email: user?.email,
       metadata: { orderId: order.id, userId }
     });
-    const subTotal = cart.reduce(
-    (sum:number, item:CartItemType) => sum + Number(item.price) * Number(item.qty),
-    0
-    );
-    const tax = subTotal * 0.1; 
-    const total = subTotal + tax;
+    const line_items = cart.map((item: CartItemType) => {
+      const priceWithTax = item.price * 1.10;
 
-    // 4️⃣ Create Stripe Checkout session
-    const line_items = cart.map((item: CartItemType) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: { name: item.title },
-        unit_amount: Math.round(total * 100)
-      },
-      quantity: item.qty
-    }));
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.title
+          },
+          unit_amount: Math.round(priceWithTax * 100)
+        },
+        quantity: item.qty
+      };
+    });
 
     const stripeSession = await stripe.checkout.sessions.create({
       customer: stripeCustomer.id,
