@@ -51,6 +51,8 @@
 // };
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export const getProducts = async (
   page: number = 1,
@@ -58,6 +60,8 @@ export const getProducts = async (
   query = '',
   sortBy: string = 'createdAt_desc'
 ) => {
+  const session = await getServerSession(authOptions);
+  const role = session?.user?.role || 'USER';
   const where: Prisma.ProductWhereInput = {
     isDeleted: 'active',
     ...(query
@@ -67,12 +71,18 @@ export const getProducts = async (
             mode: 'insensitive'
           }
         }
+      : {}),
+      ...(role !== 'ADMIN'
+      ? {
+          variants: {
+            some: { availabilityStatus: 'ACTIVE' }
+          }
+        }
       : {})
   };
 
   const skip = (page - 1) * limit;
 
-  // ✅ Only use fields Prisma supports
   let order: Prisma.Enumerable<Prisma.ProductOrderByWithRelationInput>;
   switch (sortBy) {
     case 'title_asc':
@@ -89,7 +99,6 @@ export const getProducts = async (
       order = { createdAt: 'desc' };
   }
 
-  // ✅ Fetch products with all active variants
   const products = await prisma.product.findMany({
     skip,
     take: limit,
@@ -110,8 +119,6 @@ export const getProducts = async (
       }
     }
   });
-
-  // ✅ Enrich with lowest-price variant
   const enrichedProducts = products.map((product) => {
     if (!product.variants.length) {
       return {
@@ -120,8 +127,6 @@ export const getProducts = async (
         minPrice: null
       };
     }
-
-    // find lowest price variant (Daraz style)
     const defaultVariant = product.variants.reduce((lowest, v) =>
       v.price < lowest.price ? v : lowest
     );
@@ -134,7 +139,6 @@ export const getProducts = async (
     };
   });
 
-  // ✅ Sort in-memory if sorting by price
   let sortedProducts = enrichedProducts;
   if (sortBy === 'price_asc') {
     sortedProducts = [...enrichedProducts].sort(

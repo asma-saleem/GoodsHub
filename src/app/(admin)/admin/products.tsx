@@ -125,13 +125,21 @@ const ProductsContent: React.FC = () => {
         </Space>
       )
     },
-    {
+   {
       title: 'Price',
       dataIndex: 'variants',
       key: 'price',
-      render: (_: unknown, record: ProductType) => {
-        const price =
-          record.minPrice ?? Math.min(...record.variants.map((v) => v.price));
+      render: (_: unknown, record: ProductType) => {      
+        let price = record.minPrice;
+
+        if (price === null && record.variants?.length) {
+
+          price = Math.min(...record.variants.map((v) => v.price ?? 0));
+        }
+        if (!price || price === Infinity) {
+          price = 0;
+        }
+
         return `$${price.toFixed(2)}`;
       }
     },
