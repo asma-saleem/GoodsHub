@@ -1,5 +1,34 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import Joi from 'joi';
+
+const updateVariantSchema = Joi.object({
+  id: Joi.string().optional(),
+  variantId: Joi.string().optional(),
+  color: Joi.string().optional().allow(null, ''),
+  colorCode: Joi.string()
+    .pattern(/^#([0-9A-Fa-f]{6})$/)
+    .required()
+    .messages({
+      'string.empty': 'Color code is required',
+      'string.pattern.base': 'Invalid color code format'
+    }),
+  size: Joi.string().optional().allow(null, ''),
+  price: Joi.number().min(0).required(),
+  stock: Joi.number().min(0).required(),
+  image: Joi.string()
+    .allow('', null)
+    .pattern(/^(https?:\/\/|\/|[a-zA-Z0-9_\-]+\.(jpg|jpeg|png|webp))/, 'valid image path')
+    .messages({
+      'string.pattern.name': 'Please provide a valid image URL or path'
+    }),
+  name: Joi.string().optional().allow(null, '')
+});
+
+const deleteVariantSchema = Joi.object({
+  id: Joi.string().optional(),
+  variantId: Joi.string().uuid().optional()
+});
 
 export async function PUT(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
   try {
@@ -8,6 +37,10 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
 
     if (!variantId) {
       return NextResponse.json({ error: 'variantId is required' }, { status: 400 });
+    }
+    const { error, value } = updateVariantSchema.validate(body, { abortEarly: false });
+    if (error) {
+      return NextResponse.json({ error: 'Invalid input', details: error.details }, { status: 400 });
     }
     const existingVariant = await prisma.productVariant.findUnique({
       where: { id: variantId }
@@ -18,29 +51,26 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
     }
 
     let imageUrl = '';
-    if (typeof body.image === 'string') {
-      imageUrl = body.image;
-    } else if (Array.isArray(body.image) && body.image[0]?.url) {
-      imageUrl = body.image[0].url!;
+    if (typeof value.image === 'string') {
+      imageUrl = value.image;
+    } else if (Array.isArray(value.image) && value.image[0]?.url) {
+      imageUrl = value.image[0].url!;
     }
 
     const updatedVariant = await prisma.productVariant.update({
       where: { id: variantId },
       data: {
-        color: body.color ?? existingVariant.color,
-        colorCode: body.colorCode ?? existingVariant.colorCode,
-        size: body.size ?? existingVariant.size,
-        price: Number(body.price),
-        stock: Number(body.stock),
+        color: value.color ?? existingVariant.color,
+        colorCode: value.colorCode ?? existingVariant.colorCode,
+        size: value.size ?? existingVariant.size,
+        price: Number(value.price),
+        stock: Number(value.stock),
         image: imageUrl || existingVariant.image
       }
     });
 
-    if (body.name) {
-      await prisma.product.update({
-        where: { id },
-        data: { title: body.name }
-      });
+    if (value.name) {
+      await prisma.product.update({ where: { id }, data: { title: value.name } });
     }
 
     return NextResponse.json({ updatedVariant });
@@ -56,6 +86,10 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
 export async function DELETE(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
   try {
     const { variantId } = await context.params;
+    const { error } = deleteVariantSchema.validate({ variantId });
+    if (error) {
+      return NextResponse.json({ error: 'Invalid variantId', details: error.details }, { status: 400 });
+    }
 
     const existingVariant = await prisma.productVariant.findUnique({
       where: { id: variantId }
@@ -67,7 +101,7 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
 
     const updatedVariant = await prisma.productVariant.update({
       where: { id: variantId },
-      data: { availabilityStatus: 'OUT_OF_STOCK' }
+      data: { isVariantDeleted: true}
     });
 
     return NextResponse.json({

@@ -90,7 +90,7 @@ const ordersSlice = createSlice({
           id: order.id,
           date: order.createdAt,
           userName: order.user?.fullname ?? '',
-          OrderStatus: order.orderStatus,
+          orderStatus: order.orderStatus,
           orderNo: order.orderNo,
           products: order.items?.length || 0,
           amount: order.total || 0

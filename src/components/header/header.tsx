@@ -15,7 +15,7 @@ import { CartItem } from '@/types/cart';
 import './header.css';
 
 export default function Header() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
@@ -66,7 +66,11 @@ export default function Header() {
         <Badge count={cartCount} offset={[0, -3]} className='cart-badge'>
           <ShoppingOutlined
             onClick={() => {
-              window.location.href = session ? '/shopping-bag' : '/auth/login';
+              if (status === 'authenticated') {
+                window.location.href = '/shopping-bag';
+              } else {
+                window.location.href = '/auth/login';
+              }
             }}
             className='cursor-pointer'
             style={{ fontSize: 16, color: '#007BFF' }}

@@ -1,23 +1,28 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import Joi from 'joi';
 
+const updateProductSchema = Joi.object({
+  id: Joi.string().optional(),
+  name: Joi.string().min(1).required()
+});
 
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
-  
   try {
     const { id } = await context.params;
     const body = await req.json();
 
-    if (!body?.name) {
+    const { error, value } = updateProductSchema.validate(body, { abortEarly: false });
+    if (error) {
       return NextResponse.json(
-        { error: 'Product name is required' },
+        { error: 'Invalid input', details: error.details },
         { status: 400 }
       );
     }
 
     const updatedProduct = await prisma.product.update({
       where: { id },
-      data: { title: body.name },
+      data: { title: value.name },
       include: { variants: true }
     });
 
@@ -31,18 +36,16 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
   }
 }
 
-
 export async function DELETE(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const params = await context.params;
-    const { id } = params;
+    const { id } = await context.params;
 
     await prisma.product.update({
       where: { id },
-      data: { isDeleted: 'inactive' } 
+      data: { isProductDeleted: true } 
     });
 
     return NextResponse.json({ message: 'Product marked as inactive' });

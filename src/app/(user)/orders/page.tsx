@@ -81,7 +81,7 @@ const Orders: React.FC = () => {
     },
     {
       title: 'Order Status',
-      dataIndex: 'OrderStatus'
+      dataIndex: 'orderStatus'
     },
     {
       title: 'Actions',
@@ -116,7 +116,7 @@ const Orders: React.FC = () => {
             <Link href='/'>
               <ArrowLeftOutlined
                 style={{ color: '#007BFF' }}
-                onClick={() => router.back()}
+                onClick={() => router.push('/')}
               />
             </Link>
             <h4 className='orders-title'>Orders</h4>
@@ -157,13 +157,13 @@ const Orders: React.FC = () => {
       <Drawer
         title={<h2 className='orders-title'>Order Details</h2>}
         className="
-    [&_.ant-drawer-content]:bg-[#F9FAFB]
-    [&_.ant-drawer-header]:bg-[#F9FAFB]
-    [&_.ant-drawer-body]:bg-[#F9FAFB]
-    [&_.ant-drawer-body]:p-6
-    [&_.ant-drawer-content]:rounded-l-2xl
-    [&_.ant-drawer-content]:shadow-lg
-  "
+            [&_.ant-drawer-content]:bg-[#F9FAFB]
+            [&_.ant-drawer-header]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:p-6
+            [&_.ant-drawer-content]:rounded-l-2xl
+            [&_.ant-drawer-content]:shadow-lg
+          "
         open={openDrawer}
         onClose={() => {
           setOpenDrawer(false);

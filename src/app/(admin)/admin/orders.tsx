@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Spin, Button, Card, Drawer } from 'antd';
-// import { useRouter } from 'next/navigation';
+import { Table, Input, Spin, Button, Card, Drawer,Space } from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
 import { formatPrice } from '@/lib/utils';
+import { toast } from 'react-toastify';
 
 import { OrderType } from '@/types/order';
 
@@ -23,7 +23,6 @@ import './orders.css';
 import { OrderDetailPage } from '@/app/(user)/orders-detail/OrderDetailPage';
 
 const OrdersContent: React.FC = () => {
-  // const router = useRouter();
   const dispatch = useAppDispatch();
     const { data, total,totalOrders, totalUnits, totalAmount, loadingList, currentPage, query } = useAppSelector(
       (state) => state.orders
@@ -46,6 +45,28 @@ const OrdersContent: React.FC = () => {
         fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
       );
     }, [dispatch, currentPage, debouncedTerm]);
+    
+    const handleMarkCompleted = async (orderId: string) => {
+  try {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: 'PATCH'
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      toast.success('Order marked as completed');
+     dispatch(
+        fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
+      );
+    } else {
+      toast.error(data.error || 'Failed to mark order as completed');
+    }
+  } catch (err) {
+    console.error('Error updating order:', err);
+    toast.error('Something went wrong');
+  }
+};
 
   const columns = [
     {
@@ -78,15 +99,21 @@ const OrdersContent: React.FC = () => {
       key: 'products' 
     },
     {
+      title: 'Order Status',
+      dataIndex: 'orderStatus'
+    },
+    {
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
       render: (amount: number) => <span>{formatPrice(amount)}</span>
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      render: (record:OrderType) => (
+    title: 'Actions',
+    key: 'actions',
+    render: (record: OrderType) => (
+      console.log('Order status:', record.orderStatus),
+      <Space>
         <Button
           type="text"
           icon={<ArrowRightOutlined />}
@@ -95,8 +122,26 @@ const OrdersContent: React.FC = () => {
             setOpenDrawer(true);
           }}
         />
+        {(record.orderStatus === 'PAID' || record.orderStatus === 'COMPLETED') && (
+        <Button
+          type="primary"
+          disabled={record.orderStatus === 'COMPLETED'}
+          onClick={() => {
+            if (record.orderStatus === 'PAID') {
+              handleMarkCompleted(record.id);
+            }
+          }}
+          style={{
+            opacity: record.orderStatus === 'COMPLETED' ? 0.6 : 1,
+            cursor: record.orderStatus === 'COMPLETED' ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {record.orderStatus === 'COMPLETED' ? 'Completed' : 'Mark as Complete'}
+        </Button>
+                )}
+      </Space>
       )
-    }
+     }
   ];
 
   if (loadingList) {
@@ -197,13 +242,13 @@ const OrdersContent: React.FC = () => {
       <Drawer
         title={<h2 className='orders-title'>Order Details</h2>}
         className="
-    [&_.ant-drawer-content]:bg-[#F9FAFB]
-    [&_.ant-drawer-header]:bg-[#F9FAFB]
-    [&_.ant-drawer-body]:bg-[#F9FAFB]
-    [&_.ant-drawer-body]:p-6
-    [&_.ant-drawer-content]:rounded-l-2xl
-    [&_.ant-drawer-content]:shadow-lg
-  "
+            [&_.ant-drawer-content]:bg-[#F9FAFB]
+            [&_.ant-drawer-header]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:p-6
+            [&_.ant-drawer-content]:rounded-l-2xl
+            [&_.ant-drawer-content]:shadow-lg
+          "
         open={openDrawer}
         onClose={() => {
           setOpenDrawer(false);

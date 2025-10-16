@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Joi from 'joi';
 
-import { getOrderById } from '@/services/order';
+import { getOrderById, updateOrderStatus } from '@/services/order';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 
@@ -41,6 +41,29 @@ export async function GET(
     console.error('Order fetch error:', err);
     return NextResponse.json(
       { error: 'Failed to fetch order' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const params = await context.params;
+  const { error, value } = paramsSchema.validate(params);
+  if (error) {
+    return NextResponse.json({ error: 'Invalid order ID', details: error.details }, { status: 400 });
+  }
+  const id = value.id; 
+
+    const order = await updateOrderStatus(id,'COMPLETED');
+    return NextResponse.json({ success: true, order });
+  } catch (error) {
+    console.error('Error marking order as complete:', error);
+    return NextResponse.json(
+      { error: 'Failed to mark order as complete' },
       { status: 500 }
     );
   }

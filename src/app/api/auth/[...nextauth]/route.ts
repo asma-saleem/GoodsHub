@@ -2,9 +2,12 @@ import { decode as jwtDecode, encode as jwtEncode } from 'next-auth/jwt';
 import NextAuth, { NextAuthOptions, DefaultUser, DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
+import { updateStripeCustomerId } from '@/services/user';
 import bcrypt from 'bcryptjs';
+import Stripe from 'stripe';
 
 import { createUser, findUserByEmail } from '@/services/user';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 declare module 'next-auth' {
   interface User extends DefaultUser {
@@ -85,11 +88,19 @@ export const authOptions: NextAuthOptions = {
           const newUser = await createUser({
             fullname: user.name || 'No Name',
             email: user.email,
-            password: ''
-            // password: 'google123@'
+            // password: ''
+            password: 'google123@'
           });
+          if (!newUser.stripeCustomerId) {
+              const stripeCustomer = await stripe.customers.create({
+                name: newUser.fullname,
+                email: newUser.email,
+                metadata: { userId: newUser.id }
+              });
+              await updateStripeCustomerId(newUser.id, stripeCustomer.id);
+            }
           user.id = newUser.id.toString();
-          user.role = 'user';
+          user.role = 'USER';
           user.rememberMe = true;
         } else {
           user.id = existingUser.id.toString();

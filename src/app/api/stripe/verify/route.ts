@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
+import Joi from 'joi';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+const metadataSchema = Joi.object({
+  orderId: Joi.string().uuid().required(),
+  userId: Joi.string().uuid().required()
+}).required();
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -13,25 +19,33 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Retrieve the Stripe session
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const metadata = session.metadata as { orderId?: string; userId?: string };
+    const { error, value } = metadataSchema.validate(metadata, {
+      abortEarly: false,
+      allowUnknown: true
+    });
 
-    if (!metadata?.orderId || !metadata.userId) {
+    if (error) {
+      console.error('Invalid session metadata:', error.details);
+      return NextResponse.json({ error: 'Invalid session metadata' }, { status: 400 });
+    }
+
+    const { orderId, userId } = value;
+
+    if (!orderId || !userId) {
       return NextResponse.json({ error: 'Missing orderId or userId in session metadata' }, { status: 400 });
     }
 
-    // Fetch order from DB
     const order = await prisma.order.findUnique({
-      where: { id: metadata.orderId }
+      where: { id: orderId }
     });
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    // Determine latest status: webhook already updates DB, so we just report it
-    const currentStatus = order.orderStatus; // e.g., 'PENDING', 'PAID', etc.
+    const currentStatus = order.orderStatus; 
 
     return NextResponse.json({
       success: true,
@@ -44,3 +58,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Failed to verify session' }, { status: 500 });
   }
 }
+

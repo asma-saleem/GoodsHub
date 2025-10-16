@@ -1,7 +1,8 @@
 import { getProducts } from '@/services/product';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import {ProductVariantType} from '@/types/product';
+import { ProductVariantType } from '@/types/product';
+import Joi from 'joi';
 
 async function createVariants(variants: ProductVariantType[]) {
   return variants.map((variant) => {
@@ -21,6 +22,26 @@ async function createVariants(variants: ProductVariantType[]) {
     };
   });
 }
+
+const variantSchema = Joi.object({
+  id: Joi.string().optional(),
+  color: Joi.string().optional().allow(null, ''),
+  colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).optional().allow(null, ''),
+  size: Joi.string().optional().allow(null, ''),
+  price: Joi.number().min(0).required(),
+  stock: Joi.number().min(0).required(),
+  image: Joi.alternatives().try(
+      Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i, 'valid image path or URL'),
+      Joi.array().items(
+        Joi.object({ url: Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i).required() })
+      )
+    ).optional()
+});
+
+const productSchema = Joi.object({
+  name: Joi.string().min(1).required(),
+  variants: Joi.array().items(variantSchema).min(1).required()
+});
 
 export async function GET(req: Request) {
   try {
@@ -45,17 +66,17 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    if (!body?.name || !Array.isArray(body?.variants)) {
-      return NextResponse.json(
-        { error: 'Invalid product data' },
-        { status: 400 }
-      );
+
+    const { error, value } = productSchema.validate(body, { abortEarly: false });
+    if (error) {
+      return NextResponse.json({ error: 'Invalid product data', details: error.details }, { status: 400 });
     }
-    const variantData = await createVariants(body.variants);
+
+    const variantData = await createVariants(value.variants);
 
     const product = await prisma.product.create({
       data: {
-        title: body.name,
+        title: value.name,
         variants: {
           create: variantData
         }
@@ -72,5 +93,4 @@ export async function POST(req: Request) {
     );
   }
 }
-
 

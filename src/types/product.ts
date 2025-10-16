@@ -10,7 +10,7 @@ export interface ProductVariantType {
   price: number;
   image?: string;
   stock: number;
-  availabilityStatus: string;
+  isVariantDeleted: boolean;
 }
 
 export interface ProductType {
@@ -23,5 +23,5 @@ export interface ProductType {
   defaultVariant?: ProductVariantType | null;
   minPrice?: number | null;
 
-  isDeleted?: string;
+  isProductDeleted?: boolean;
 }

@@ -141,7 +141,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           src={selectedVariant?.image || product.image || '/placeholder.png'}
           width={257}
           height={222}
-          className='product-image'
+          className='product-image-card'
         />
       }
     >

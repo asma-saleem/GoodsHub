@@ -14,37 +14,51 @@ interface CsvProduct {
   size: string;
 }
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { fileUrl } = await req.json();
-
     const filePath = path.join(process.cwd(), 'public', fileUrl);
 
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: 'File not found' }, { status: 400 });
     }
 
-    // read & parse CSV
     const csvData = fs.readFileSync(filePath, 'utf-8');
-    const records = parse(csvData, {
-      columns: true,
-      skip_empty_lines: true
-    }) as CsvProduct[];
+    const records = parse(csvData, { columns: true, skip_empty_lines: true }) as CsvProduct[];
 
-    // Bulk Insert (faster)
-    await prisma.product.createMany({
-      data: records.map((record) => ({
-        image: record.image,
-        title: record.title,
-        price: parseFloat(record.price),  
-        color: record.color,
-        colorCode: record.colorCode,
-        stock: parseInt(record.stock, 10),  
-        size: record.size
-      }))
+    const productMap = new Map<string, CsvProduct[]>();
+    records.forEach((record) => {
+      if (!productMap.has(record.title)) productMap.set(record.title, []);
+      productMap.get(record.title)!.push(record);
     });
 
-    return NextResponse.json({ message: 'Products uploaded successfully!' });
+    for (const [title, variants] of productMap.entries()) {
+
+      const product = await prisma.product.create({
+        data: { title }
+      });
+
+      await delay(200);
+
+      const variantsData = variants.map((v) => ({
+        productId: product.id,
+        color: v.color || null,
+        colorCode: v.colorCode || null,
+        size: v.size || null,
+        image: v.image || null,
+        price: parseFloat(v.price),
+        stock: parseInt(v.stock, 10)
+      }));
+      await prisma.productVariant.createMany({
+        data: variantsData
+      });
+    }
+
+    return NextResponse.json({ message: 'Products with variants uploaded successfully!' });
   } catch (error) {
     console.error('Bulk upload error:', error);
     return NextResponse.json({ error: String(error) }, { status: 500 }); 

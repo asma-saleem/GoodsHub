@@ -1,10 +1,12 @@
 
 import { NextResponse } from 'next/server';
+import { updateStripeCustomerId } from '@/services/user';
 import Joi from 'joi';
 import { hashPassword } from '@/utils/hash';
+import Stripe from 'stripe';
 
 import { createUser, findUserByEmail } from '@/services/user';
-
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 const signupSchema = Joi.object({
   fullname: Joi.string().min(3).max(50).required().messages({
     'string.empty': 'Full name is required',
@@ -61,8 +63,17 @@ export async function POST(req: Request) {
       mobile,
       password: hashedPassword
     });
+    // Step 2: Create Stripe customer immediately
+    const stripeCustomer = await stripe.customers.create({
+      name: fullname,
+      email,
+      metadata: { userId: user.id }
+    });
 
-    return NextResponse.json({ user }, { status: 201 });
+    // Step 3: Save Stripe customer ID in user record
+    await updateStripeCustomerId(user.id, stripeCustomer.id);
+
+    return NextResponse.json({ user:{ ...user, stripeCustomerId: stripeCustomer.id } }, { status: 201 });
   } catch (error) {
     console.error('Signup error:', error);
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });

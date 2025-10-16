@@ -26,7 +26,7 @@ body {
   @apply w-full rounded-md border border-[#DFDFDF] bg-white shadow-sm small:!px-2 mobile:!px-3 tablet:!px-4;
 }
 
-.product-image {
+.product-image-card {
   @apply object-cover block small:pt-2 mobile:pt-3 tablet:!pt-4 small:h-[150px] mobile:!h-[200px] extra:!h-[320px] tablet:!h-[238px] xl:!h-[238px];
 }
 

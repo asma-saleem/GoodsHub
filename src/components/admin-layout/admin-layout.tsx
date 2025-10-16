@@ -17,7 +17,6 @@ const AdminLayout: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      {/* Sidebar */}
       <Sider width={257} style={{ background: '#fff', paddingTop: 20, height: '100vh', 
               position: 'sticky', top: 0, overflow: 'hidden', borderRight: '1px solid #eee'}}>
         <p className='sidebar-title'>
@@ -59,7 +58,6 @@ const AdminLayout: React.FC = () => {
         </div>
       </Sider>
 
-      {/* Main */}
       <Layout>
         <Header
           style={{

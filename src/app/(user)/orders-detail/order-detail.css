@@ -78,7 +78,7 @@ body {
   @apply flex items-center gap-3;
 }
 
-.product-image {
+.product-image-order-detail {
   @apply object-cover rounded !pt-0 !mt-0;
 }
 

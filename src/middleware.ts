@@ -21,7 +21,6 @@ export async function middleware(req: NextRequest) {
   if (!token) {
     return NextResponse.redirect(new URL('/auth/login', req.url));
   }
-
   const role = token.role; 
   if (pathname.startsWith('/orders-detail')) {
     return NextResponse.next();
@@ -34,6 +33,7 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith('/orders') || pathname.startsWith('/shopping-bag')) {
+ 
     if (role !== 'USER') {
       return NextResponse.redirect(new URL('/', req.url));
     }

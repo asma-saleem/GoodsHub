@@ -26,3 +26,23 @@ export const updateUser = async (email: string, token: string, expiry: Date) => 
     }
   });
 };
+
+export async function getUserById(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      fullname: true,
+      email: true,
+      stripeCustomerId: true
+    }
+  });
+  return user;
+}
+
+export async function updateStripeCustomerId(userId: string, stripeCustomerId: string) {
+  return await prisma.user.update({
+    where: { id: userId },
+    data: { stripeCustomerId }
+  });
+}

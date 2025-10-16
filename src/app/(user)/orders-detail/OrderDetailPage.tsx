@@ -1,10 +1,8 @@
 'use client';
 
 import React, { useEffect } from 'react';
-// import { useRouter } from 'next/navigation';
 import { Spin, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
-// import { ArrowLeftOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
 
@@ -21,7 +19,6 @@ interface OrderDetailPageProps {
 
 export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => {
   const dispatch = useAppDispatch();
-//   const router = useRouter();
   const { order, loadingDetail } = useAppSelector((state) => state.orders);
 
   useEffect(() => {
@@ -69,7 +66,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
             alt={record.variant.product?.title}
             width={24}
             height={24}
-            className="product-image"
+            className="product-image-order-detail"
           />
           <span className="product-name">{record.variant.product?.title}</span>
         </div>
@@ -127,16 +124,6 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
 
   return (
     <div className="order-detail-container">
-      {/* <div className="order-header">
-        <ArrowLeftOutlined
-          style={{ color: '#007BFF' }}
-          onClick={() => router.back()}
-          className="back-button"
-        />
-        <h4 className="order-title">Order Detail</h4>
-      </div>
-
-      <div className="divider-main"></div> */}
 
       <div className="order-summary-grid">
         <div>
@@ -174,7 +161,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
           dataSource={dataSource}
           pagination={{ pageSize: 10 }}
           bordered
-          rowClassName={() => 'h-12'}
+          rowClassName={() => '!h-12'}
         />
       </div>
     </div>

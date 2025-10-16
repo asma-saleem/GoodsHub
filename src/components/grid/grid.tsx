@@ -1,84 +1,11 @@
-// 'use client';
-
-// import React, { useEffect, useRef } from 'react';
-// import { Col, Empty, Row, Spin  } from 'antd';
-
-// import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
-// import { fetchProducts, setSearchAndSort } from '@/redux/store/slices/product-slice';
-// import ProductCard from '../card/card';
-// import './grid.css';
-
-// interface ProductGridProps {
-//   searchTerm: string;
-//   sortBy: string;
-// }
-
-// const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
-//   const dispatch = useAppDispatch();
-//   const { products, loading, total, page } = useAppSelector(
-//     (state) => state.products
-//   );
-//   const hasFetched = useRef(false);
-
-//   useEffect(() => {
-//     hasFetched.current = true;
-//     dispatch(setSearchAndSort({ searchTerm, sortBy }));
-//     dispatch(fetchProducts({ page: 1, query: searchTerm, sortBy, limit:8 }));
-//   }, [searchTerm, sortBy, dispatch]);
-
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       if (
-//         window.innerHeight + window.scrollY >=
-//           document.documentElement.scrollHeight - 100 &&
-//         !loading &&
-//         products.length < total
-//       ) {
-//         dispatch(fetchProducts({ page: page + 1, query: searchTerm, sortBy, limit:8 }));
-//       }
-//     };
-//     window.addEventListener('scroll', handleScroll);
-//     return () => window.removeEventListener('scroll', handleScroll);
-//   }, [loading, products.length, total, page, searchTerm, sortBy, dispatch]);
-
-  
-
-//   return (
-//     <>
-//     {products.length === 0 && !loading  && hasFetched.current? (
-//         <div className="grid-empty">
-//           <Empty description="No matching products found" /> 
-//         </div>
-//       ) : (
-//       <Row
-//         gutter={[
-//           { xs: 12, sm: 12, lg: 30, xl: 30 },
-//           { xs: 12, sm: 12, lg: 32, xl: 32 }
-//         ]}
-//         justify="start"
-//       >
-//         {products.map((product) => (
-//           <Col key={product.id} span={6} xs={12} sm={12} md={8} lg={8} xl={6}>
-//             <ProductCard product={product} />
-//           </Col>
-//         ))}
-//       </Row>
-//       )}
-//       <div className="grid-loading">
-//         {loading && <Spin size="large" />}
-//       </div>
-//     </>
-//   );
-// };
-
-// export default ProductGrid;
-
-
 'use client';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Col, Empty, Row, Spin } from 'antd';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
-import { fetchProducts, setSearchAndSort } from '@/redux/store/slices/product-slice';
+import {
+  fetchProducts,
+  setSearchAndSort
+} from '@/redux/store/slices/product-slice';
 import ProductCard from '../card/card';
 import './grid.css';
 
@@ -99,7 +26,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
   const hasFetched = useRef(false);
   const prevScrollHeight = useRef<number>(0);
 
-
   useEffect(() => {
     hasFetched.current = true;
     dispatch(setSearchAndSort({ searchTerm, sortBy }));
@@ -113,6 +39,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
       window.scrollTo({ top: diff });
       prevScrollHeight.current = 0;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products]);
 
   useEffect(() => {
@@ -134,17 +61,22 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
         const nextPage = lastPage + 1;
         const maxPage = Math.ceil(total / limit);
         if (nextPage <= maxPage) {
-          dispatch(fetchProducts({ page: nextPage, query: searchTerm, sortBy, limit }));
+          dispatch(
+            fetchProducts({ page: nextPage, query: searchTerm, sortBy, limit })
+          );
         }
       }
-      const isTop = scrollTop <= SCROLL_TRIGGER_OFFSET && !loading && firstPage > 1;
+      const isTop =
+        scrollTop <= SCROLL_TRIGGER_OFFSET && !loading && firstPage > 1;
       if (isTop) {
         setTopLoading(true);
         prevScrollHeight.current = document.documentElement.scrollHeight;
 
         const prevPage = firstPage - 1;
         if (prevPage >= 1) {
-          await dispatch(fetchProducts({ page: prevPage, query: searchTerm, sortBy, limit }));
+          await dispatch(
+            fetchProducts({ page: prevPage, query: searchTerm, sortBy, limit })
+          );
         }
 
         setTimeout(() => setTopLoading(false), 300);
@@ -153,18 +85,30 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, products.length, total, pageWindow, searchTerm, sortBy, limit, dispatch]);
+  }, [
+    loading,
+    products.length,
+    total,
+    pageWindow,
+    searchTerm,
+    sortBy,
+    limit,
+    dispatch
+  ]);
 
   return (
     <div style={{ position: 'relative' }}>
       {topLoading && (
-        <div className="grid-loading" style={{ textAlign: 'center', padding: '20px 0' }}>
-          <Spin size="large" />
+        <div
+          className='grid-loading'
+          style={{ textAlign: 'center', padding: '20px 0' }}
+        >
+          <Spin size='large' />
         </div>
       )}
       {products.length === 0 && !loading && hasFetched.current ? (
-        <div className="grid-empty">
-          <Empty description="No matching products found" />
+        <div className='grid-empty'>
+          <Empty description='No matching products found' />
         </div>
       ) : (
         <Row
@@ -172,7 +116,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
             { xs: 12, sm: 12, lg: 30, xl: 30 },
             { xs: 12, sm: 12, lg: 32, xl: 32 }
           ]}
-          justify="start"
+          justify='start'
         >
           {products.map((product) => (
             <Col key={product.id} span={6} xs={12} sm={12} md={8} lg={8} xl={6}>
@@ -181,9 +125,23 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
           ))}
         </Row>
       )}
-      <div className="grid-loading" style={{ textAlign: 'center', padding: '20px 0' }}>
-        {loading && products.length < total && <Spin size="large" />}
+      <div
+        className="grid-loading"
+        style={{
+          textAlign: 'center',
+          padding: products.length === 0 ? '200px 0' : '20px 0',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: products.length === 0 ? 'center' : 'flex-start',
+          minHeight: products.length === 0 ? '60vh' : 'auto'
+        }}
+      >
+        {(loading && products.length === 0) ||
+        (loading && products.length < total) ? (
+          <Spin size="large" />
+        ) : null}
       </div>
+
     </div>
   );
 };

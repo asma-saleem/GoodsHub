@@ -63,7 +63,7 @@ export const getProducts = async (
   const session = await getServerSession(authOptions);
   const role = session?.user?.role || 'USER';
   const where: Prisma.ProductWhereInput = {
-    isDeleted: 'active',
+    isProductDeleted: false,
     ...(query
       ? {
           title: {
@@ -75,7 +75,7 @@ export const getProducts = async (
       ...(role !== 'ADMIN'
       ? {
           variants: {
-            some: { availabilityStatus: 'ACTIVE' }
+            some: { isVariantDeleted: false }
           }
         }
       : {})
@@ -106,7 +106,7 @@ export const getProducts = async (
     orderBy: order,
     include: {
       variants: {
-        where: { availabilityStatus: 'ACTIVE' },
+        where: { isVariantDeleted: false },
         select: {
           id: true,
           color: true,
@@ -154,4 +154,5 @@ export const getProducts = async (
 
   return { products: sortedProducts, total };
 };
+
 

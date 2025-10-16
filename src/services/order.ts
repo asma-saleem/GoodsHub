@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import type { Prisma, OrderStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
 import { CartItemType } from '../types/cart';
@@ -176,6 +176,7 @@ export async function getAllOrders(
       total: true, 
       orderNo: true,
       createdAt: true,
+      orderStatus: true,
       user: {select:{fullname:true}},
       items: {
         select: {
@@ -223,3 +224,19 @@ export async function getAllOrders(
   );
   return { orders, total, totalUnits, totalAmount };
 }
+
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
+  const order = await prisma.order.update({
+    where: { id: orderId },
+    data: { orderStatus: status }
+  });
+  return order;
+}
+
+export async function updateOrderStripeSessionId(orderId: string, stripeSessionId: string) {
+  return await prisma.order.update({
+    where: { id: orderId },
+    data: { stripeSessionId }
+  });
+}
+

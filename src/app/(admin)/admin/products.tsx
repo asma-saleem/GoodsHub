@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
@@ -214,7 +212,6 @@ const ProductsContent: React.FC = () => {
   return (
     <>
       <div className='products-wrapper'>
-        {/* Header */}
         <div className='products-header'>
           <h4 className='products-heading'>Products</h4>
           <div className='products-actions'>
@@ -234,8 +231,6 @@ const ProductsContent: React.FC = () => {
             >
               + Add Multiple Products
             </Button>
-
-            {/* 🔍 Search + Sort */}
             <div className='search-sort-wrapper'>
               <div className='search-container'>
                 <Input.Search
@@ -269,8 +264,6 @@ const ProductsContent: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Table */}
       {loading ? (
         <div className='loading-container'>
           <Spin size='large' />
@@ -292,8 +285,6 @@ const ProductsContent: React.FC = () => {
           className='products-table'
         />
       )}
-
-      {/* Modals */}
       {openModal && (
         <ProductModal
           open={openModal}
@@ -346,7 +337,6 @@ const ProductsContent: React.FC = () => {
                   key={idx}
                   className='flex flex-col md:flex-row items-center justify-between bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow'
                 >
-                  {/* Image */}
                   <div className='w-full md:w-24 h-24 relative mb-4 md:mb-0 flex-shrink-0'>
                     {variant.image ? (
                       <Image
@@ -360,7 +350,6 @@ const ProductsContent: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className='flex-1 flex flex-col justify-center text-center md:text-left md:ml-4'>
                     <p className='font-semibold text-gray-800'>
                       {variant.color || '-'}
@@ -376,8 +365,6 @@ const ProductsContent: React.FC = () => {
                     <p className='text-gray-700 font-bold'>${variant.price}</p>
                     <p className='text-gray-500'>Stock: {variant.stock}</p>
                   </div>
-
-                  {/* Actions */}
                   <div className='flex gap-2 mt-4 md:mt-0'>
                     <Button
                       type='primary'

@@ -1,4 +1,3 @@
-// app/api/orders/route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import Joi from 'joi';
