@@ -83,6 +83,7 @@ function toNodeReadable(req: NextRequest): IncomingMessage {
   if (!req.body) {
     throw new Error('Request body is empty');
   }
+  console.log('req.body:', req.body);
   const webStream = req.body as unknown as import('stream/web').ReadableStream<Uint8Array>;
   const readable = Readable.fromWeb(webStream);
 

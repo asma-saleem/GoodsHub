@@ -25,3 +25,14 @@ export interface ProductType {
 
   isProductDeleted?: boolean;
 }
+
+export interface SingleVariantFormValues {
+  id?: string;
+  variantId?: string;
+  color: string;
+  colorCode?: string;
+  size: string;
+  price: string;
+  stock: string;
+  image?: string;
+}

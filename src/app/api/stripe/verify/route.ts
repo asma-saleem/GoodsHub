@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
-import Joi from 'joi';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-const metadataSchema = Joi.object({
-  orderId: Joi.string().uuid().required(),
-  userId: Joi.string().uuid().required()
-}).required();
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -21,17 +15,8 @@ export async function GET(req: Request) {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const metadata = session.metadata as { orderId?: string; userId?: string };
-    const { error, value } = metadataSchema.validate(metadata, {
-      abortEarly: false,
-      allowUnknown: true
-    });
 
-    if (error) {
-      console.error('Invalid session metadata:', error.details);
-      return NextResponse.json({ error: 'Invalid session metadata' }, { status: 400 });
-    }
-
-    const { orderId, userId } = value;
+    const { orderId, userId } = metadata;
 
     if (!orderId || !userId) {
       return NextResponse.json({ error: 'Missing orderId or userId in session metadata' }, { status: 400 });

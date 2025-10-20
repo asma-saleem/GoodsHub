@@ -1,15 +1,10 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
-import Joi from 'joi';
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getOrdersByUserId, getAllOrders } from '@/services/order';
+import { orderQuerySchema } from '@/validations/orders/order';
 
-const querySchema = Joi.object({
-  page: Joi.number().integer().min(1).default(1),
-  pageSize: Joi.number().integer().min(1).max(100).default(10),
-  q: Joi.string().allow('').default('')
-});
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,7 +16,7 @@ export async function GET(req: NextRequest) {
       pageSize: searchParams.get('pageSize'),
       q: searchParams.get('q') || ''
     };
-    const { error, value } = querySchema.validate(queryObj, { convert: true });
+    const { error, value } = orderQuerySchema.validate(queryObj, { convert: true });
     if (error) {
       return NextResponse.json({ error: 'Invalid query parameters', details: error.details }, { status: 400 });
     }

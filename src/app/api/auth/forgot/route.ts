@@ -1,28 +1,12 @@
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
-import Joi from 'joi';
-
 import {  updateUser, findUserByEmail } from '@/services/user';
-
-const resetPasswordSchema = Joi.object({
-  email: Joi.string().email().required()
-});
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { error, value } = resetPasswordSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return new Response(JSON.stringify({ 
-        message: 'Invalid request data', 
-        details: error.details 
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
 
-    const { email } = value;
+    const { email } = body;
     const user = await findUserByEmail(email);
 
     if (!user) {

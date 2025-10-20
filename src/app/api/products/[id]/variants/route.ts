@@ -1,36 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import Joi from 'joi';
 import { ProductVariantType } from '@/types/product';
-
-const createVariantSchema = Joi.object({
-  id: Joi.string().optional(),
-  color: Joi.string().optional().allow(null, ''),
-  colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).optional().allow(null, ''),
-  size: Joi.string().required(),
-  price: Joi.number().min(0).required(),
-  stock: Joi.number().min(0).required(),
-  image: Joi.alternatives().try(
-    Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i, 'valid image path or URL'),
-    Joi.array().items(
-      Joi.object({ url: Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i).required() })
-    )
-  ).optional()
-});
-
 
 export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
-    const body = (await req.json()) as ProductVariantType;
-    const { error, value } = createVariantSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: error.details },
-        { status: 400 }
-      );
-    }
-
+    const value = (await req.json()) as ProductVariantType;
     const existingVariant = await prisma.productVariant.findFirst({
       where: {
         productId: id,

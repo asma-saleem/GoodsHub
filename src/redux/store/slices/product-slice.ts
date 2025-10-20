@@ -146,6 +146,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { ProductType } from '@/types/product';
+import { ProductFormValues } from '@/components/product-modal/product-modal';
 
 interface ProductState {
   products: ProductType[];
@@ -227,6 +228,154 @@ export const fetchProducts = createAsyncThunk(
     }
   }
 );
+// ---- Add Product ----
+export const addProduct = createAsyncThunk(
+  'products/addProduct',
+  async (productData: ProductFormValues, { rejectWithValue }) => {
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData)
+      });
+
+      if (!res.ok) throw new Error('Failed to add product');
+      return; 
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue('Failed to add product');
+    }
+  }
+);
+
+// ---- Update Product ----
+export const updateProduct = createAsyncThunk(
+  'products/updateProduct',
+  async (
+    { id, name }: { id: string; name: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'PUT', // match your API route
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }) // send name directly
+      });
+
+      if (!res.ok) throw new Error('Failed to update product');
+      const data = await res.json();
+      return data; // full updated product
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(String(error) || 'Failed to update product');
+    }
+  }
+);
+
+
+
+// ---- Delete Product ----
+export const deleteProduct = createAsyncThunk(
+  'products/deleteProduct',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete product');
+      return id;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue('Failed to delete product');
+    }
+  }
+);
+
+// ---- Add Variant ----
+export const addVariant = createAsyncThunk(
+  'products/addVariant',
+  async (
+    {
+      productId,
+      variantData
+    }: { productId: string; variantData: Record<string, unknown> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(`/api/products/${productId}/variants`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(variantData)
+      });
+
+      if (!res.ok) throw new Error('Failed to add variant');
+
+      const data = await res.json();
+      return { productId, variant: data };
+    } catch (error) {
+      console.error('Add variant error:', error);
+      return rejectWithValue('Failed to add variant');
+    }
+  }
+);
+
+// ---- Update Variant ----
+export const updateVariant = createAsyncThunk(
+  'products/updateVariant',
+  async (
+    {
+      productId,
+      variantId,
+      variantData
+    }: {
+      productId: string;
+      variantId: string;
+      variantData: Record<string, unknown>;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(
+        `/api/products/${productId}/variants/${variantId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(variantData)
+        }
+      );
+
+      if (!res.ok) throw new Error('Failed to update variant');
+
+      const data = await res.json();
+      return { productId, variant: data.variant };
+    } catch (error) {
+      console.error('Update variant error:', error);
+      return rejectWithValue('Failed to update variant');
+    }
+  }
+);
+
+
+// ---- Delete Variant ----
+export const deleteVariant = createAsyncThunk(
+  'products/deleteVariant',
+  async (
+    { productId, variantId }: { productId: string; variantId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(
+        `/api/products/${productId}/variants/${variantId}`,
+        { method: 'DELETE' }
+      );
+
+      if (!res.ok) throw new Error('Failed to delete variant');
+      return { productId, variantId };
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue('Failed to delete variant');
+    }
+  }
+);
+
 
 const MAX_PRODUCTS = 24;
 const REMOVE_COUNT = 8;
@@ -325,7 +474,40 @@ const productSlice = createSlice({
       })
       .addCase(fetchProductsReplace.rejected, (state) => {
         state.loading = false;
-      });
+      })
+
+// ---- Delete Product ----
+.addCase(deleteProduct.fulfilled, (state, action) => {
+  state.products = state.products.filter((p) => p.id !== action.payload);
+})
+
+// ---- Add Variant ----
+.addCase(addVariant.fulfilled, (state, action) => {
+  const { productId, variant } = action.payload;
+  const product = state.products.find((p) => p.id === productId);
+  if (product) product.variants.push(variant);
+})
+
+// ---- Update Variant ----
+.addCase(updateVariant.fulfilled, (state, action) => {
+  const { productId, variant } = action.payload;
+  const product = state.products.find((p) => p.id === productId);
+  if (product) {
+    product.variants = product.variants.map((v) =>
+      v.id === variant.id ? variant : v
+    );
+  }
+})
+
+// ---- Delete Variant ----
+.addCase(deleteVariant.fulfilled, (state, action) => {
+  const { productId, variantId } = action.payload;
+  const product = state.products.find((p) => p.id === productId);
+  if (product) {
+    product.variants = product.variants.filter((v) => v.id !== variantId);
+  }
+});
+
   }
   }
 );

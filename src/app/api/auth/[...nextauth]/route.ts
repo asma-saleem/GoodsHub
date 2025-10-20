@@ -88,8 +88,8 @@ export const authOptions: NextAuthOptions = {
           const newUser = await createUser({
             fullname: user.name || 'No Name',
             email: user.email,
-            // password: ''
-            password: 'google123@'
+            password: ''
+            // password: 'google123@'
           });
           if (!newUser.stripeCustomerId) {
               const stripeCustomer = await stripe.customers.create({

@@ -10,9 +10,8 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import ProductModal, {
   ProductFormValues
 } from '@/components/product-modal/product-modal';
-import SingleVariantEditModal, {
-  SingleVariantFormValues
-} from '@/components/product-modal/edit-modal';
+import SingleVariantEditModal from '@/components/product-modal/edit-modal';
+import { SingleVariantFormValues } from '@/types/product';
 import UploadProductsModal from '@/components/upload-product';
 import RemoveProductModal from '@/components/delete-product/delete-product';
 
@@ -22,7 +21,11 @@ import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import {
   fetchProductsReplace,
   setSearchAndSort,
-  setPage
+  setPage,
+  deleteVariant,
+  updateVariant,
+  addVariant,
+  deleteProduct
 } from '@/redux/store/slices/product-slice';
 import { toast } from 'react-toastify';
 
@@ -97,14 +100,17 @@ const ProductsContent: React.FC = () => {
     if (!productToDelete) return;
     try {
       console.log('Delete Product:', productToDelete.id);
-      await fetch(`/api/products/${productToDelete.id}`, {
-        method: 'DELETE'
-      });
+      // await fetch(`/api/products/${productToDelete.id}`, {
+      //   method: 'DELETE'
+      // });
+      await dispatch(deleteProduct(productToDelete.id)).unwrap();
       dispatch(
         fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 })
       );
+      toast.success('Product marked as inactive successfully!');
     } catch (err) {
       console.error('Failed to delete product:', err);
+      toast.error(String(err) || 'Failed to delete product');
     } finally {
       setOpenDeleteModal(false);
       setProductToDelete(null);
@@ -417,34 +423,69 @@ const ProductsContent: React.FC = () => {
           initialValues={singleVariantData}
           onSubmit={async (values) => {
             try {
-              console.log(JSON.stringify(values));
-              let response;
+              // console.log(JSON.stringify(values));
+              // let response;
 
-              if (values.variantId) {
+              // if (values.variantId) {
                 
-                response = await fetch(
-                  `/api/products/${values.id}/variants/${values.variantId}`,
-                  {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(values)
-                  }
-                );
-              } else {
+              //   response = await fetch(
+              //     `/api/products/${values.id}/variants/${values.variantId}`,
+              //     {
+              //       method: 'PUT',
+              //       headers: { 'Content-Type': 'application/json' },
+              //       body: JSON.stringify(values)
+              //     }
+              //   );
+              // } else {
                 
-                response = await fetch(`/api/products/${values.id}/variants`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(values)
-                });
-              }
-              const updatedVariant = await response.json();
+              //   response = await fetch(`/api/products/${values.id}/variants`, {
+              //     method: 'POST',
+              //     headers: { 'Content-Type': 'application/json' },
+              //     body: JSON.stringify(values)
+              //   });
+              // }
+              // const updatedVariant = await response.json();
 
-              if (!response.ok) {
-               toast.error(updatedVariant.error || 'Failed to add/update variant');
-               return;
-              }             
-              console.log('Variant updated successfully:', updatedVariant);
+              // if (!response.ok) {
+              //  toast.error(updatedVariant.error || 'Failed to add/update variant');
+              //  return;
+              // }             
+              // console.log('Variant updated successfully:', updatedVariant.variant);
+              console.log('Variant form values:', values);
+
+              const variantPayload = {
+                color:values.color,
+                colorCode:values.colorCode,
+                price: values.price,
+                stock: values.stock,
+                size: values.size,
+                image: values.image
+              };
+
+              // If variantId exists → update, else → add new
+              const result = values.variantId
+                ? await dispatch(
+                    updateVariant({
+                      productId: values.id!,
+                      variantId: values.variantId!,
+                      variantData: variantPayload
+                    })
+                  ).unwrap()
+                : await dispatch(
+                    addVariant({
+                      productId: values.id!,
+                      variantData: variantPayload
+                    })
+                  ).unwrap();
+
+              // Success message
+              toast.success(
+                values.variantId
+                  ? 'Variant updated successfully!'
+                  : 'Variant added successfully!'
+              );
+
+              console.log('Variant result:', result);
 
               setOpenSingleVariantModal(false);
               setSingleVariantData(undefined);
@@ -459,6 +500,11 @@ const ProductsContent: React.FC = () => {
               );
             } catch (error) {
               console.error('Error updating variant:', error);
+              toast.error(
+                values.variantId
+                  ? 'Failed to update variant'
+                  : 'Failed to add variant'
+              );
             }
           }}
         />
@@ -467,11 +513,12 @@ const ProductsContent: React.FC = () => {
             <RemoveProductModal
               onConfirm={async () => {
                 try {
-                  await fetch(
-                    `/api/products/${variantToDelete.productId}/variants/${variantToDelete.variantId}`,
-                    { method: 'DELETE' }
-                  );
-
+                  // await fetch(
+                  //   `/api/products/${variantToDelete.productId}/variants/${variantToDelete.variantId}`,
+                  //   { method: 'DELETE' }
+                  // );
+                  await dispatch(deleteVariant(variantToDelete));
+                  toast.success('Variant marked as inactive successfully');
                   dispatch(
                     fetchProductsReplace({
                       page: 1,
@@ -482,6 +529,7 @@ const ProductsContent: React.FC = () => {
                   );
                 } catch (error) {
                   console.error('Failed to delete variant:', error);
+                  toast.error('Failed to delete variant');
                 } finally {
                   setOpenVariantDeleteModal(false);
                   setVariantToDelete(null);

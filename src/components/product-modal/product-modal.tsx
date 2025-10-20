@@ -11,6 +11,9 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { Select } from 'antd';
 const { Option } = Select;
 import './product-modal.css';
+import { addProduct, updateProduct } from '@/redux/store/slices/product-slice';
+import { useAppDispatch } from '@/redux/store/hooks';
+import { toast } from 'react-toastify';
 
 export interface ProductVariant {
   color?: string;
@@ -43,6 +46,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   initialValues,
   onSubmit
 }) => {
+  const dispatch = useAppDispatch();
   const [form] = Form.useForm<ProductFormValues>();
   const colorOptions = [
     { name: 'Black', code: '#000000' },
@@ -104,19 +108,31 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
   const handleFinish = async (values: ProductFormValues) => {
     if (mode === 'edit') {
+      if (!initialValues?.id) {
+        toast.error('Product ID is missing!');
+        return;
+      }
       const payload = {
         id: initialValues?.id,
         name: values.name
       };
 
-      await fetch(`/api/products/${initialValues?.id ?? ''}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      // await fetch(`/api/products/${initialValues?.id ?? ''}`, {
+      //   method: 'PUT',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(payload)
+      // });
 
-      onSubmit(payload as ProductFormValues);
+      // onSubmit(payload as ProductFormValues);
+      // setOpen(false);
+      try {
+      const updatedProduct =  await dispatch(updateProduct(payload)).unwrap();
+      toast.success('Product name updated successfully!');
+      onSubmit(updatedProduct);
       setOpen(false);
+    } catch (error) {
+      toast.error(String(error) || 'Failed to update product name');
+    }
       return;
     }
     const variants = await Promise.all(
@@ -157,14 +173,16 @@ const ProductModal: React.FC<ProductModalProps> = ({
       variants
     };
 
-    await fetch('/api/products', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    try {
+      await dispatch(addProduct(payload)).unwrap();
+      toast.success('Product added successfully!');
+      onSubmit(payload);
+      setOpen(false);
+    } catch (error) {
+      console.error('Add product failed:', error);
+      toast.error(String(error) || 'Failed to create product');
+    }
 
-    onSubmit(payload);
-    setOpen(false);
   };
 
   return (

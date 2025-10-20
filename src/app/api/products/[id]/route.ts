@@ -1,24 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import Joi from 'joi';
-
-const updateProductSchema = Joi.object({
-  id: Joi.string().optional(),
-  name: Joi.string().min(1).required()
-});
 
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
-    const body = await req.json();
-
-    const { error, value } = updateProductSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: error.details },
-        { status: 400 }
-      );
-    }
+    const value = await req.json();
 
     const updatedProduct = await prisma.product.update({
       where: { id },

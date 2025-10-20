@@ -7,16 +7,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 
 const { Option } = Select;
 
-export interface SingleVariantFormValues {
-  id?: string;
-  variantId?: string;
-  color: string;
-  colorCode?: string;
-  size: string;
-  price: string;
-  stock: string;
-  image?: string;
-}
+import { SingleVariantFormValues } from '@/types/product';
 
 interface SingleVariantEditModalProps {
   open: boolean;

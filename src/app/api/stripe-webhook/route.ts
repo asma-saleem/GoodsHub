@@ -1,14 +1,10 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { updateOrderStatus } from '@/services/order';
-import Joi from 'joi';
+import { metadataSchema } from '@/validations/stripe/stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const metadataSchema = Joi.object({
-  orderId: Joi.string().uuid().required(),
-  userId: Joi.string().uuid().required()
-}).required();
 
 export async function POST(req: Request) {
   const payload = await req.text();
@@ -21,6 +17,7 @@ export async function POST(req: Request) {
 
   try {
     const event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+    console.log('event',event);
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
