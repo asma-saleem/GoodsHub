@@ -10,7 +10,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <ToastContainer
         position='top-center'
-        autoClose={1000}
+        autoClose={2000}
         hideProgressBar={false}
         newestOnTop
         closeOnClick

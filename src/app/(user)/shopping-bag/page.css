@@ -162,3 +162,10 @@ body {
 .remove-product-span {
   @apply text-[#007BFF];
 }
+
+.checkout-loading {
+  @apply fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/0 backdrop-blur-sm;
+}
+.checkout-loading-p {
+  @apply mt-4 text-lg text-blue-500;
+}

@@ -152,6 +152,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className='price-value'>
             {formatPrice(selectedVariant?.price || 0)}
           </p>
+          <div className="daraz-stock-status">
+              {(selectedVariant?.stock ?? 0) > 0 && (
+          <span
+            className={`stock-box ${
+              (selectedVariant?.stock ?? 0) < 5 ? 'low-stock' : 'in-stock'
+            }`}
+          >
+            {(selectedVariant?.stock ?? 0) < 5
+              ? `Only ${selectedVariant?.stock} left!`
+              : 'In Stock'}
+          </span>
+        )}
+         </div>
         </div>
       </div>
 

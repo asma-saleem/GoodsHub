@@ -95,8 +95,8 @@ export const getProductsQuerySchema = Joi.object({
       'createdAt_desc',
       'price_asc',
       'price_desc',
-      'name_asc',
-      'name_desc'
+      'title_asc',
+      'title_desc'
     )
     .default('createdAt_desc')
     .messages({

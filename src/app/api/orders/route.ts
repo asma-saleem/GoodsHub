@@ -5,30 +5,29 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getOrdersByUserId, getAllOrders } from '@/services/order';
 import { orderQuerySchema } from '@/validations/orders/order';
 
-
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const { searchParams } = new URL(req.url);
-
-    const queryObj = {
-      page: searchParams.get('page'),
-      pageSize: searchParams.get('pageSize'),
-      q: searchParams.get('q') || ''
-    };
-    const { error, value } = orderQuerySchema.validate(queryObj, { convert: true });
-    if (error) {
-      return NextResponse.json({ error: 'Invalid query parameters', details: error.details }, { status: 400 });
-    }
-    const { page, pageSize, q: searchQuery } = value;
     const userId = session?.user?.id;
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
     const role = session.user.role;
     let result;
+    
+    const { searchParams } = new URL(req.url);
+    const queryObj = {
+      page: searchParams.get('page'),
+      pageSize: searchParams.get('pageSize'),
+      q: searchParams.get('q') || ''
+    };
+    
+    const { error, value } = orderQuerySchema.validate(queryObj, { convert: true });
+    if (error) {
+      return NextResponse.json({ error: 'Invalid query parameters', details: error.details }, { status: 400 });
+    }
+    const { page, pageSize, q: searchQuery } = value;
 
     if (role === 'ADMIN') {
       result = await getAllOrders(page, pageSize, searchQuery);

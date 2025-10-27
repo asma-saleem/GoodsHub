@@ -42,11 +42,11 @@ export default function SignupPage() {
           router.push('/auth/login');
         }, 2000);
       } else {
-        console.error('Signup failed:', data.error);
+        console.log('Signup failed:', data.error);
         toast.error(`Signup failed: ${data.error}`);
       }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.log('Signup error:', error);
       toast.error('Something went wrong');
     }
   };

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { OrderStatus } from '@prisma/client';
 
 import { getOrderById, updateOrderStatus } from '@/services/order';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
 
 export async function GET(
   req: NextRequest,
@@ -45,7 +46,7 @@ export async function PATCH(
     const params = await context.params;
     const id = params.id; 
 
-    const order = await updateOrderStatus(id,'COMPLETED');
+    const order = await updateOrderStatus(id,OrderStatus.COMPLETED);
     return NextResponse.json({ success: true, order });
   } catch (error) {
     console.error('Error marking order as complete:', error);

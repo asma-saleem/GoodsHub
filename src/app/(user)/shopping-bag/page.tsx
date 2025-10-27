@@ -14,7 +14,7 @@ import Header from '@/components/header/header';
 import RemoveProductModal from '@/components/delete-product/delete-product';
 import { CartItemType } from '@/types/cart';
 
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, TAX_RATE } from '@/lib/utils';
 
 import './page.css';
 
@@ -27,6 +27,8 @@ const ShoppingBagPage: React.FC = () => {
   const [dataSource, setDataSource] = useState<CartItemType[]>([]);
   const [loading, setLoading] = useState(true); 
   const [deleteSelectedOpen, setDeleteSelectedOpen] = useState(false);
+  const [isCheckoutProcessing, setIsCheckoutProcessing] = useState(false);
+  
 
   const router = useRouter();
   const { data: session } = useSession();
@@ -101,7 +103,6 @@ const ShoppingBagPage: React.FC = () => {
     toast.error('Your cart is empty!');
     return;
   }
-
   try {
     const res = await fetch('/api/checkout', {
       method: 'POST',
@@ -118,12 +119,16 @@ const ShoppingBagPage: React.FC = () => {
       toast.error(data.error || 'Checkout failed!');
       return;
     }
+    setIsCheckoutProcessing(true);
 
-    // Redirect to Stripe
+    // setTimeout(() => {
+    //   window.location.href = data.url;
+    // }, 2000);
     window.location.href = data.url;
   } catch (error) {
     console.error(error);
     toast.error('Unexpected error during checkout');
+    setIsCheckoutProcessing(false);
   }
 };
 
@@ -154,7 +159,7 @@ const ShoppingBagPage: React.FC = () => {
       (sum, item) => sum + item.qty * item.price,
       0
     );
-    const tax = subTotal * 0.1; 
+    const tax = subTotal * TAX_RATE; 
     const total = subTotal + tax;
     return { subTotal, tax, total };
   }, [dataSource]);
@@ -207,6 +212,11 @@ const ShoppingBagPage: React.FC = () => {
     {
       title: 'Size',
       dataIndex: 'size'
+    },
+    {
+      title: 'Unit Price',
+      dataIndex: 'price',
+      render: (price) => formatPrice(price)
     },
     {
       title: 'Qty',
@@ -269,11 +279,6 @@ const ShoppingBagPage: React.FC = () => {
       )
     },
     {
-      title: 'Unit Price',
-      dataIndex: 'price',
-      render: (price) => formatPrice(price)
-    },
-    {
       title: 'Total Price',
       dataIndex: 'price',
        onCell: () => ({
@@ -318,6 +323,14 @@ const ShoppingBagPage: React.FC = () => {
     return (
       <div className='loading-container'>
         <Spin size='large' />
+      </div>
+    );
+  }
+  if (isCheckoutProcessing) {
+    return (
+      <div className="checkout-loading">
+        <Spin size="large" />
+        <p className="checkout-loading-p">Your order is being processed. You will be redirected to the payment page shortly.</p>
       </div>
     );
   }
@@ -403,6 +416,7 @@ const ShoppingBagPage: React.FC = () => {
               <Button
                 className='place-order-btn'
                 onClick={handleCheckout}
+                loading={isCheckoutProcessing}
               >
                 <div className='place-order-text'>Buy Now</div>
               </Button>

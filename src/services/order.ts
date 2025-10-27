@@ -1,5 +1,6 @@
 import type { Prisma, OrderStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { TAX_RATE } from '@/lib/utils';
 
 import { CartItemType } from '../types/cart';
 
@@ -88,7 +89,7 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
     (sum, item) => sum + Number(item.price) * Number(item.qty),
     0
   );
-  const tax = subTotal * 0.1; 
+  const tax = subTotal * TAX_RATE; 
   const total = subTotal + tax;
 
   const now = new Date();

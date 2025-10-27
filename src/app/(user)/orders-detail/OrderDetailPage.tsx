@@ -106,7 +106,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
       )
     },
     {
-      title: <span className="main-text-color">Quantity</span>,
+      title: <span className="main-text-color">Qty</span>,
       dataIndex: 'quantity',
       render: (quantity: number) => (
         <span className="main-text-color">{quantity}</span>

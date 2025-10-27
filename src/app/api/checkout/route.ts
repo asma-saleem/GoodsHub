@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import Stripe from 'stripe';
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createOrder, updateOrderStripeSessionId } from '@/services/order';
 import { getUserById } from '@/services/user';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
 import { CartItemType } from '@/types/cart';
-import Stripe from 'stripe';
+import { TAX_RATE } from '@/lib/utils';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -15,9 +17,9 @@ function isError(err: unknown): err is Error {
 export async function POST(req: Request) {
   try {
     const { cart } = await req.json();
+
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
-
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     const line_items = cart.map((item: CartItemType) => {
-      const priceWithTax = item.price * 1.1; 
+      const priceWithTax = item.price * (1 + TAX_RATE);
       return {
         price_data: {
           currency: 'usd',
@@ -50,35 +52,36 @@ export async function POST(req: Request) {
     });
 
     const stripeSession = await stripe.checkout.sessions.create({
-        customer: stripeCustomerId,
-        mode: 'payment',
-        payment_method_types: ['card'],
-        line_items,
-        metadata: { orderId: order.id, userId },
+      customer: stripeCustomerId,
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items,
+      metadata: { orderId: order.id, userId },
 
-        customer_update: {
-          address: 'auto',
-          name: 'auto'
-        },
-        payment_intent_data: {
-          setup_future_usage: 'off_session' 
-        },
+      customer_update: {
+        address: 'auto',
+        name: 'auto'
+      },
+      payment_intent_data: {
+        setup_future_usage: 'off_session'
+      },
 
-        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-cancel`
-      });
-
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-cancel`
+    });
 
     await updateOrderStripeSessionId(order.id, stripeSession.id);
 
-    return NextResponse.json({
-      success: true,
-      url: stripeSession.url,
-      orderId: order.id
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        url: stripeSession.url,
+        orderId: order.id
+      },
+      { status: 201 }
+    );
   } catch (err: unknown) {
     console.error('Checkout error:', err);
-
     const message = isError(err)
       ? err.message
       : 'Checkout failed — unknown error';
@@ -86,4 +89,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-
