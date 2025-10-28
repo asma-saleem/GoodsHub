@@ -89,7 +89,7 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
 
   return (
     <Modal
-      title='Edit Product Variant'
+      title={initialValues?.variantId ? 'Edit Variant' : 'Add Variant'}
       open={open}
       onCancel={() => setOpen(false)}
       footer={null}
@@ -188,8 +188,9 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
 
         <Form.Item>
           <Button type='primary' htmlType='submit' block>
-            Update Variant
+            {initialValues?.variantId ? 'Update Variant' : 'Add Variant'}
           </Button>
+
         </Form.Item>
       </Form>
     </Modal>

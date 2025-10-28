@@ -108,7 +108,7 @@ const ShoppingBagPage: React.FC = () => {
   if (outOfStockItems.length > 0) {
     outOfStockItems.forEach((item: CartItemType) => {
       toast.error(
-        `${item.title} has only ${item.stock} left in stock — please adjust quantity.`
+        `${item.title}(${item.color}) has only ${item.stock} left in stock — please adjust quantity.`
       );
     });
     return; 
