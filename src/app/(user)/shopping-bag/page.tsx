@@ -17,6 +17,7 @@ import { CartItemType } from '@/types/cart';
 import { formatPrice, TAX_RATE } from '@/lib/utils';
 
 import './page.css';
+// import { ProductType, ProductVariantType } from '@/types/product';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -103,6 +104,17 @@ const ShoppingBagPage: React.FC = () => {
     toast.error('Your cart is empty!');
     return;
   }
+   const outOfStockItems = cart.filter((item: CartItemType) => item.qty > item.stock);
+
+  if (outOfStockItems.length > 0) {
+    outOfStockItems.forEach((item: CartItemType) => {
+      toast.error(
+        `${item.title} has only ${item.stock} left in stock — please adjust quantity.`
+      );
+    });
+    return; 
+  }
+  setIsCheckoutProcessing(true);
   try {
     const res = await fetch('/api/checkout', {
       method: 'POST',
@@ -117,9 +129,25 @@ const ShoppingBagPage: React.FC = () => {
 
     if (!res.ok) {
       toast.error(data.error || 'Checkout failed!');
+      const match = data.error?.match(/Only (\d+) left/);
+      if (match) {
+        const newStock = Number(match[1]);
+        const productMatch = data.error.match(/product (.+?)\./);
+        const productTitle = productMatch ? productMatch[1] : null;
+
+        if (productTitle) {
+          const updatedCart = cart.map((item:CartItemType) =>
+            item.title === productTitle ? { ...item, stock: newStock } : item
+          );
+          console.log(updatedCart);
+          setDataSource(updatedCart);
+          localStorage.setItem(`cart_${session.user.id}`, JSON.stringify(updatedCart));
+
+        }
+      }
+      setIsCheckoutProcessing(false);
       return;
     }
-    setIsCheckoutProcessing(true);
 
     // setTimeout(() => {
     //   window.location.href = data.url;
@@ -130,9 +158,7 @@ const ShoppingBagPage: React.FC = () => {
     toast.error('Unexpected error during checkout');
     setIsCheckoutProcessing(false);
   }
-};
-
-  
+};  
   const handleDeleteSelected = () => {
     if (selectedRowKeys.length === 0) {
       toast.error('No products selected!');
@@ -417,6 +443,7 @@ const ShoppingBagPage: React.FC = () => {
                 className='place-order-btn'
                 onClick={handleCheckout}
                 loading={isCheckoutProcessing}
+                disabled={isCheckoutProcessing}
               >
                 <div className='place-order-text'>Buy Now</div>
               </Button>

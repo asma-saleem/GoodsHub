@@ -88,7 +88,7 @@ export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
   const method = req.method.toUpperCase();
 
-  console.log('✅ Middleware triggered for:', pathname);
+  console.log('Middleware triggered for:', pathname);
 
   const isApiRoute = pathname.startsWith('/api');
   if (isApiRoute) {

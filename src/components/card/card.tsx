@@ -31,25 +31,32 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    const variantsForColor = selectedVariant
-      ? product.variants.filter(
-          (v) => v.color === selectedVariant.color && v.stock > 0
-        )
-      : product.variants.filter((v) => v.stock > 0);
+  if (!product?.variants?.length) {
+    setSelectedVariant(null);
+    setQuantity(0);
+    return;
+  }
 
-    if (
-      !selectedVariant ||
-      !variantsForColor.find((v) => v.id === selectedVariant.id)
-    ) {
-      if (variantsForColor.length > 0) {
-        setSelectedVariant(variantsForColor[0]);
-        setQuantity(1);
-      } else {
-        setSelectedVariant(null);
-        setQuantity(0);
-      }
-    }
-  }, [product, selectedVariant]);
+  const sortedVariants = [...product.variants].sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0).getTime();
+    const dateB = new Date(b.createdAt || 0).getTime();
+    return dateB - dateA;
+  });
+
+  const sizeOrder = ['S', 'M', 'L', 'XL'];
+  const firstColor = sortedVariants[0].color;
+  const variantsForColor = sortedVariants.filter(
+    (v) => v.color === firstColor
+  );
+  const sortedBySize = [...variantsForColor].sort((a, b) => {
+    const indexA = sizeOrder.indexOf(a.size?.toUpperCase() || '');
+    const indexB = sizeOrder.indexOf(b.size?.toUpperCase() || '');
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+  });
+  const firstVariant = sortedBySize[0];
+  setSelectedVariant(firstVariant);
+  setQuantity(1);
+}, [product]);
 
   const increment = () =>
     setQuantity((prev) => Math.min(prev + 1, selectedVariant?.stock ?? 1));
@@ -126,7 +133,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const colors = Array.from(
     new Set(product.variants.map((v) => v.color || 'Default'))
   );
-  const sizes = Array.from(new Set(product.variants.map((v) => v.size || 'M')));
+  const sizeOrder = ['S', 'M', 'L', 'XL'];
+
+  const sizes = Array.from(new Set(product.variants.map((v) => v.size || 'M')))
+  .sort((a, b) => {
+    const indexA = sizeOrder.indexOf(a.toUpperCase());
+    const indexB = sizeOrder.indexOf(b.toUpperCase());
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+  });
+
 
   const variantsByColor = product.variants.filter(
     (v) => v.color === selectedVariant?.color
@@ -152,19 +167,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className='price-value'>
             {formatPrice(selectedVariant?.price || 0)}
           </p>
-          <div className="daraz-stock-status">
-              {(selectedVariant?.stock ?? 0) > 0 && (
-          <span
-            className={`stock-box ${
-              (selectedVariant?.stock ?? 0) < 5 ? 'low-stock' : 'in-stock'
-            }`}
-          >
-            {(selectedVariant?.stock ?? 0) < 5
-              ? `Only ${selectedVariant?.stock} left!`
-              : 'In Stock'}
-          </span>
-        )}
-         </div>
+          <div className='daraz-stock-status'>
+            <span
+              className={`stock-box ${
+                (selectedVariant?.stock ?? 0) === 0
+                  ? 'low-stock' 
+                  : (selectedVariant?.stock ?? 0) < 5
+                  ? 'low-stock'
+                  : 'in-stock'
+              }`}
+            >
+              {(selectedVariant?.stock ?? 0) === 0
+                ? 'Out of Stock'
+                : (selectedVariant?.stock ?? 0) < 5
+                ? `Only ${selectedVariant?.stock} left!`
+                : 'In Stock'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -182,7 +201,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className='variant-container'>
             {colors.map((color) => {
               const variantForColor = product.variants.find(
-                (v) => v.color === color && v.stock > 0
+                (v) => v.color === color
               );
 
               if (!variantForColor) return null;
@@ -197,7 +216,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   } rounded-md`}
                   onClick={() => {
                     const firstAvailable = product.variants.find(
-                      (v) => v.color === color && v.stock > 0
+                      (v) => v.color === color
                     );
                     if (firstAvailable) setSelectedVariant(firstAvailable);
                     setQuantity(1);
@@ -228,13 +247,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 const variantForSize = variantsByColor.find(
                   (v) => v.size === size
                 );
-                return variantForSize && variantForSize.stock > 0;
+                return variantForSize;
               })
               .map((size) => {
                 const variantForSize = variantsByColor.find(
                   (v) => v.size === size
                 );
-
+                const isOutOfStock = (variantForSize?.stock ?? 0) === 0;
                 return (
                   <button
                     key={size}
@@ -248,7 +267,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                       setQuantity(1);
                     }}
                   >
-                    {size}
+                    <span className='relative'>
+                      {size}
+                      {isOutOfStock && <span className='strike-line'></span>}
+                    </span>
                   </button>
                 );
               })}

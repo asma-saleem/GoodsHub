@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-import { Table, Avatar, Space, Spin, Button, Input, Select, Modal } from 'antd';
+import { Table, Avatar, Space, Spin, Button, Input, Select, Modal, Tooltip, Tag } from 'antd';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -128,23 +128,48 @@ const ProductsContent: React.FC = () => {
           <span className='product-title'>{text}</span>
         </Space>
       )
-    },
+   },
    {
       title: 'Price',
       dataIndex: 'variants',
       key: 'price',
-      render: (_: unknown, record: ProductType) => {      
-        let price = record.minPrice;
+      render: (_: unknown, record: ProductType) => {
+        if (!record.variants?.length) return '$0.00';
 
-        if (price === null && record.variants?.length) {
+        const firstVariant = record.variants[0];
 
-          price = Math.min(...record.variants.map((v) => v.price ?? 0));
-        }
-        if (!price || price === Infinity) {
-          price = 0;
-        }
+        // 🟢 Unique prices only
+        const uniquePrices = Array.from(
+          new Set(record.variants.map((v) => v.price ?? 0))
+        );
 
-        return `$${price.toFixed(2)}`;
+        return (
+          <Tooltip
+           styles={{
+              body: {
+                backgroundColor: '#f5f5f5', 
+                color: '#000',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                borderRadius: 8,
+                padding: '8px 10px'
+              }
+            }}
+            title={
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {uniquePrices.map((price, i) => (
+                  <Tag key={i} color="grey" style={{ margin: 0 }}>
+                    ${price.toFixed(2)}
+                  </Tag>
+                ))}
+              </div>
+            }
+            placement="bottom"
+          >
+            <span style={{ cursor: 'pointer', color: '#000000' }}>
+              ${firstVariant.price.toFixed(2)}
+            </span>
+          </Tooltip>
+        );
       }
     },
     {
@@ -152,11 +177,91 @@ const ProductsContent: React.FC = () => {
       dataIndex: 'variants',
       key: 'stock',
       render: (_: unknown, record: ProductType) => {
-        const totalStock = record.variants.reduce((sum, v) => sum + v.stock, 0);
-        return totalStock;
+        if (!record.variants?.length) return 0;
+
+        const firstVariant = record.variants[0];
+
+        // 🔵 Unique stock values only
+        const uniqueStocks = Array.from(
+          new Set(record.variants.map((v) => v.stock ?? 0))
+        );
+
+        return (
+          <Tooltip
+            styles={{
+              body: {
+                backgroundColor: '#f5f5f5', 
+                color: '#000',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                borderRadius: 8,
+                padding: '8px 10px'
+              }
+            }}
+            title={
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {uniqueStocks.map((stock, i) => (
+                  <Tag
+                    key={i}
+                    color={stock > 0 ? 'grey' : 'red'}
+                    style={{ margin: 0 }}
+                  >
+                    {stock}
+                  </Tag>
+                ))}
+              </div>
+            }
+            placement="bottom"
+          >
+            <span style={{ cursor: 'pointer', color: '#000000' }}>
+              {firstVariant.stock}
+            </span>
+          </Tooltip>
+        );
       }
     },
+        {
+      title: 'Size',
+      dataIndex: 'variants',
+      key: 'size',
+      render: (_: unknown, record: ProductType) => {
+        if (!record.variants?.length) return 'N/A';
 
+        const firstVariant = record.variants[0];
+
+        // 🟢 Unique sizes only
+        const uniqueSizes = Array.from(
+          new Set(record.variants.map((v) => v.size || 'N/A'))
+        );
+
+        return (
+          <Tooltip
+          styles={{
+              body: {
+                backgroundColor: '#f5f5f5', 
+                color: '#000',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                borderRadius: 8,
+                padding: '8px 10px'
+              }
+            }}
+            title={
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {uniqueSizes.map((size, i) => (
+                  <Tag key={i} color="grey" style={{ margin: 0 }}>
+                    {size}
+                  </Tag>
+                ))}
+              </div>
+            }
+            placement="bottom"
+          >
+            <span style={{ cursor: 'pointer', color: '#000000' }}>
+              {firstVariant.size ?? 'N/A'}
+            </span>
+          </Tooltip>
+        );
+      }
+    },
     {
       title: 'Actions',
       key: 'actions',

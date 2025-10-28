@@ -186,5 +186,18 @@ body {
 .low-stock {
   @apply text-orange-500 border-orange-500 bg-orange-50;
 }
-
+.out-of-stock-box {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+.strike-line {
+  @apply absolute 
+      top-1/2 
+      left-[8%] 
+      w-[84%] 
+      h-[2px] 
+      bg-[#d93025]
+      -translate-y-1/2 
+      -rotate-[10deg] 
+      pointer-events-none;
+}
 

@@ -7,6 +7,8 @@ import {
   setSearchAndSort
 } from '@/redux/store/slices/product-slice';
 import ProductCard from '../card/card';
+import { ProductType, ProductVariantType } from '@/types/product';
+
 import './grid.css';
 
 interface ProductGridProps {
@@ -31,6 +33,47 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
     dispatch(setSearchAndSort({ searchTerm, sortBy }));
     dispatch(fetchProducts({ page: 1, query: searchTerm, sortBy, limit }));
   }, [searchTerm, sortBy, dispatch, limit]);
+  
+  useEffect(() => {
+  if (!products?.length) return;
+
+  // loop through all localStorage keys
+  for (const key in localStorage) {
+    if (!key.startsWith('cart_')) continue;
+
+    // each cart is an array of items that reference a product + variant
+    const cart: {
+      id: string; // product id
+      variantId: string; // variant id
+      stock: number;
+    }[] = JSON.parse(localStorage.getItem(key) || '[]');
+
+    let updated = false;
+
+    const updatedCart = cart.map((item) => {
+      const matchedProduct = products.find(
+        (p: ProductType) => p.id === item.id
+      );
+
+      const matchedVariant = matchedProduct?.variants.find(
+        (v: ProductVariantType) => v.id === item.variantId
+      );
+
+      if (matchedVariant && item.stock !== matchedVariant.stock) {
+        updated = true;
+        return { ...item, stock: matchedVariant.stock };
+      }
+
+      return item;
+    });
+
+    if (updated) {
+      localStorage.setItem(key, JSON.stringify(updatedCart));
+      window.dispatchEvent(new Event('cartUpdated'));
+      console.log(`✅ Cart updated for ${key}`);
+    }
+  }
+}, [products]);
 
   useLayoutEffect(() => {
     if (topLoading && prevScrollHeight.current) {
