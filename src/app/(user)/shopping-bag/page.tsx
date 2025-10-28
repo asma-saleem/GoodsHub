@@ -17,7 +17,6 @@ import { CartItemType } from '@/types/cart';
 import { formatPrice, TAX_RATE } from '@/lib/utils';
 
 import './page.css';
-// import { ProductType, ProductVariantType } from '@/types/product';
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>['rowSelection'];
@@ -148,10 +147,6 @@ const ShoppingBagPage: React.FC = () => {
       setIsCheckoutProcessing(false);
       return;
     }
-
-    // setTimeout(() => {
-    //   window.location.href = data.url;
-    // }, 2000);
     window.location.href = data.url;
   } catch (error) {
     console.error(error);

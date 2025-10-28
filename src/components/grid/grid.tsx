@@ -36,15 +36,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
   
   useEffect(() => {
   if (!products?.length) return;
-
-  // loop through all localStorage keys
   for (const key in localStorage) {
     if (!key.startsWith('cart_')) continue;
 
-    // each cart is an array of items that reference a product + variant
     const cart: {
-      id: string; // product id
-      variantId: string; // variant id
+      id: string;
+      variantId: string; 
       stock: number;
     }[] = JSON.parse(localStorage.getItem(key) || '[]');
 
