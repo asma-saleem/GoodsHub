@@ -101,7 +101,6 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
         onFinish={handleFinish}
         initialValues={initialValues}
       >
-        {/* ✅ Color with dropdown + color preview */}
         <Form.Item
           label='Color'
           name='color'
