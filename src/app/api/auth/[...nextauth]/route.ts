@@ -147,6 +147,10 @@ async session({ session, token }) {
 },
   secret: JWT_SECRET
 };
+// Export the credentials authorize function for testing
+export const credentialsAuthorize = authOptions.providers
+  ?.find(provider => provider.id === 'credentials')
+  ?.options.authorize;
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

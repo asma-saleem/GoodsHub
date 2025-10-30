@@ -23,33 +23,23 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({ open, setOpen
 
 const handleUpload = async () => {
   try {
-    let fileUrl = '';
-
-    for (const file of fileList) {
-      if (file.originFileObj) {
-        const fd = new FormData();
-        fd.append('file', file.originFileObj as File);
-
-        const res = await fetch('/api/products/upload-image', {
-          method: 'POST',
-          body: fd
-        });
-
-        if (!res.ok) throw new Error('Upload failed');
-
-        const { url } = await res.json();
-        fileUrl = url; // 👈 ye CSV ka url hoga
-      }
+    if (fileList.length === 0) {
+      alert("Please select a CSV file first.");
+      return;
     }
 
-    // ✅ ab bulk insert API call karo
-    if (fileUrl) {
-      await fetch('/api/products/upload-csv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileUrl })
-      });
-    }
+    const fd = new FormData();
+    fd.append('file', fileList[0].originFileObj as File);
+
+    const res = await fetch('http://localhost:8000/upload-csv/', {
+      method: 'POST',
+      body: fd,
+    });
+
+    if (!res.ok) throw new Error('CSV upload failed');
+
+    const data = await res.json();
+    console.log('CSV Upload Started:', data);
 
     setFileList([]);
     setOpen(false);
@@ -57,9 +47,6 @@ const handleUpload = async () => {
     console.error('Upload error:', err);
   }
 };
-
-
-
   return (
     <Modal
       open={open}

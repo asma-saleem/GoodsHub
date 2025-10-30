@@ -10,14 +10,18 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...compat.extends('next/core-web-vitals', 'next/typescript','plugin:jest/recommended'),
   {
     languageOptions: {
       globals: {
         module: 'readonly',
         console: 'readonly',
-        process: 'readonly'
+        process: 'readonly',
+        jest: 'readonly'
       }
+    },
+    env: {
+      jest: true 
     },
     ignores: [
       'node_modules/**',
