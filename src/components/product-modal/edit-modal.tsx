@@ -132,12 +132,10 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
           </Select>
         </Form.Item>
 
-        {/* Hidden colorCode field */}
         <Form.Item name='colorCode' hidden>
           <Input type='hidden' />
         </Form.Item>
 
-        {/* ✅ Size dropdown */}
         <Form.Item
           label='Size'
           name='size'

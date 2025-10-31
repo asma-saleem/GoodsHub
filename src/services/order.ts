@@ -206,23 +206,35 @@ export async function getAllOrders(
     take: pageSize
   });
 
-  const total = await prisma.order.count();
+  // const total = await prisma.order.count();
 
-  const allOrders = await prisma.order.findMany({
-    include: { items: true }
+  // const allOrders = await prisma.order.findMany({
+  //   include: { items: true }
+  // });
+
+  // const totalUnits = allOrders.reduce(
+  //   (sum, order) =>
+  //     sum +
+  //     (order.items?.reduce((s, item) => s + (item.quantity || 0), 0) || 0),
+  //   0
+  // );
+
+  // const totalAmount = allOrders.reduce(
+  //   (sum, order) => sum + (order.total || 0),
+  //   0
+  // );
+  const latestSummary = await prisma.orderSummary.findFirst({
+    orderBy: { date: 'desc' },
+    select: {
+      totalOrders: true,
+      totalUnits: true,
+      totalAmount: true
+    }
   });
 
-  const totalUnits = allOrders.reduce(
-    (sum, order) =>
-      sum +
-      (order.items?.reduce((s, item) => s + (item.quantity || 0), 0) || 0),
-    0
-  );
-
-  const totalAmount = allOrders.reduce(
-    (sum, order) => sum + (order.total || 0),
-    0
-  );
+  const total = latestSummary?.totalOrders ?? 0;
+  const totalUnits = latestSummary?.totalUnits ?? 0;
+  const totalAmount = latestSummary?.totalAmount ?? 0;
   return { orders, total, totalUnits, totalAmount };
 }
 

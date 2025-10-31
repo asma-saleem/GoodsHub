@@ -27,44 +27,44 @@ const OrdersContent: React.FC = () => {
     const { data, total,totalOrders, totalUnits, totalAmount, loadingList, currentPage, query } = useAppSelector(
       (state) => state.orders
     );
-const [summary, setSummary] = useState({
-  totalOrders: 0,
-  totalUnits: 0,
-  totalAmount: 0
-});
-const [loadingSummary, setLoadingSummary] = useState(false);
+// const [summary, setSummary] = useState({
+//   totalOrders: 0,
+//   totalUnits: 0,
+//   totalAmount: 0
+// });
+// const [loadingSummary, setLoadingSummary] = useState(false);
 
     const [searchTerm, setSearchTerm] = useState(query || '');
     const [debouncedTerm, setDebouncedTerm] = useState(query || '');
     const [openDrawer, setOpenDrawer] = useState(false);
       const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     
-      const fetchSummary = async () => {
-        setLoadingSummary(true);
-        try {
-          const res = await fetch("http://127.0.0.1:8000/latest-order-summary");
-          const data = await res.json();
-          if (data.status === "Completed") {
-            setSummary({
-              totalOrders: data.totalOrders,
-              totalUnits: data.totalUnits, 
-              totalAmount: data.totalAmount
-            });
-          }
-        } catch (err) {
-          console.error("Failed to fetch summary:", err);
-        } finally {
-          setLoadingSummary(false);
-        }
-      };
-      useEffect(() => {
-        fetchSummary(); 
-        const interval = setInterval(() => {
-          fetchSummary();
-        }, 60000); 
+      // const fetchSummary = async () => {
+      //   setLoadingSummary(true);
+      //   try {
+      //     const res = await fetch("http://127.0.0.1:8000/latest-order-summary");
+      //     const data = await res.json();
+      //     if (data.status === "Completed") {
+      //       setSummary({
+      //         totalOrders: data.totalOrders,
+      //         totalUnits: data.totalUnits, 
+      //         totalAmount: data.totalAmount
+      //       });
+      //     }
+      //   } catch (err) {
+      //     console.error("Failed to fetch summary:", err);
+      //   } finally {
+      //     setLoadingSummary(false);
+      //   }
+      // };
+      // useEffect(() => {
+      //   fetchSummary(); 
+      //   const interval = setInterval(() => {
+      //     fetchSummary();
+      //   }, 60000); 
 
-        return () => clearInterval(interval);
-      }, []);
+      //   return () => clearInterval(interval);
+      // }, []);
 
   
     useEffect(() => {
@@ -194,8 +194,8 @@ const [loadingSummary, setLoadingSummary] = useState(false);
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className="orders-card-title">Total Orders:</p>
-              <h2 className="orders-card-value">{summary.totalOrders}</h2>
-              {/* <h2 className="orders-card-value">{totalOrders}</h2> */}
+              {/* <h2 className="orders-card-value">{summary.totalOrders}</h2> */}
+              <h2 className="orders-card-value">{totalOrders}</h2>
             </div>          
           <div className='orders-card-icon'>
             <Image
@@ -212,8 +212,8 @@ const [loadingSummary, setLoadingSummary] = useState(false);
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className="orders-card-title">Total Units:</p>
-              <h2 className="orders-card-value">{summary.totalUnits}</h2>
-              {/* <h2 className="orders-card-value">{totalUnits}</h2> */}
+              {/* <h2 className="orders-card-value">{summary.totalUnits}</h2> */}
+              <h2 className="orders-card-value">{totalUnits}</h2>
             </div>          
           <div className='orders-card-icon'>
             <Image
@@ -230,8 +230,8 @@ const [loadingSummary, setLoadingSummary] = useState(false);
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className="orders-card-title">Total Amount:</p>
-              <h2 className="orders-card-value">{formatPrice(summary.totalAmount)}</h2>
-              {/* <h2 className="orders-card-value">{formatPrice(totalAmount)}</h2> */}
+              {/* <h2 className="orders-card-value">{formatPrice(summary.totalAmount)}</h2> */}
+              <h2 className="orders-card-value">{formatPrice(totalAmount)}</h2>
             </div>         
           <div className='orders-card-icon'>
             <Image

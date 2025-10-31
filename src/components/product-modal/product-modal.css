@@ -1,12 +1,6 @@
 @import "tailwindcss";
-/* :root {
-  --background:#F8F9FA;
-  --foreground: #171717;
-} */
 
 @theme inline {
-  /* --color-background: var(--background);
-  --color-foreground: var(--foreground); */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-inter:var(--font-inter), ui-sans-serif, system-ui;
@@ -18,7 +12,7 @@
 }
 
 .product-form {
-  @apply flex flex-col gap-6 w-full max-w-[600px]; /* 👈 width control */
+  @apply flex flex-col gap-6 w-full max-w-[600px]; 
 }
 
 .upload-section {
@@ -82,7 +76,6 @@
   @apply mt-3;
 }
 
-/* AntD Upload custom styling */
 .variant-upload .ant-upload-select {
   @apply w-full;
 }
@@ -91,7 +84,6 @@
   @apply w-[100px] h-[100px] rounded-lg overflow-hidden;
 }
 
-/* Upload button style */
 .upload-btn-wrapper {
   @apply flex flex-col items-center justify-center border border-dashed border-gray-300 
   rounded-lg p-3 bg-gray-50 hover:border-orange-500 hover:bg-orange-50 transition-all duration-300;
