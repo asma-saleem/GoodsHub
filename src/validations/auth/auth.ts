@@ -28,11 +28,13 @@ export const resetPasswordSchema = Joi.object({
 
 export const signupSchema = Joi.object({
   fullname: Joi.string().min(3).max(50).required().messages({
+    'any.required': 'Full name is required',
     'string.empty': 'Full name is required',
     'string.min': 'Full name must be at least 3 characters',
     'string.max': 'Full name cannot exceed 50 characters'
   }),
   email: Joi.string().email().required().messages({
+    'any.required': 'Email is required',
     'string.empty': 'Email is required',
     'string.email': 'Invalid email format'
   }),
@@ -40,6 +42,7 @@ export const signupSchema = Joi.object({
     .pattern(/^(?:\+92|0)[0-9]{10}$/) 
     .required()
     .messages({
+      'any.required': 'Mobile number is required',
       'string.empty': 'Mobile number is required',
       'string.pattern.base':
         'Enter a valid mobile number (e.g. 03001234567 or +923001234567)'
@@ -50,6 +53,7 @@ export const signupSchema = Joi.object({
     )
     .required()
     .messages({
+      'any.required': 'Password is required',
       'string.empty': 'Password is required',
       'string.pattern.base':
         'Password must be at least 8 characters, include uppercase, lowercase, number & special character'
