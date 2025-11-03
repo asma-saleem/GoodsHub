@@ -24,7 +24,7 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({ open, setOpen
 const handleUpload = async () => {
   try {
     if (fileList.length === 0) {
-      alert("Please select a CSV file first.");
+      alert('Please select a CSV file first.');
       return;
     }
 
@@ -33,7 +33,7 @@ const handleUpload = async () => {
 
     const res = await fetch('http://localhost:8000/upload-csv/', {
       method: 'POST',
-      body: fd,
+      body: fd
     });
 
     if (!res.ok) throw new Error('CSV upload failed');
