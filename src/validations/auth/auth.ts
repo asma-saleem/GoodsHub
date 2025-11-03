@@ -2,6 +2,7 @@ import Joi from 'joi';
 
 export const forgotPasswordSchema = Joi.object({
   email: Joi.string().email().required().messages({
+    'any.required': 'Email is required',
     'string.empty': 'Email is required',
     'string.email': 'Invalid email format'
   })
@@ -9,6 +10,7 @@ export const forgotPasswordSchema = Joi.object({
 
 export const resetPasswordSchema = Joi.object({
   token: Joi.string().required().messages({
+    'any.required': 'Reset token is required',
     'string.empty': 'Reset token is required'
   }),
   password: Joi.string()
@@ -16,6 +18,7 @@ export const resetPasswordSchema = Joi.object({
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/)
     .required()
     .messages({
+      'any.required': 'Password is required',
       'string.empty': 'Password is required',
       'string.min': 'Password must be at least 8 characters',
       'string.pattern.base':
