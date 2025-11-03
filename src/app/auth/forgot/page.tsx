@@ -18,8 +18,6 @@ const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     });
 
     const data = await res.json();
-
-    // if (!res.ok) throw new Error(data.message);
     toast.success(data.message || 'Reset Password Instructions has been sent to your email address.');
   } catch (error) {
     console.error('Forgot Password error:', error);
