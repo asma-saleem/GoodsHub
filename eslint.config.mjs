@@ -20,9 +20,9 @@ const eslintConfig = [
         jest: 'readonly'
       }
     },
-    env: {
-      jest: true 
-    },
+    // env: {
+    //   jest: true 
+    // },
     ignores: [
       'node_modules/**',
       '.next/**',

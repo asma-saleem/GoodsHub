@@ -46,7 +46,9 @@ const Orders: React.FC = () => {
   }, [searchTerm, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm }));
+    dispatch(
+      fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
+    );
   }, [dispatch, currentPage, debouncedTerm]);
 
   const columns: TableColumnsType<OrderType> = [
@@ -156,20 +158,13 @@ const Orders: React.FC = () => {
       </div>
       <Drawer
         title={<h2 className='orders-title'>Order Details</h2>}
-        className="
-            [&_.ant-drawer-content]:bg-[#F9FAFB]
-            [&_.ant-drawer-header]:bg-[#F9FAFB]
-            [&_.ant-drawer-body]:bg-[#F9FAFB]
-            [&_.ant-drawer-body]:p-6
-            [&_.ant-drawer-content]:rounded-l-2xl
-            [&_.ant-drawer-content]:shadow-lg
-          "
+        className='order-detail-drawer'
         open={openDrawer}
         onClose={() => {
           setOpenDrawer(false);
         }}
         afterOpenChange={(open) => {
-        if (!open) dispatch(clearOrder());
+          if (!open) dispatch(clearOrder());
         }}
         width={1050}
         destroyOnClose

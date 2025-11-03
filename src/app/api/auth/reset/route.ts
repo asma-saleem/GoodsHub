@@ -1,5 +1,4 @@
 import { findUserByResetToken, updateUserPassword } from '@/services/user';
-import bcrypt from 'bcryptjs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 
@@ -39,7 +38,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     await updateUserPassword(decoded.email, password);
 
     return NextResponse.json({ message: 'Password updated successfully' });

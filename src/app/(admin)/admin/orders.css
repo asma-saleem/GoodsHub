@@ -73,3 +73,16 @@
 .orders-table {
   @apply [&_.ant-table-cell]:!py-2 [&_.ant-table-thead_.ant-table-cell]:!text-[#535E63];
 }
+
+.orders-loading-container {
+  @apply flex justify-center items-center min-h-screen;
+}
+
+.order-detail-drawer {
+  @apply [&_.ant-drawer-content]:bg-[#F9FAFB]
+            [&_.ant-drawer-header]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:p-6
+            [&_.ant-drawer-content]:rounded-l-2xl
+            [&_.ant-drawer-content]:shadow-lg;
+}

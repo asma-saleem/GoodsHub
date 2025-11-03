@@ -60,3 +60,12 @@ body {
 .ant-input-search {
   @apply mobile:!w-[234px] tablet:!w-[350px] [&_.ant-input-affix-wrapper]:!h-[36px] [&_.ant-input-search-button]:!h-[36px] rounded-lg;
 }
+
+.order-detail-drawer {
+  @apply [&_.ant-drawer-content]:bg-[#F9FAFB]
+            [&_.ant-drawer-header]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:bg-[#F9FAFB]
+            [&_.ant-drawer-body]:p-6
+            [&_.ant-drawer-content]:rounded-l-2xl
+            [&_.ant-drawer-content]:shadow-lg;
+}

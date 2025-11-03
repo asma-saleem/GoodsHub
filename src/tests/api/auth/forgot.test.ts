@@ -5,16 +5,16 @@ import { updateUser, findUserByEmail } from '@/services/user';
 
 jest.mock('nodemailer');
 jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn(),
+  sign: jest.fn()
 }));
 jest.mock('@/services/user', () => ({
   findUserByEmail: jest.fn(),
-  updateUser: jest.fn(),
+  updateUser: jest.fn()
 }));
 
 const makeReq = (body: unknown) =>
   ({
-    json: async () => body,
+    json: async () => body
   } as Request);
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -26,7 +26,7 @@ describe('POST /api/auth/forgot', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (nodemailer.createTransport as jest.Mock).mockReturnValue({
-      sendMail: mockSendMail,
+      sendMail: mockSendMail
     });
   });
 
@@ -43,7 +43,7 @@ describe('POST /api/auth/forgot', () => {
 
   it('should send reset email and return success if user exists', async () => {
     (findUserByEmail as jest.Mock).mockResolvedValue({
-      email: 'user@example.com',
+      email: 'user@example.com'
     });
     (jwt.sign as jest.Mock).mockReturnValue('mock_token');
 
@@ -64,7 +64,7 @@ describe('POST /api/auth/forgot', () => {
       expect.objectContaining({
         to: 'user@example.com',
         subject: 'Reset your password',
-        html: expect.stringContaining('Reset your password'),
+        html: expect.stringContaining('Reset your password')
       })
     );
     expect(res.status).toBe(200);

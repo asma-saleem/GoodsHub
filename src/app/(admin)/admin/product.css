@@ -56,3 +56,51 @@
 .product-title {
   @apply font-inter font-normal text-[12px] leading-[100%];
 }
+
+.single-variant-button {
+  @apply !w-[100px] !h-[25px] !text-[#007BFF] !border-[#007BFF] hover:!bg-[#007BFF] hover:!text-white;
+}
+
+.variant-container {
+  @apply flex flex-col md:flex-row items-center justify-between bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow;
+}
+
+.variant-image-wrapper {
+  @apply w-full md:w-24 h-24 relative mb-4 md:mb-0 flex-shrink-0;
+}
+
+.variant-fallback-image {
+  @apply w-full h-full bg-gray-200 rounded;
+}
+
+.variant-details {
+  @apply flex-1 flex flex-col justify-center text-center md:text-left md:ml-4;
+}
+
+.variant-color-text {
+  @apply font-semibold text-gray-800;
+}
+
+.variant-color-code {
+  @apply inline-block w-5 h-5 rounded-full border border-gray-300;
+}
+
+.variant-size-text {
+  @apply text-gray-600;
+}
+
+.variant-price-text {
+  @apply text-gray-700 font-bold; 
+}
+
+.variant-stock-text {
+  @apply text-gray-500;
+}
+
+.variant-button-wrapper {
+  @apply flex gap-2 mt-4 md:mt-0;
+}
+
+.modal-container {
+  @apply flex flex-col gap-4;
+}

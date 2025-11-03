@@ -5,24 +5,24 @@ import { hashPassword } from '@/utils/hash';
 jest.mock('@/services/user', () => ({
   findUserByEmail: jest.fn(),
   createUser: jest.fn(),
-  updateStripeCustomerId: jest.fn(),
+  updateStripeCustomerId: jest.fn()
 }));
 
 jest.mock('@/utils/hash', () => ({
-  hashPassword: jest.fn().mockResolvedValue('hashed_pw'),
+  hashPassword: jest.fn().mockResolvedValue('hashed_pw')
 }));
 
 jest.mock('stripe', () => {
   return jest.fn().mockImplementation(() => ({
     customers: {
-      create: jest.fn().mockResolvedValue({ id: 'fake_stripe_id' }),
-    },
+      create: jest.fn().mockResolvedValue({ id: 'fake_stripe_id' })
+    }
   }));
 });
 
 const makeRequest = (body: Record<string, unknown>): Request =>
   ({
-    json: async () => body,
+    json: async () => body
   } as unknown as Request);
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -48,7 +48,7 @@ describe('POST /api/auth/signup', () => {
       makeRequest({
         fullname: 'Existing User',
         email: 'existing@example.com',
-        password: 'Pass@123',
+        password: 'Pass@123'
       })
     );
 
@@ -73,7 +73,7 @@ describe('POST /api/auth/signup', () => {
     (createUser as jest.Mock).mockResolvedValue({
       id: 10,
       fullname: 'New User',
-      email: 'new@example.com',
+      email: 'new@example.com'
     });
     (updateStripeCustomerId as jest.Mock).mockResolvedValue(true);
 
@@ -82,7 +82,7 @@ describe('POST /api/auth/signup', () => {
         fullname: 'New User',
         email: 'new@example.com',
         mobile: '03100000000',
-        password: 'Pass@123',
+        password: 'Pass@123'
       })
     );
 
@@ -101,7 +101,7 @@ describe('POST /api/auth/signup', () => {
       makeRequest({
         fullname: 'Fail User',
         email: 'fail@example.com',
-        password: 'Pass@123',
+        password: 'Pass@123'
       })
     );
 

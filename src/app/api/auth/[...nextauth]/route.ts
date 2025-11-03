@@ -89,7 +89,6 @@ export const authOptions: NextAuthOptions = {
             fullname: user.name || 'No Name',
             email: user.email,
             password: ''
-            // password: 'google123@'
           });
           if (!newUser.stripeCustomerId) {
               const stripeCustomer = await stripe.customers.create({
@@ -147,7 +146,7 @@ async session({ session, token }) {
 },
   secret: JWT_SECRET
 };
-// Export the credentials authorize function for testing
+
 export const credentialsAuthorize = authOptions.providers
   ?.find(provider => provider.id === 'credentials')
   ?.options.authorize;
