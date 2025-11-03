@@ -80,4 +80,19 @@ describe('POST /api/auth/forgot', () => {
     expect(res.status).toBe(500);
     expect(data.message).toBe('Internal server error');
   });
+
+  it('should correctly format the reset URL in the email', async () => {
+    (findUserByEmail as jest.Mock).mockResolvedValue({ email: 'user@example.com' });
+    (jwt.sign as jest.Mock).mockReturnValue('mock_token');
+
+    await POST(makeReq({ email: 'user@example.com' }));
+
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        html: expect.stringContaining(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset?token=mock_token`
+        )
+      })
+    );
+  });
 });
