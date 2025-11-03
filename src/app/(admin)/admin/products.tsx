@@ -364,7 +364,8 @@ const ProductsContent: React.FC = () => {
                   dispatch(setSearchAndSort({ searchTerm, sortBy: value }))
                 }
                 options={[
-                  { value: 'createdAt_desc', label: 'Newest' },
+                  { value: 'createdAt_desc', label: 'Newest First' }, 
+                  { value: 'createdAt_asc', label: 'Oldest First' },
                   { value: 'price_asc', label: 'Price: Low to High' },
                   { value: 'price_desc', label: 'Price: High to Low' },
                   { value: 'title_asc', label: 'Title: A-Z' },
