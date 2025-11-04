@@ -10,3 +10,7 @@ celery_app = Celery(
     include=["app.tasks"]
 )
 
+celery_app.conf.task_routes = {
+    "app.tasks.calculate_order_summary_task": {"queue": "orders"},
+    "app.tasks.process_csv_task": {"queue": "uploads"},
+}
