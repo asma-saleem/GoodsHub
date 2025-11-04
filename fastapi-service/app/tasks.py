@@ -65,5 +65,9 @@ def calculate_order_summary(db: Session):
             "totalAmount": existing_summary.totalAmount
         }
 
-        return summary_data
+    r.set("latest_order_summary", json.dumps(summary_data))
+    r.set("last_summary_time", now.isoformat())
+
+    print(f"Updated summary @ {now}: {summary_data}")
+    return summary_data
 
