@@ -6,6 +6,20 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     const { id } = await context.params;
     const value = await req.json();
 
+    const existingProduct = await prisma.product.findFirst({
+      where: {
+        title: value.name,
+        NOT: { id } 
+      }
+    });
+
+    if (existingProduct) {
+      return NextResponse.json(
+        { error: 'A product with this title already exists, cannot update' },
+        { status: 400 }
+      );
+    }
+
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: { title: value.name },

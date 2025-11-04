@@ -444,7 +444,7 @@ const ProductsContent: React.FC = () => {
           className='product-view-modal'
         >
           <div
-            className='modal-container'
+            className='view-modal-container'
             style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}
           >
             {viewProduct.variants.map(
@@ -577,12 +577,17 @@ const ProductsContent: React.FC = () => {
                 })
               );
             } catch (error) {
-              console.error('Error updating variant:', error);
-              toast.error(
-                values.variantId
-                  ? 'Failed to update variant'
-                  : 'Failed to add variant'
-              );
+              let message = values.variantId ? 'Failed to update variant' : 'Failed to add variant';
+
+              if (typeof error === 'object' && error !== null && 'payload' in error) {
+                message = String(error.payload) || message;
+              } else if (error instanceof Error) {
+                message = error.message;
+              } else if (typeof error === 'string') {
+                message = error;
+              }
+              toast.error(message);
+              // toast.error(String(error)|| message);
             }
           }}
         />

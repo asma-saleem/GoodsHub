@@ -16,6 +16,21 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
     if (!existingVariant) {
       return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
     }
+    const duplicate = await prisma.productVariant.findFirst({
+      where: {
+        productId: id,
+        color: value.color,
+        size: value.size,
+        NOT: { id: variantId }
+      }
+    });
+
+    if (duplicate) {
+      return NextResponse.json(
+        { error: 'Variant with this color and size already exists and cannot be updated.' },
+        { status: 400 }
+      );
+    }
 
     let imageUrl = '';
     if (typeof value.image === 'string') {

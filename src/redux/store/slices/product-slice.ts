@@ -257,14 +257,15 @@ export const updateProduct = createAsyncThunk(
   ) => {
     try {
       const res = await fetch(`/api/products/${id}`, {
-        method: 'PUT', // match your API route
+        method: 'PUT', 
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }) // send name directly
+        body: JSON.stringify({ name }) 
       });
-
-      if (!res.ok) throw new Error('Failed to update product');
       const data = await res.json();
-      return data; // full updated product
+      if (!res.ok) {
+        return rejectWithValue(data?.error || 'Failed to update product');
+      }
+      return data; 
     } catch (error) {
       console.log(error);
       return rejectWithValue(String(error) || 'Failed to update product');
@@ -305,14 +306,13 @@ export const addVariant = createAsyncThunk(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(variantData)
       });
-
-      if (!res.ok) throw new Error('Failed to add variant');
-
       const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data?.error || 'Failed to add product');
+      }
       return { productId, variant: data };
     } catch (error) {
-      console.error('Add variant error:', error);
-      return rejectWithValue('Failed to add variant');
+      return rejectWithValue(error || 'Failed to add variant');
     }
   }
 );
@@ -342,13 +342,14 @@ export const updateVariant = createAsyncThunk(
         }
       );
 
-      if (!res.ok) throw new Error('Failed to update variant');
-
       const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data?.error || 'Failed to update variant');
+      }
+
       return { productId, variant: data.variant };
     } catch (error) {
-      console.error('Update variant error:', error);
-      return rejectWithValue('Failed to update variant');
+      return rejectWithValue(error || 'Failed to update variant');
     }
   }
 );

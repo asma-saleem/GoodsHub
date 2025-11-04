@@ -101,6 +101,6 @@
   @apply flex gap-2 mt-4 md:mt-0;
 }
 
-.modal-container {
+.view-modal-container {
   @apply flex flex-col gap-4;
 }
