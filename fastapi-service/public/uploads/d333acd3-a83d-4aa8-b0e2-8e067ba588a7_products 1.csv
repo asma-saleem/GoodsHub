@@ -1,0 +1,41 @@
+title,image,price,color,colorCode,stock,size
+Denim Jeans,/dashboard-image-1.png,220,Black,#000000,20,30
+Denim Jeans,/dashboard-image-1.png,230,Blue,#0000FF,18,32
+Denim Jeans,/dashboard-image-1.png,240,Grey,#808080,15,34
+Denim Jeans,/dashboard-image-1.png,250,Navy,#000080,12,36
+Summer T-Shirt,/dashboard-image-2.png,90,White,#FFFFFF,25,S
+Summer T-Shirt,/dashboard-image-2.png,95,Black,#000000,22,M
+Summer T-Shirt,/dashboard-image-2.png,100,Blue,#0000FF,18,L
+Summer T-Shirt,/dashboard-image-2.png,110,Green,#00FF00,15,XL
+Winter Jacket,/dashboard-image-3.png,350,Black,#000000,10,S
+Winter Jacket,/dashboard-image-3.png,370,Grey,#808080,8,M
+Winter Jacket,/dashboard-image-3.png,390,Blue,#0000FF,6,L
+Winter Jacket,/dashboard-image-3.png,410,Red,#FF0000,4,XL
+Sports Shoes,/dashboard-image-4.png,180,White,#FFFFFF,20,7
+Sports Shoes,/dashboard-image-4.png,190,Black,#000000,18,8
+Sports Shoes,/dashboard-image-4.png,200,Blue,#0000FF,15,9
+Sports Shoes,/dashboard-image-4.png,210,Grey,#808080,12,10
+Hoodie Classic,/dashboard-image-1.png,160,Black,#000000,16,S
+Hoodie Classic,/dashboard-image-1.png,170,Grey,#808080,14,M
+Hoodie Classic,/dashboard-image-1.png,180,Red,#FF0000,12,L
+Hoodie Classic,/dashboard-image-1.png,190,Blue,#0000FF,10,XL
+Sneakers Pro,/dashboard-image-2.png,250,White,#FFFFFF,10,7
+Sneakers Pro,/dashboard-image-2.png,260,Black,#000000,8,8
+Sneakers Pro,/dashboard-image-2.png,270,Grey,#808080,6,9
+Sneakers Pro,/dashboard-image-2.png,280,Navy,#000080,4,10
+Leather Belt,/dashboard-image-3.png,90,Brown,#8B4513,30,Free
+Leather Belt,/dashboard-image-3.png,95,Black,#000000,28,Free
+Leather Belt,/dashboard-image-3.png,100,Tan,#D2B48C,25,Free
+Leather Belt,/dashboard-image-3.png,110,Dark Brown,#654321,22,Free
+Smart Watch,/dashboard-image-4.png,500,Black,#000000,15,Small
+Smart Watch,/dashboard-image-4.png,520,Silver,#C0C0C0,12,Medium
+Smart Watch,/dashboard-image-4.png,540,Gold,#FFD700,10,Large
+Smart Watch,/dashboard-image-4.png,560,Rose Gold,#B76E79,8,XL
+Backpack Elite,/dashboard-image-1.png,300,Black,#000000,25,S
+Backpack Elite,/dashboard-image-1.png,320,Blue,#0000FF,20,M
+Backpack Elite,/dashboard-image-1.png,340,Grey,#808080,15,L
+Backpack Elite,/dashboard-image-1.png,360,Green,#00FF00,10,XL
+Sunglasses X,/dashboard-image-2.png,150,Black,#000000,18,Free
+Sunglasses X,/dashboard-image-2.png,160,Brown,#8B4513,15,Free
+Sunglasses X,/dashboard-image-2.png,170,Silver,#C0C0C0,12,Free
+Sunglasses X,/dashboard-image-2.png,180,Gold,#FFD700,10,Free

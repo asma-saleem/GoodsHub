@@ -1,0 +1,41 @@
+title,image,price,color,colorCode,stock,size
+Test 1,/dashboard-image-1.png,220,Black,#000000,20,30
+Test 1,/dashboard-image-1.png,230,Blue,#0000FF,18,32
+Test 1,/dashboard-image-1.png,240,Grey,#808080,15,34
+Test 1,/dashboard-image-1.png,250,Navy,#000080,12,36
+Test 2,/dashboard-image-2.png,90,White,#FFFFFF,25,S
+Test 2,/dashboard-image-2.png,95,Black,#000000,22,M
+Test 2,/dashboard-image-2.png,100,Blue,#0000FF,18,L
+Test 2,/dashboard-image-2.png,110,Green,#00FF00,15,XL
+Test 3,/dashboard-image-3.png,350,Black,#000000,10,S
+Test 3,/dashboard-image-3.png,370,Grey,#808080,8,M
+Test 3,/dashboard-image-3.png,390,Blue,#0000FF,6,L
+Test 3,/dashboard-image-3.png,410,Red,#FF0000,4,XL
+Test 4,/dashboard-image-4.png,180,White,#FFFFFF,20,7
+Test 4,/dashboard-image-4.png,190,Black,#000000,18,8
+Test 4,/dashboard-image-4.png,200,Blue,#0000FF,15,9
+Test 4,/dashboard-image-4.png,210,Grey,#808080,12,10
+Test 5,/dashboard-image-1.png,160,Black,#000000,16,S
+Test 5,/dashboard-image-1.png,170,Grey,#808080,14,M
+Test 5,/dashboard-image-1.png,180,Red,#FF0000,12,L
+Test 5,/dashboard-image-1.png,190,Blue,#0000FF,10,XL
+Test 6,/dashboard-image-2.png,250,White,#FFFFFF,10,7
+Test 6,/dashboard-image-2.png,260,Black,#000000,8,8
+Test 6,/dashboard-image-2.png,270,Grey,#808080,6,9
+Test 6,/dashboard-image-2.png,280,Navy,#000080,4,10
+Test 7,/dashboard-image-3.png,90,Brown,#8B4513,30,Free
+Test 7,/dashboard-image-3.png,95,Black,#000000,28,Free
+Test 7,/dashboard-image-3.png,100,Tan,#D2B48C,25,Free
+Test 7,/dashboard-image-3.png,110,Dark Brown,#654321,22,Free
+Test 8,/dashboard-image-4.png,500,Black,#000000,15,Small
+Test 8,/dashboard-image-4.png,520,Silver,#C0C0C0,12,Medium
+Test 8,/dashboard-image-4.png,540,Gold,#FFD700,10,Large
+Test 8,/dashboard-image-4.png,560,Rose Gold,#B76E79,8,XL
+Test 9,/dashboard-image-1.png,300,Black,#000000,25,S
+Test 9,/dashboard-image-1.png,320,Blue,#0000FF,20,M
+Test 9,/dashboard-image-1.png,340,Grey,#808080,15,L
+Test 9,/dashboard-image-1.png,360,Green,#00FF00,10,XL
+Test 10,/dashboard-image-2.png,150,Black,#000000,18,Free
+Test 10,/dashboard-image-2.png,160,Brown,#8B4513,15,Free
+Test 10,/dashboard-image-2.png,170,Silver,#C0C0C0,12,Free
+Test 10,/dashboard-image-2.png,180,Gold,#FFD700,10,Free

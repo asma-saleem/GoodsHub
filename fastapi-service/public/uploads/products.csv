@@ -1,0 +1,10 @@
+title,image,price,color,colorCode,stock,size
+Casual Shirt 9,/dashboard-image-1.png,115,Red,#FF0000,12,S
+Casual Shirt 19,/dashboard-image-2.png,125,Blue,#0000FF,12,M
+Casual Shirt 9,/dashboard-image-1.png,135,Green,#00FF00,12,L
+Casual Shirt 19,/dashboard-image-2.png,600,Yellow,#FFFF00,12,XL
+Formal Shirt 8,/dashboard-image-2.png,120,Red,#FF0000,14,S
+Formal Shirt 18,/dashboard-image-1.png,130,Blue,#0000FF,14,M
+Formal Shirt 8,/dashboard-image-2.png,140,Green,#00FF00,14,L
+Formal Shirt 18,/dashboard-image-1.png,150,Yellow,#FFFF00,14,XL
+
