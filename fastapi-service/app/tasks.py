@@ -120,6 +120,17 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             products = {}
+
+            for row in reader:
+                title = row["title"].strip()
+                products.setdefault(title, []).append(row)
+
+            product_items = list(products.items())
+            chunk_size = 5
+            total_chunks = (len(product_items) + chunk_size - 1) // chunk_size
+
+            chunk = product_items[start_index:start_index + chunk_size]
+
     except Exception as e:
         db.rollback()
         r.set(f"csv_upload_status:{file_uuid}",
