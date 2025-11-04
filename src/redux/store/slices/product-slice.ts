@@ -238,8 +238,11 @@ export const addProduct = createAsyncThunk(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       });
-
-      if (!res.ok) throw new Error('Failed to add product');
+      
+      const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data?.error || 'Failed to add product');
+      }
       return; 
     } catch (error) {
       console.log(error);

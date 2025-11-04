@@ -4,22 +4,35 @@ import { prisma } from '@/lib/prisma';
 import { ProductVariantType } from '@/types/product';
 
 async function createVariants(variants: ProductVariantType[]) {
-  return variants.map((variant) => {
-    const imageData =
-      variant.image as string | { url?: string }[] | undefined;
+  const seen = new Set<string>(); // track unique color-size combinations
 
-    return {
-      color: variant.color ?? null,
-      colorCode: variant.colorCode ?? null,
-      size: variant.size ?? null,
-      price: Number(variant.price),
-      stock: Number(variant.stock),
-      image:
-        typeof imageData === 'string'
-          ? imageData
-          : imageData?.[0]?.url ?? null
-    };
-  });
+  return variants
+    .map((variant) => {
+      const color = variant.color?.trim().toLowerCase() || '';
+      const size = variant.size?.trim().toLowerCase() || '';
+      const key = `${color}-${size}`;
+
+      // agar duplicate mila to skip karo
+      if (seen.has(key)) return null;
+      seen.add(key);
+
+      const imageData =
+        variant.image as string | { url?: string }[] | undefined;
+
+      return {
+        color: variant.color ?? null,
+        colorCode: variant.colorCode ?? null,
+        size: variant.size ?? null,
+        price: Number(variant.price),
+        stock: Number(variant.stock),
+        image:
+          typeof imageData === 'string'
+            ? imageData
+            : imageData?.[0]?.url ?? null
+      };
+    })
+    // null (duplicates) ko filter karo
+    .filter((v) => v !== null);
 }
 
 export async function GET(req: Request) {
@@ -45,6 +58,17 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    const existingProduct = await prisma.product.findFirst({
+      where: { title: body.name.trim() }
+    });
+
+    if (existingProduct) {
+      return NextResponse.json(
+        { error: 'Product with this title already exists' },
+        { status: 400 }
+      );
+    }
 
     const variantData = await createVariants(body.variants);
 

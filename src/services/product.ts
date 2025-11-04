@@ -88,20 +88,20 @@ export const getProducts = async (
     };
   });
 
-  let sortedProducts = enrichedProducts;
-  if (sortBy === 'price_asc') {
-    sortedProducts = [...enrichedProducts].sort(
-      (a, b) => (a.minPrice ?? Infinity) - (b.minPrice ?? Infinity)
-    );
-  } else if (sortBy === 'price_desc') {
-    sortedProducts = [...enrichedProducts].sort(
-      (a, b) => (b.minPrice ?? 0) - (a.minPrice ?? 0)
-    );
-  }
+  // let sortedProducts = enrichedProducts;
+  // if (sortBy === 'price_asc') {
+  //   sortedProducts = [...enrichedProducts].sort(
+  //     (a, b) => (a.minPrice ?? Infinity) - (b.minPrice ?? Infinity)
+  //   );
+  // } else if (sortBy === 'price_desc') {
+  //   sortedProducts = [...enrichedProducts].sort(
+  //     (a, b) => (b.minPrice ?? 0) - (a.minPrice ?? 0)
+  //   );
+  // }
 
   const total = await prisma.product.count({ where });
 
-  return { products: sortedProducts, total };
+  return { products: enrichedProducts, total };
 };
 
 

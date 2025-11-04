@@ -369,8 +369,8 @@ const ProductsContent: React.FC = () => {
                 options={[
                   { value: 'createdAt_desc', label: 'Newest First' },
                   { value: 'createdAt_asc', label: 'Oldest First' },
-                  { value: 'price_asc', label: 'Price: Low to High' },
-                  { value: 'price_desc', label: 'Price: High to Low' },
+                  // { value: 'price_asc', label: 'Price: Low to High' },
+                  // { value: 'price_desc', label: 'Price: High to Low' },
                   { value: 'title_asc', label: 'Title: A-Z' },
                   { value: 'title_desc', label: 'Title: Z-A' }
                 ]}
