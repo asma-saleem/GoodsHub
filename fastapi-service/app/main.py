@@ -18,4 +18,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+r = redis.from_url(REDIS_URL)
+
+@app.get("/latest-order-summary")
+def latest_order_summary():
+    data = r.get("latest_order_summary")
+    if data:
+        return {"status": "Completed", **json.loads(data)}
+    return {"status": "Processing"}
 
