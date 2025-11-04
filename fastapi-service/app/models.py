@@ -25,6 +25,7 @@ class Order(Base):
 
     items = relationship("OrderItem", back_populates="order")
 
+
 class OrderItem(Base):
     __tablename__ = 'OrderItem'
     __table_args__ = {'quote': True}
@@ -46,3 +47,21 @@ class Product(Base):
     updatedAt = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     variants = relationship("ProductVariant", back_populates="product")
+
+
+class ProductVariant(Base):
+    __tablename__ = "ProductVariant"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    productId = Column(String, ForeignKey("Product.id"))
+    color = Column(String)
+    colorCode = Column(String)
+    size = Column(String)
+    image = Column(String)
+    price = Column(Float)
+    stock = Column(Integer, default=0)
+    isVariantDeleted = Column(Boolean, default=False)
+    createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updatedAt = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    product = relationship("Product", back_populates="variants")
