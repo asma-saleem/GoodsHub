@@ -106,3 +106,24 @@ def calculate_order_summary(db: Session):
 
     print(f"Updated summary @ {now}: {summary_data}")
     return summary_data
+
+@celery_app.task(name="app.tasks.process_csv_task")
+def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0):
+    """
+    Efficient chunked CSV processor using Celery async scheduling.
+    """
+    if not os.path.exists(file_path):
+        return {"error": f"File not found: {file_path}"}
+
+    db = SessionLocal()
+    try:
+        with open(file_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            products = {}
+    except Exception as e:
+        db.rollback()
+        r.set(f"csv_upload_status:{file_uuid}",
+              json.dumps({"status": "failed", "error": str(e)}))
+        raise
+    finally:
+        db.close()
