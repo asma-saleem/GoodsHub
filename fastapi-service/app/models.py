@@ -65,3 +65,14 @@ class ProductVariant(Base):
     updatedAt = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     product = relationship("Product", back_populates="variants")
+
+class OrderSummary(Base):
+    __tablename__ = "OrderSummary"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    date = Column(DateTime, default=lambda: datetime.now(timezone.utc), unique=True)
+    totalOrders = Column(Integer, default=0)
+    totalUnits = Column(Integer, default=0)
+    totalAmount = Column(Float, default=0.0)
+    createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updatedAt = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
