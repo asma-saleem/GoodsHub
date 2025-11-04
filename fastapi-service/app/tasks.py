@@ -131,6 +131,33 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
 
             chunk = product_items[start_index:start_index + chunk_size]
 
+            for title, variants in chunk:
+                product = db.query(Product).filter(Product.title == title).first()
+                if not product:
+                    product = Product(id=str(uuid.uuid4()), title=title)
+                    db.add(product)
+                    db.flush()
+                else:
+                    print(f"Product already exists: {title}")
+
+                variant_objects = [
+                    ProductVariant(
+                        productId=product.id,
+                        color=v.get("color"),
+                        colorCode=v.get("colorCode"),
+                        size=v.get("size"),
+                        image=v.get("image"),
+                        price=float(v.get("price", 0)),
+                        stock=int(v.get("stock", 0)),
+                    )
+                    for v in variants
+                ]
+                db.add_all(variant_objects)
+
+            db.commit()
+            print(f"Processed chunk {start_index // chunk_size + 1}/{total_chunks}")
+
+
     except Exception as e:
         db.rollback()
         r.set(f"csv_upload_status:{file_uuid}",
