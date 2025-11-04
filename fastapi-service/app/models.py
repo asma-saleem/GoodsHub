@@ -4,6 +4,7 @@ from sqlalchemy import (
     Column,
     Integer,
     Float,
+    ForeignKey,
     DateTime,
 )
 from sqlalchemy.orm import relationship
@@ -21,3 +22,13 @@ class Order(Base):
 
     items = relationship("OrderItem", back_populates="order")
 
+class OrderItem(Base):
+    __tablename__ = 'OrderItem'
+    __table_args__ = {'quote': True}
+    id = Column(Integer, primary_key=True)
+    order_id = Column(Integer, ForeignKey("Order.id"))
+    quantity = Column(Integer)
+    createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updatedAt = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    order = relationship("Order", back_populates="items")
