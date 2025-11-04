@@ -18,6 +18,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 r = redis.from_url(REDIS_URL)
 
@@ -28,3 +29,22 @@ def latest_order_summary():
         return {"status": "Completed", **json.loads(data)}
     return {"status": "Processing"}
 
+UPLOAD_DIR = "public/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@app.post("/upload-csv/")
+async def upload_csv(file: UploadFile = File(...)):
+    unique_id = str(uuid4())
+    filename = f"{unique_id}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    task = process_csv_task.delay(file_path, unique_id)
+
+    return {
+        "status": "Processing started",
+        "file_id": unique_id,
+        "task_id": task.id
+    }
