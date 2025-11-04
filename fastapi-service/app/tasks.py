@@ -36,5 +36,34 @@ def calculate_order_summary(db: Session):
             "totalUnits": total_units,
             "totalAmount": total_amount
         }
+    else:
+        last_update = existing_summary.updatedAt
+        new_orders = db.query(Order).filter(Order.createdAt > last_update).all()
+
+        if not new_orders:
+            print("No new orders since last update.")
+            return {
+                "totalOrders": existing_summary.totalOrders,
+                "totalUnits": existing_summary.totalUnits,
+                "totalAmount": existing_summary.totalAmount,
+            }
+
+        new_order_ids = [o.id for o in new_orders]
+        new_units = db.query(func.sum(OrderItem.quantity)).filter(OrderItem.id.in_(new_order_ids)).scalar() or 0
+        new_amount = db.query(func.sum(Order.total)).filter(Order.id.in_(new_order_ids)).scalar() or 0
+        new_count = len(new_orders)
+
+        existing_summary.totalOrders += new_count
+        existing_summary.totalUnits += new_units
+        existing_summary.totalAmount += new_amount
+        existing_summary.updatedAt = now
+        db.commit()
+
+        summary_data = {
+            "totalOrders": existing_summary.totalOrders,
+            "totalUnits": existing_summary.totalUnits,
+            "totalAmount": existing_summary.totalAmount
+        }
+
         return summary_data
 
