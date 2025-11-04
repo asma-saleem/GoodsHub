@@ -107,6 +107,14 @@ def calculate_order_summary(db: Session):
     print(f"Updated summary @ {now}: {summary_data}")
     return summary_data
 
+@celery_app.task(bind=True, name="app.tasks.calculate_order_summary_task")
+def calculate_order_summary_task(self):
+    db = SessionLocal()
+    try:
+        return calculate_order_summary(db)
+    finally:
+        db.close()
+
 @celery_app.task(name="app.tasks.process_csv_task")
 def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0):
     """
@@ -132,13 +140,14 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
             chunk = product_items[start_index:start_index + chunk_size]
 
             for title, variants in chunk:
+
                 product = db.query(Product).filter(Product.title == title).first()
                 if not product:
                     product = Product(id=str(uuid.uuid4()), title=title)
                     db.add(product)
-                    db.flush()
+                    db.flush()  # get product.id quickly
                 else:
-                    print(f"Product already exists: {title}")
+                    print(f"✅ Product already exists: {title}")
 
                 variant_objects = [
                     ProductVariant(
@@ -157,6 +166,30 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
             db.commit()
             print(f"Processed chunk {start_index // chunk_size + 1}/{total_chunks}")
 
+            r.set(
+                f"csv_upload_status:{file_uuid}",
+                json.dumps({
+                    "status": "in-progress",
+                    "processed_chunks": start_index // chunk_size + 1,
+                    "total_chunks": total_chunks,
+                })
+            )
+
+            next_index = start_index + chunk_size
+            if next_index < len(product_items):
+                process_csv_task.apply_async(
+                    args=[file_path, file_uuid, next_index],
+                    countdown=2 
+                )
+            else:
+                r.set(
+                    f"csv_upload_status:{file_uuid}",
+                    json.dumps({
+                        "status": "completed",
+                        "total_products": len(products)
+                    })
+                )
+                print("CSV import completed!")
 
     except Exception as e:
         db.rollback()
