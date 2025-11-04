@@ -13,8 +13,10 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 r = redis.from_url(REDIS_URL)
 
 def calculate_order_summary(db: Session):
-    """
-    Calculate daily order summary and update Redis.
-    """
     now = datetime.now(timezone.utc)
-    print(f"Running summary update at {now}")
+
+    # 🔹 Fetch existing summary (only one row)
+    existing_summary = db.query(OrderSummary).first()
+    if not existing_summary:
+        print("No summary record found yet.")
+        return {}
