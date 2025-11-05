@@ -17,6 +17,11 @@ export const schemas = [
     params: variantParamsSchema
   },
   {
+    path: '/api/products/[id]/variants/[variantId]/activate',
+    method: 'PATCH',
+    params: variantParamsSchema
+  },
+  {
     path: '/api/products/[id]/variants/[variantId]',
     method: 'DELETE',
     params: variantParamsSchema
