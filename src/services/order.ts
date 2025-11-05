@@ -130,6 +130,9 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
       if (!variant) {
           throw new Error(`Variant with id ${item.variantId} not found for product ${product.title}`);
       }
+      if (variant.isVariantDeleted) {
+          throw new Error(`Variant "${variant.size}" (${variant.color}) is no longer available.`);
+      }
       if (variant.stock < item.qty) {
         throw new Error(
           `Not enough stock for product ${product.title}. Only ${variant.stock} left.`
