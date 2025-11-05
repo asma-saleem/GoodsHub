@@ -16,6 +16,20 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
     if (!existingVariant) {
       return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
     }
+
+    // if (value.reactivate === true && existingVariant.isVariantDeleted) {
+    //   const reactivated = await prisma.productVariant.update({
+    //     where: { id: variantId },
+    //     data: { isVariantDeleted: false }
+    //   });
+
+    //   return NextResponse.json({
+    //     success: true,
+    //     message: 'Variant reactivated successfully',
+    //     variant: reactivated
+    //   });
+    // }
+
     const duplicate = await prisma.productVariant.findFirst({
       where: {
         productId: id,

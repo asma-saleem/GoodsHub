@@ -11,6 +11,7 @@ export interface ProductVariantType {
   image?: string;
   stock: number;
   isVariantDeleted: boolean;
+  productId: string;
   createdAt: Date
 }
 

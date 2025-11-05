@@ -79,6 +79,10 @@ export default function SignupPage() {
                 {
                    pattern: /^[a-zA-Z\s]+$/, 
                    message: 'Full name can only contain letters and spaces!'
+                },
+                {
+                    min: 3,
+                    message: 'Full name must be at least 3 characters long'
                 }
               ]}
             >

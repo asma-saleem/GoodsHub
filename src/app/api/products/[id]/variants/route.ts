@@ -14,10 +14,20 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       }
     });
 
-    if (existingVariant) {
+    if (existingVariant && !existingVariant.isVariantDeleted) {
       return NextResponse.json(
         { error: 'Variant with this size and color already exists' },
         { status: 400 }
+      );
+    }
+
+    if (existingVariant && existingVariant.isVariantDeleted) {
+      return NextResponse.json(
+        {
+          inactiveVariant: existingVariant,
+          message: 'An inactive variant with same size and color exists. Reactivate it?'
+        },
+        { status: 409 }
       );
     }
 

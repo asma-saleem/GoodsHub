@@ -310,6 +310,15 @@ export const addVariant = createAsyncThunk(
         body: JSON.stringify(variantData)
       });
       const data = await res.json();
+
+      if (res.status === 409 && data.inactiveVariant) {
+        return rejectWithValue({
+          type: 'INACTIVE_VARIANT',
+          variant: data.inactiveVariant,
+          message: data.message
+        });
+      }
+
       if (!res.ok) {
         return rejectWithValue(data?.error || 'Failed to add product');
       }
@@ -353,6 +362,36 @@ export const updateVariant = createAsyncThunk(
       return { productId, variant: data.variant };
     } catch (error) {
       return rejectWithValue(error || 'Failed to update variant');
+    }
+  }
+);
+
+export const reactivateVariant = createAsyncThunk(
+  'products/reactivateVariant',
+  async (
+    {
+      productId,
+      variantId
+    }: {
+      productId: string;
+      variantId: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await fetch(
+        `/api/products/${productId}/variants/${variantId}/activate`,
+        { method: 'PATCH' }
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data?.error || 'Failed to reactivate variant');
+      }
+
+      return { productId, variant: data.variant };
+    } catch (error) {
+      return rejectWithValue(error || 'Failed to reactivate variant');
     }
   }
 );

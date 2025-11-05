@@ -36,7 +36,8 @@ import {
   deleteVariant,
   updateVariant,
   addVariant,
-  deleteProduct
+  deleteProduct,
+  reactivateVariant
 } from '@/redux/store/slices/product-slice';
 import { toast } from 'react-toastify';
 
@@ -74,6 +75,10 @@ const ProductsContent: React.FC = () => {
     productId: string;
     variantId: string;
   } | null>(null);
+
+  const [inactiveVariantData, setInactiveVariantData] = useState<
+  (ProductVariantType & { message?: string }) | null
+  >(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -577,6 +582,26 @@ const ProductsContent: React.FC = () => {
                 })
               );
             } catch (error) {
+              console.log('Variant submission error:', error);
+              if (
+                typeof error === 'object' &&
+                error !== null &&
+                'type' in error &&
+                (error as { type: string }).type === 'INACTIVE_VARIANT'
+              ) {
+                const payload = error as {
+                  type: string;
+                  variant: ProductVariantType;
+                  message: string;
+                };
+
+                setInactiveVariantData({
+                  ...payload.variant,
+                  message: payload.message
+                });
+
+                return; 
+              }
               let message = values.variantId ? 'Failed to update variant' : 'Failed to add variant';
 
               if (typeof error === 'object' && error !== null && 'payload' in error) {
@@ -587,7 +612,6 @@ const ProductsContent: React.FC = () => {
                 message = error;
               }
               toast.error(message);
-              // toast.error(String(error)|| message);
             }
           }}
         />
@@ -624,6 +648,58 @@ const ProductsContent: React.FC = () => {
           }
         />
       )}
+      {inactiveVariantData && (
+      <Modal
+        open={!!inactiveVariantData}
+        title="Inactive Variant Found"
+        onCancel={() => setInactiveVariantData(null)}
+        footer={[
+          <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
+            Cancel
+          </Button>,
+          <Button
+              key="activate"
+              type="primary"
+              onClick={async () => {
+                try {
+                  await dispatch(
+                    reactivateVariant({
+                      productId: inactiveVariantData.productId,
+                      variantId: inactiveVariantData.id
+                    })
+                  ).unwrap();
+
+                  toast.success('Variant reactivated successfully');
+                  setInactiveVariantData(null);
+
+                  dispatch(
+                    fetchProductsReplace({
+                      page: 1,
+                      query: searchTerm,
+                      sortBy,
+                      limit: 12
+                    })
+                  );
+                } catch (error) {
+                  console.error('Failed to reactivate variant:', error);
+                  toast.error('Failed to reactivate variant');
+                }
+              }}
+            >
+              Reactivate
+            </Button>
+        ]}
+      >
+        <p>{inactiveVariantData.message}</p>
+        <div className="mt-3">
+          <b>Product:</b> {inactiveVariantData.product?.title} <br />
+          <b>Color:</b> {inactiveVariantData.color} <br />
+          <b>Size:</b> {inactiveVariantData.size} <br />
+          <b>Price:</b> {inactiveVariantData.price} <br />
+          <b>Stock:</b> {inactiveVariantData.stock}
+        </div>
+      </Modal>
+    )}
     </>
   );
 };
