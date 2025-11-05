@@ -208,7 +208,6 @@ export const config = {
     '/orders/:path*',
     '/shopping-bag/:path*',
     '/orders-detail/:path*',
-    '/admin/:path*',
-    '/admin-dashboard/:path*'
+    '/admin/:path*'
   ]
 };

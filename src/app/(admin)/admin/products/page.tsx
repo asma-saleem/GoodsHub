@@ -41,7 +41,7 @@ import {
 } from '@/redux/store/slices/product-slice';
 import { toast } from 'react-toastify';
 
-import './product.css';
+import './products.css';
 
 const ProductsContent: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -649,17 +649,22 @@ const ProductsContent: React.FC = () => {
         />
       )}
       {inactiveVariantData && (
-      <Modal
-        open={!!inactiveVariantData}
-        title="Inactive Variant Found"
-        onCancel={() => setInactiveVariantData(null)}
-        footer={[
-          <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
-            Cancel
-          </Button>,
-          <Button
+        <Modal
+          open={!!inactiveVariantData}
+          title={
+            <div className="inactive-variant-title">
+              Inactive Variant Found
+            </div>
+          } // custom title handle below
+          onCancel={() => setInactiveVariantData(null)}
+          footer={[
+            <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
+              Cancel
+            </Button>,
+            <Button
               key="activate"
               type="primary"
+              className="reactivate-btn"
               onClick={async () => {
                 try {
                   await dispatch(
@@ -671,15 +676,7 @@ const ProductsContent: React.FC = () => {
 
                   toast.success('Variant reactivated successfully');
                   setInactiveVariantData(null);
-
-                  dispatch(
-                    fetchProductsReplace({
-                      page: 1,
-                      query: searchTerm,
-                      sortBy,
-                      limit: 12
-                    })
-                  );
+                  dispatch(fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 }));
                 } catch (error) {
                   console.error('Failed to reactivate variant:', error);
                   toast.error('Failed to reactivate variant');
@@ -688,20 +685,47 @@ const ProductsContent: React.FC = () => {
             >
               Reactivate
             </Button>
-        ]}
-      >
-        <p>{inactiveVariantData.message}</p>
-        <div className="mt-3">
-          <b>Product:</b> {inactiveVariantData.product?.title} <br />
-          <b>Color:</b> {inactiveVariantData.color} <br />
-          <b>Size:</b> {inactiveVariantData.size} <br />
-          <b>Price:</b> {inactiveVariantData.price} <br />
-          <b>Stock:</b> {inactiveVariantData.stock}
-        </div>
-      </Modal>
-    )}
+          ]}
+        >
+          <div className="inactive-modal">
+            {/* <h2 className="inactive-modal-title">{inactiveVariantData.product?.title}</h2> */}
+            <p className="inactive-modal-message">{inactiveVariantData.message}</p>
+
+            <div className="inactive-modal-content">
+              <div className="inactive-image">
+                {inactiveVariantData.image ? (
+                  <Image
+                    src={inactiveVariantData.image}
+                    alt={inactiveVariantData.color || inactiveVariantData.product?.title || 'Product Image'}
+                    width={28}
+                    height={28}
+                    className="inactive-product-image"
+                  />
+                ) : (
+                  <div className="inactive-fallback">No Image</div>
+                )}
+              </div>
+
+              <div className="inactive-details">
+                <div><b>Color:</b> {inactiveVariantData.color}</div>
+                <div className="flex items-center gap-2">
+                  <b>Color Code:</b>{' '}
+                  <span
+                    className="inline-block w-4 h-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: inactiveVariantData.colorCode }}
+                  ></span>
+                </div>
+                <div><b>Size:</b> {inactiveVariantData.size}</div>
+                <div><b>Price:</b> ${inactiveVariantData.price}</div>
+                <div><b>Stock:</b> {inactiveVariantData.stock}</div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   );
 };
 
 export default ProductsContent;
+

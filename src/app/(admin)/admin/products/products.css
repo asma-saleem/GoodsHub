@@ -104,3 +104,39 @@
 .view-modal-container {
   @apply flex flex-col gap-4;
 }
+
+.inactive-modal {
+  @apply flex flex-col items-center justify-center text-center space-y-4 px-4 pb-4;
+}
+
+.inactive-variant-title {
+  @apply flex items-center justify-center gap-2 text-red-500 text-lg font-semibold;
+}
+
+.inactive-modal-message {
+  @apply text-gray-600 text-sm mb-4;
+}
+
+.inactive-modal-content {
+  @apply flex flex-col md:flex-row items-center gap-6 bg-gray-50 rounded-xl p-4 w-full shadow-inner;
+}
+
+.inactive-image {
+  @apply w-28 h-28 rounded-lg overflow-hidden shadow-md;
+}
+
+.inactive-product-image {
+  @apply w-full h-full object-cover rounded-lg;
+}
+
+.inactive-fallback {
+  @apply flex items-center justify-center w-full h-full bg-gray-200 text-gray-500 rounded-lg;
+}
+
+.inactive-details {
+  @apply flex flex-col gap-2 text-left text-sm text-gray-700;
+}
+
+.reactivate-btn {
+  @apply bg-[#007BFF] text-white hover:bg-[#0066d6] transition-colors;
+}

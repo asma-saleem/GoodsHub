@@ -21,7 +21,7 @@ export const updateVariantSchema = Joi.object({
       'string.empty': 'Color code is required',
       'string.pattern.base': 'Invalid color code format'
     }),
-  size: Joi.string().optional().allow(null, ''),
+  size: Joi.string().required().allow(null, ''),
   price: Joi.number().min(0).required(),
   stock: Joi.number().min(0).required(),
   image: Joi.alternatives().try(
@@ -30,7 +30,6 @@ export const updateVariantSchema = Joi.object({
       Joi.object({ url: Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i).required() })
     )
   ).optional()
-  // name: Joi.string().optional().allow(null, '')
 });
 
 export const createVariantSchema = Joi.object({

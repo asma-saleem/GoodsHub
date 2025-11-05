@@ -101,22 +101,6 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
   const orderNo = `${dateStr}${randomPart}`;
 
   const order = await prisma.$transaction(async (tx) => {
-    const newOrder = await tx.order.create({
-      data: {
-        userId,
-        total,
-        orderNo,
-        items: {
-          create: cart.map((item) => ({
-            productId: item.id,
-            variantId: item.variantId,
-            quantity: item.qty,
-            price: Number(item.price)
-          }))
-        }
-      },
-      include: { items: true }
-    });
     for (const item of cart) {
       const product = await tx.product.findUnique({
         where: { id: item.id },
@@ -138,8 +122,26 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
           `Not enough stock for product ${product.title}. Only ${variant.stock} left.`
         );
       }
+    }
+    const newOrder = await tx.order.create({
+      data: {
+        userId,
+        total,
+        orderNo,
+        items: {
+          create: cart.map((item) => ({
+            productId: item.id,
+            variantId: item.variantId,
+            quantity: item.qty,
+            price: Number(item.price)
+          }))
+        }
+      },
+      include: { items: true }
+    });
+    for (const item of cart) {
       await tx.productVariant.update({
-      where: { id: variant.id },
+      where: { id: item.variantId },
       data: {
       stock: {
         decrement: item.qty

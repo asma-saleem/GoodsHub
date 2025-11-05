@@ -70,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     if (session.user.role === 'ADMIN') {
       toast.error('Admins cannot add items to cart from public store');
-      router.push('/admin-dashboard');
+      router.push('/admin/products');
       return;
     }
 
