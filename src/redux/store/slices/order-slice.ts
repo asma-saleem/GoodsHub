@@ -23,7 +23,7 @@ export const fetchOrders = createAsyncThunk(
     return {
       orders: json.orders,
       total: json.total,
-      totalOrders: json.total || 0,
+      totalOrders: json.totalOrders || 0,
       totalUnits: json.totalUnits || 0,
       totalAmount: json.totalAmount || 0,
       page,

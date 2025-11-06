@@ -77,7 +77,7 @@ export async function getOrdersByUserId(
   });
 
   const total = await prisma.order.count({
-    where: { userId }
+    where
   });
 
   return { orders, total };
@@ -219,11 +219,14 @@ export async function getAllOrders(
       totalAmount: true
     }
   });
+  const total = await prisma.order.count({
+    where
+  });
 
-  const total = latestSummary?.totalOrders ?? 0;
+  const totalOrders = latestSummary?.totalOrders ?? 0;
   const totalUnits = latestSummary?.totalUnits ?? 0;
   const totalAmount = latestSummary?.totalAmount ?? 0;
-  return { orders, total, totalUnits, totalAmount };
+  return { orders, total,totalOrders, totalUnits, totalAmount };
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {

@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
         success: true,
         orders: result.orders,
         total: result.total,
+        totalOrders: result.totalOrders,
         totalUnits: result.totalUnits,
         totalAmount: result.totalAmount,
         page,
