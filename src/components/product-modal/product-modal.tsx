@@ -19,8 +19,8 @@ export interface ProductVariant {
   color?: string;
   colorCode?: string;
   size?: string;
-  price: string;
-  stock: string;
+  price: number;
+  stock: number;
   image?: string | UploadFile[];
 }
 
@@ -96,8 +96,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
             {
               color: undefined,
               size: undefined,
-              price: '',
-              stock: '',
+              price: 0,
+              stock: 0,
               image: []
             }
           ]
@@ -367,7 +367,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                 // if (value === undefined || value === null || value === '') {
                                 //   return Promise.reject('Enter price');
                                 // }
-                                if (Number(value) <= 0) {
+                                if (Number(value) < 0) {
                                   return Promise.reject('Stock must be greater or equal to 0');
                                 }
                                 if (Number(value) > 1000000) {

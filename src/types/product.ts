@@ -34,7 +34,7 @@ export interface SingleVariantFormValues {
   color: string;
   colorCode?: string;
   size: string;
-  price: string;
-  stock: string;
+  price: number;
+  stock: number;
   image?: string;
 }

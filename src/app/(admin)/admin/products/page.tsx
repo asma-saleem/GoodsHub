@@ -80,6 +80,8 @@ const ProductsContent: React.FC = () => {
   (ProductVariantType & { message?: string }) | null
   >(null);
 
+  const [variantMode, setVariantMode] = useState<'add' | 'edit'>('add');
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(localSearch);
@@ -309,17 +311,20 @@ const ProductsContent: React.FC = () => {
           <Button
             type='text'
             className='single-variant-button'
-            onClick={() => {
-              setSingleVariantData({
-                id: record.id,
-                color: '',
-                size: '',
-                price: '',
-                stock: '',
-                image: ''
-              });
-              setOpenSingleVariantModal(true);
-            }}
+          onClick={() => {
+            setVariantMode('add');
+            setSingleVariantData({
+              id: record.id,
+              color: '',
+              colorCode: '',
+              size: '',
+              price: 0,
+              stock: 0,
+              image: ''
+            });
+            setOpenSingleVariantModal(true);
+          }
+          }
           >
             + Variant
           </Button>
@@ -493,14 +498,15 @@ const ProductsContent: React.FC = () => {
                       icon={<EditOutlined />}
                       onClick={() => {
                         setOpenViewModal(false);
+                        setVariantMode('edit'); 
                         setSingleVariantData({
                           id: viewProduct.id,
                           variantId: variant.id,
                           colorCode: variant.colorCode,
                           color: variant.color || '',
                           size: variant.size || '',
-                          price: String(variant.price ?? ''),
-                          stock: String(variant.stock ?? ''),
+                          price: Number(variant.price ?? ''),
+                          stock: Number(variant.stock ?? ''),
                           image: variant.image || ''
                         });
                         setOpenSingleVariantModal(true);
@@ -535,6 +541,7 @@ const ProductsContent: React.FC = () => {
         <SingleVariantEditModal
           open={openSingleVariantModal}
           setOpen={setOpenSingleVariantModal}
+          mode={variantMode}
           initialValues={singleVariantData}
           onSubmit={async (values) => {
             try {

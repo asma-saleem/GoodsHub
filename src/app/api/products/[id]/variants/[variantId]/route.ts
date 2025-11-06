@@ -87,7 +87,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
   }
 }
 
-export async function DELETE(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
+export async function PATCH(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
   try {
     const { variantId } = await context.params;
     const existingVariant = await prisma.productVariant.findUnique({

@@ -36,7 +36,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
   }
 }
 
-export async function DELETE(
+export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {

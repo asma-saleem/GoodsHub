@@ -23,7 +23,7 @@ export const schemas = [
   },
   {
     path: '/api/products/[id]/variants/[variantId]',
-    method: 'DELETE',
+    method: 'PATCH',
     params: variantParamsSchema
   },
   {
@@ -34,7 +34,7 @@ export const schemas = [
   },
   {
     path: '/api/products/[id]',
-    method: 'DELETE',
+    method: 'PATCH',
     params: productParamsSchema
   },
   {

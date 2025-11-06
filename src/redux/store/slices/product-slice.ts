@@ -283,7 +283,7 @@ export const deleteProduct = createAsyncThunk(
   'products/deleteProduct',
   async (id: string, { rejectWithValue }) => {
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${id}`, { method: 'PATCH' });
       if (!res.ok) throw new Error('Failed to delete product');
       return id;
     } catch (error) {
@@ -407,7 +407,7 @@ export const deleteVariant = createAsyncThunk(
     try {
       const res = await fetch(
         `/api/products/${productId}/variants/${variantId}`,
-        { method: 'DELETE' }
+        { method: 'PATCH' }
       );
 
       if (!res.ok) throw new Error('Failed to delete variant');
