@@ -166,7 +166,7 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
           <Input type='number' placeholder='10' />
         </Form.Item>
 
-        <Form.Item label='Image'>
+        <Form.Item label='Image' name="image" rules={[{ required: true}]}>
           <Upload
             listType='picture-card'
             beforeUpload={() => false}

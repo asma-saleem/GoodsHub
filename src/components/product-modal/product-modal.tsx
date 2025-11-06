@@ -345,6 +345,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           {...rest}
                           name={[name, 'image']}
                           label='Image'
+                          rules={[{ required: true}]}
                           valuePropName='fileList'
                           getValueFromEvent={(e) =>
                             Array.isArray(e) ? e : e?.fileList
