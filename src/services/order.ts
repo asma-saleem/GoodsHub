@@ -100,13 +100,13 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
   const randomPart = Math.floor(100000 + Math.random() * 900000);
   const orderNo = `${dateStr}${randomPart}`;
 
-  const order = await prisma.$transaction(async (tx) => {
+  const productIds = cart.map((item) => item.id);
+   const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    include: { variants: true }
+    });
     for (const item of cart) {
-      const product = await tx.product.findUnique({
-        where: { id: item.id },
-        include: { variants: true }
-      });
-
+      const product = products.find((p) => p.id === item.id);
       if (!product) {
         throw new Error(`Product with id ${item.id} not found`);
       }
@@ -123,6 +123,31 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
         );
       }
     }
+  
+  const order = await prisma.$transaction(async (tx) => {
+  //  const productIds = cart.map((item) => item.id);
+  //  const products = await tx.product.findMany({
+  //   where: { id: { in: productIds } },
+  //   include: { variants: true }
+  //   });
+  //   for (const item of cart) {
+  //     const product = products.find((p) => p.id === item.id);
+  //     if (!product) {
+  //       throw new Error(`Product with id ${item.id} not found`);
+  //     }
+  //     const variant = product.variants.find(v => v.id === item.variantId);
+  //     if (!variant) {
+  //         throw new Error(`Variant with id ${item.variantId} not found for product ${product.title}`);
+  //     }
+  //     if (variant.isVariantDeleted) {
+  //         throw new Error(`Variant "${variant.size}" (${variant.color}) is no longer available.`);
+  //     }
+  //     if (variant.stock < item.qty) {
+  //       throw new Error(
+  //         `Not enough stock for product ${product.title}. Only ${variant.stock} left.`
+  //       );
+  //     }
+  //   }
     const newOrder = await tx.order.create({
       data: {
         userId,
@@ -139,16 +164,17 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
       },
       include: { items: true }
     });
-    for (const item of cart) {
-      await tx.productVariant.update({
-      where: { id: item.variantId },
-      data: {
-      stock: {
-        decrement: item.qty
-      }
-    }
-  });
-    }
+    await Promise.all(
+    cart.map((item) =>
+      tx.productVariant.update({
+        where: { id: item.variantId },
+        data: {
+          stock: { decrement: item.qty }
+        }
+      })
+    )
+  );
+
 
     return newOrder;
   });

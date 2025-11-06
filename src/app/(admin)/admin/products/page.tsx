@@ -704,8 +704,8 @@ const ProductsContent: React.FC = () => {
                   <Image
                     src={inactiveVariantData.image}
                     alt={inactiveVariantData.color || inactiveVariantData.product?.title || 'Product Image'}
-                    width={28}
-                    height={28}
+                    width={120}
+                    height={120}
                     className="inactive-product-image"
                   />
                 ) : (
