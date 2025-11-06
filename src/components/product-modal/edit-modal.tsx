@@ -153,7 +153,23 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
         <Form.Item
           label='Price'
           name='price'
-          rules={[{ required: true, message: 'Enter price' }]}
+          rules={[{ required: true, message: 'Enter price' },{
+            validator(_, value) {
+              if (value === undefined || value === null || value === '') {
+                  return Promise.resolve();
+                }
+              // if (value === undefined || value === null || value === '') {
+              //   return Promise.reject('Enter price');
+              // }
+              if (Number(value) <= 0) {
+                return Promise.reject('Price must be greater than 0');
+              }
+              if (Number(value) > 1000000) {
+                return Promise.reject('Price cannot exceed 1,000,000');
+              }
+              return Promise.resolve();
+            }
+          }]}
         >
           <Input type='number' placeholder='1200' />
         </Form.Item>
@@ -161,12 +177,30 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
         <Form.Item
           label='Stock'
           name='stock'
-          rules={[{ required: true, message: 'Enter stock' }]}
+          rules={[{ required: true, message: 'Enter stock' },
+            {
+              validator(_, value) {
+                if (value === undefined || value === null || value === '') {
+                    return Promise.resolve();
+                  }
+                // if (value === undefined || value === null || value === '') {
+                //   return Promise.reject('Enter price');
+                // }
+                if (Number(value) <= 0) {
+                  return Promise.reject('Stock must be greater or equal to 0');
+                }
+                if (Number(value) > 1000000) {
+                  return Promise.reject('Stock cannot exceed 1,000,000');
+                }
+                return Promise.resolve();
+              }
+            }
+          ]}
         >
           <Input type='number' placeholder='10' />
         </Form.Item>
 
-        <Form.Item label='Image' name="image" rules={[{ required: true}]}>
+        <Form.Item label='Image' name="image" rules={[{ required: true, message: 'Upload an image' }]}>
           <Upload
             listType='picture-card'
             beforeUpload={() => false}

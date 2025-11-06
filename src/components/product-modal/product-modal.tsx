@@ -135,6 +135,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }
       return;
     }
+    if (!values.variants || values.variants.length < 1) {
+    toast.error('At least one variant is required.');
+    return;
+  }
     const variants = await Promise.all(
       values.variants.map(async (variant) => {
         let imageUrl = '';
@@ -327,7 +331,25 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           {...rest}
                           name={[name, 'price']}
                           label='Price'
-                          rules={[{ required: true, message: 'Enter price' }]}
+                          rules={[{ required: true, message: 'Enter price' },
+                            {
+                              validator(_, value) {
+                                if (value === undefined || value === null || value === '') {
+                                    return Promise.resolve();
+                                  }
+                                // if (value === undefined || value === null || value === '') {
+                                //   return Promise.reject('Enter price');
+                                // }
+                                if (Number(value) <= 0) {
+                                  return Promise.reject('Price must be greater than 0');
+                                }
+                                if (Number(value) > 1000000) {
+                                  return Promise.reject('Price cannot exceed 1,000,000');
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
                         >
                           <Input placeholder='e.g. 1200' type='number' />
                         </Form.Item>
@@ -336,7 +358,25 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           {...rest}
                           name={[name, 'stock']}
                           label='Stock'
-                          rules={[{ required: true, message: 'Enter stock' }]}
+                          rules={[{ required: true, message: 'Enter stock' },
+                            {
+                              validator(_, value) {
+                                if (value === undefined || value === null || value === '') {
+                                    return Promise.resolve();
+                                  }
+                                // if (value === undefined || value === null || value === '') {
+                                //   return Promise.reject('Enter price');
+                                // }
+                                if (Number(value) <= 0) {
+                                  return Promise.reject('Stock must be greater or equal to 0');
+                                }
+                                if (Number(value) > 1000000) {
+                                  return Promise.reject('Stock cannot exceed 1,000,000');
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
                         >
                           <Input placeholder='10' type='number' />
                         </Form.Item>
@@ -345,7 +385,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           {...rest}
                           name={[name, 'image']}
                           label='Image'
-                          rules={[{ required: true}]}
+                          rules={[{ required: true, message: 'Upload an image' }]}
                           valuePropName='fileList'
                           getValueFromEvent={(e) =>
                             Array.isArray(e) ? e : e?.fileList

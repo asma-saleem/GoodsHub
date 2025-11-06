@@ -13,7 +13,7 @@ export const productParamsSchema = Joi.object({
 export const updateVariantSchema = Joi.object({
   id: Joi.string().optional(),
   variantId: Joi.string().optional(),
-  color: Joi.string().optional().allow(null, ''),
+  color: Joi.string().required().allow(null, ''),
   colorCode: Joi.string()
     .pattern(/^#([0-9A-Fa-f]{6})$/)
     .required()
@@ -29,13 +29,13 @@ export const updateVariantSchema = Joi.object({
     Joi.array().items(
       Joi.object({ url: Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i).required() })
     )
-  ).optional()
+  ).required()
 });
 
 export const createVariantSchema = Joi.object({
   id: Joi.string().optional(),
-  color: Joi.string().optional().allow(null, ''),
-  colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).optional().allow(null, ''),
+  color: Joi.string().required().allow(null, ''),
+  colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).required(),
   size: Joi.string().required(),
   price: Joi.number().min(0).required(),
   stock: Joi.number().min(0).required(),
@@ -44,7 +44,7 @@ export const createVariantSchema = Joi.object({
     Joi.array().items(
       Joi.object({ url: Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i).required() })
     )
-  ).optional()
+  ).required()
 });
 
 export const updateProductSchema = Joi.object({
@@ -54,17 +54,17 @@ export const updateProductSchema = Joi.object({
 
 export const variantSchema = Joi.object({
   id: Joi.string().optional(),
-  color: Joi.string().optional().allow(null, ''),
-  colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).optional().allow(null, ''),
-  size: Joi.string().optional().allow(null, ''),
-  price: Joi.number().min(0).required(),
+  color: Joi.string().required(),
+  colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).required(),
+  size: Joi.string().required(),
+  price: Joi.number().greater(0).max(1000000).required(),
   stock: Joi.number().min(0).required(),
   image: Joi.alternatives().try(
     Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i, 'valid image path or URL'),
     Joi.array().items(
       Joi.object({ url: Joi.string().pattern(/^(\/|https?:\/\/).+\.(jpg|jpeg|png|webp)$/i).required() })
     )
-  ).optional()
+  ).required()
 });
 
 export const productSchema = Joi.object({
