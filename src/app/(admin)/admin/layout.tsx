@@ -1,4 +1,3 @@
-// src/app/(admin)/admin/layout.tsx
 'use client';
 
 import React from 'react';
