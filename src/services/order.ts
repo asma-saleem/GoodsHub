@@ -100,29 +100,33 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
   const randomPart = Math.floor(100000 + Math.random() * 900000);
   const orderNo = `${dateStr}${randomPart}`;
 
-  const productIds = cart.map((item) => item.id);
-   const products = await prisma.product.findMany({
-    where: { id: { in: productIds } },
-    include: { variants: true }
-    });
-    for (const item of cart) {
-      const product = products.find((p) => p.id === item.id);
-      if (!product) {
-        throw new Error(`Product with id ${item.id} not found`);
-      }
-      const variant = product.variants.find(v => v.id === item.variantId);
-      if (!variant) {
-          throw new Error(`Variant with id ${item.variantId} not found for product ${product.title}`);
-      }
-      if (variant.isVariantDeleted) {
-          throw new Error(`Variant "${variant.size}" (${variant.color}) is no longer available.`);
-      }
-      if (variant.stock < item.qty) {
-        throw new Error(
-          `Not enough stock for product ${product.title}. Only ${variant.stock} left.`
-        );
-      }
+  const variantIds = cart.map(item => item.variantId);
+
+  const dbVariants = await prisma.productVariant.findMany({
+    where: { id: { in: variantIds } },
+    include: { product: true }
+  });
+  const errors: string[] = [];
+  for (const item of cart) {
+    const dbVariant = dbVariants.find(v => v.id === item.variantId);
+    if (!dbVariant) {
+      errors.push(`Variant not found for product "${item.title}".`);
+      continue;
     }
+    if (dbVariant.isVariantDeleted) {
+        errors.push(`"${item.title}" (${item.color}/${item.size}) is no longer available.`);
+        continue;
+    }
+    if (dbVariant.stock < item.qty) {
+      errors.push(
+        `Not enough stock for product ${item.title} with (${item.color}/${item.size}). Only ${dbVariant.stock} left.`
+      );
+      continue;
+    }
+  }
+  if (errors.length > 0) {
+    throw { validation: true, errors };
+  }
   
   const order = await prisma.$transaction(async (tx) => {
   //  const productIds = cart.map((item) => item.id);

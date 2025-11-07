@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     }
 
     const order = await createOrder(cart, userId);
+    
     if (!order?.id) {
       throw new Error('Failed to create order');
     }
@@ -82,6 +83,17 @@ export async function POST(req: Request) {
     );
   } catch (err: unknown) {
     console.error('Checkout error:', err);
+    
+    if (
+      typeof err === 'object' &&
+      err &&
+      'validation' in err &&
+      'errors' in err
+    ) {
+      const e = err as { errors: string[] };
+      return NextResponse.json({ success: false, errors: e.errors }, { status: 400 });
+    }
+
     const message = isError(err)
       ? err.message
       : 'Checkout failed — unknown error';
