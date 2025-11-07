@@ -1,35 +1,44 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import AuthLayout from '../auth-layout';
 import { toast } from 'react-toastify';
+import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
+import {
+  sendForgotPasswordEmail,
+  resetForgotPasswordState
+} from '@/redux/store/slices/auth-slice';
 
 import {FieldType} from '@/types/form';
 import '../auth.css';
 
-const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-  try {
-    const res = await fetch('/api/auth/forgot', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: values.email?.toLowerCase() })
-    });
-
-    const data = await res.json();
-    toast.success(data.message || 'Reset Password Instructions has been sent to your email address.');
-  } catch (error) {
-    console.error('Forgot Password error:', error);
-    toast.error('Something went wrong with Forgot Password!');
-};
-};
-
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-  console.log('Forgot Password Failed:', errorInfo);
-};
-
 export default function ForgotPasswordPage() {
+  const dispatch = useAppDispatch();
+
+  const { message, error } = useAppSelector(
+    (state) => state.forgotPassword
+  );
+
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    dispatch(sendForgotPasswordEmail(values.email!.toLowerCase()));
+  };
+
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
+    console.log('Forgot Password Failed:', errorInfo);
+  };
+ // Handle success/error toasts
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch(resetForgotPasswordState());
+    }
+    if (error) {
+      toast.error(error);
+      dispatch(resetForgotPasswordState());
+    }
+  }, [message, error, dispatch]);
   return (
     <AuthLayout>
       <div className='auth-container-spaced'>
