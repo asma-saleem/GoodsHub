@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, Input, Button, Form, Modal } from 'antd';
 import {
   UploadOutlined,
@@ -47,6 +47,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onSubmit
 }) => {
   const dispatch = useAppDispatch();
+  const [submitting, setSubmitting] = useState(false); 
   const [form] = Form.useForm<ProductFormValues>();
   const colorOptions = [
     { name: 'Black', code: '#000000' },
@@ -107,6 +108,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   }, [open, initialValues, mode, form]);
 
   const handleFinish = async (values: ProductFormValues) => {
+    setSubmitting(true);
     if (mode === 'edit') {
       if (!initialValues?.id) {
         toast.error('Product ID is missing!');
@@ -132,6 +134,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
       setOpen(false);
     } catch (error) {
       toast.error(String(error) || 'Failed to update product name');
+    }
+    finally {
+      setSubmitting(false); // enable button after submission
     }
       return;
     }
@@ -455,7 +460,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
         )}
 
         <Form.Item>
-          <Button type='primary' htmlType='submit' className='btn-submit' block>
+          <Button type='primary' htmlType='submit' className='btn-submit' block loading={submitting} // shows spinner
+          disabled={submitting}> 
             {mode === 'add' ? 'Save Product' : 'Update Product'}
           </Button>
         </Form.Item>
