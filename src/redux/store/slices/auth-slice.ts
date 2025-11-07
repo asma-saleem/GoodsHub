@@ -1,10 +1,18 @@
-// src/store/slices/forgotPasswordSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 interface ForgotPasswordState {
   loading: boolean;
   message: string | null;
   error: string | null;
+}
+interface UserType {
+  id: string;
+  fullname: string;
+  email: string;
+  mobile?: string | null;
+  stripeCustomerId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const initialState: ForgotPasswordState = {
@@ -13,13 +21,35 @@ const initialState: ForgotPasswordState = {
   error: null
 };
 
-/* ============================================================
-   📩 SEND FORGOT PASSWORD EMAIL
-   ============================================================ */
+export const signupUser = createAsyncThunk<
+  UserType, 
+  { fullname: string; email: string; mobile?: string; password: string }, 
+  { rejectValue: string } 
+>('auth/signupUser', async (values, { rejectWithValue }) => {
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values)
+    });
+
+    const data: { user?: UserType; error?: string } = await res.json();
+
+    if (!res.ok || !data.user) {
+      return rejectWithValue(data.error || 'Signup failed');
+    }
+
+    return data.user;
+  } catch (error) {
+    console.error('Signup error:', error);
+    return rejectWithValue('Something went wrong during signup');
+  }
+});
+
 export const sendForgotPasswordEmail = createAsyncThunk<
-  string, // return type
-  string, // argument type (email)
-  { rejectValue: string } // reject type
+  string, 
+  string, 
+  { rejectValue: string } 
 >(
   'auth/sendForgotPasswordEmail',
   async (email, { rejectWithValue }) => {
@@ -46,13 +76,10 @@ export const sendForgotPasswordEmail = createAsyncThunk<
   }
 );
 
-/* ============================================================
-   🔑 RESET PASSWORD
-   ============================================================ */
 export const resetPassword = createAsyncThunk<
-  string, // return type
-  { token: string; password: string }, // argument type
-  { rejectValue: string } // reject type
+  string, 
+  { token: string; password: string }, 
+  { rejectValue: string } 
 >(
   'auth/resetPassword',
   async ({ token, password }, { rejectWithValue }) => {
@@ -79,9 +106,6 @@ export const resetPassword = createAsyncThunk<
   }
 );
 
-/* ============================================================
-   🧩 SLICE
-   ============================================================ */
 const forgotPasswordSlice = createSlice({
   name: 'authRecovery',
   initialState,
@@ -93,7 +117,21 @@ const forgotPasswordSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    /* --- Forgot Password --- */
+    builder
+      .addCase(signupUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(signupUser.fulfilled, (state) => {
+        state.loading = false;
+        state.message = 'Signup successful!';
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Signup failed';
+      });
+
     builder
       .addCase(sendForgotPasswordEmail.pending, (state) => {
         state.loading = true;
@@ -112,7 +150,6 @@ const forgotPasswordSlice = createSlice({
         state.error = action.payload || 'Request failed';
       });
 
-    /* --- Reset Password --- */
     builder
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
@@ -130,8 +167,5 @@ const forgotPasswordSlice = createSlice({
   }
 });
 
-/* ============================================================
-   🧾 EXPORTS
-   ============================================================ */
 export const { resetForgotPasswordState } = forgotPasswordSlice.actions;
 export default forgotPasswordSlice.reducer;

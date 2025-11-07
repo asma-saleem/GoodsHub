@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import { toast } from 'react-toastify';
@@ -8,54 +8,40 @@ import { useRouter } from 'next/navigation';
 
 import AuthLayout from '../auth-layout';
 import { FieldType } from '@/types/form';
-
+import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
+import { signupUser } from '@/redux/store/slices/auth-slice';
 import '../auth.css';
 export default function SignupPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-    console.log('Signup Success:', values);
+  const { message, error } = useAppSelector((state) => state.auth);
 
+  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     const payload = {
-      fullname: values.fullName,
-      email: values.email,
-      mobile: values.mobile,
-      password: values.password
+      fullname: values.fullName as string,
+      email: values.email as string,
+      mobile: values.mobile, 
+      password: values.password as string
     };
-
-    try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        console.log('User created:', data.user);
-        toast.success('Signup successful!');
-        // router.push('/auth/login');
-        setTimeout(() => {
-          router.push('/auth/login');
-        }, 2000);
-      } else {
-        console.log('Signup failed:', data.error);
-        toast.error(`Signup failed: ${data.error}`);
-      }
-    } catch (error) {
-      console.log('Signup error:', error);
-      toast.error('Something went wrong');
-    }
+    dispatch(signupUser(payload));
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
-    errorInfo
-  ) => {
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Signup Failed:', errorInfo);
   };
+
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 2000);
+    }
+    if (error) {
+      toast.error(error);
+    }
+  }, [message, error, router, dispatch]);
 
   return (
     <AuthLayout>

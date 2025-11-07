@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
   const dispatch = useAppDispatch();
 
   const { message, error } = useAppSelector(
-    (state) => state.forgotPassword
+    (state) => state.auth
   );
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Forgot Password Failed:', errorInfo);
   };
- // Handle success/error toasts
+
   useEffect(() => {
     if (message) {
       toast.success(message);

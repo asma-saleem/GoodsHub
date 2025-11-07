@@ -24,7 +24,7 @@ function ResetPasswordForm() {
 
   const dispatch = useAppDispatch();
   const { message, error } = useAppSelector(
-    (state) => state.forgotPassword
+    (state) => state.auth
   );
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
