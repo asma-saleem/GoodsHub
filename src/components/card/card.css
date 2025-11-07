@@ -84,9 +84,9 @@ body {
   @apply !bg-gray-300 !text-white cursor-not-allowed;
 }
 
-.color-selection {
+/* .color-selection {
   @apply mt-3;
-}
+} */
 
 .color-selection-container {
   @apply flex items-center gap-2;

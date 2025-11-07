@@ -167,7 +167,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <p className='price-value'>
             {formatPrice(selectedVariant?.price || 0)}
           </p>
-          <div className='daraz-stock-status'>
+         
+        </div>
+         <div className='daraz-stock-status'>
             <span
               className={`stock-box ${
                 (selectedVariant?.stock ?? 0) === 0
@@ -184,11 +186,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 : 'In Stock'}
             </span>
           </div>
-        </div>
       </div>
 
       {colors.length > 0 && (
-        <div className='color-selection mt-2'>
+        <div className='color-selection'>
           <div className='color-selection-container'>
             <p className='label font-semibold'>
               Color Family:

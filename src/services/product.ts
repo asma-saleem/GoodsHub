@@ -56,6 +56,7 @@ export const getProducts = async (
     include: {
       variants: {
         where: { isVariantDeleted: false },
+        orderBy: { createdAt: 'asc' },
         select: {
           id: true,
           color: true,

@@ -379,8 +379,6 @@ const ProductsContent: React.FC = () => {
                 options={[
                   { value: 'createdAt_desc', label: 'Newest First' },
                   { value: 'createdAt_asc', label: 'Oldest First' },
-                  // { value: 'price_asc', label: 'Price: Low to High' },
-                  // { value: 'price_desc', label: 'Price: High to Low' },
                   { value: 'title_asc', label: 'Title: A-Z' },
                   { value: 'title_desc', label: 'Title: Z-A' }
                 ]}
@@ -662,7 +660,7 @@ const ProductsContent: React.FC = () => {
             <div className="inactive-variant-title">
               Inactive Variant Found
             </div>
-          } // custom title handle below
+          } 
           onCancel={() => setInactiveVariantData(null)}
           footer={[
             <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
@@ -695,7 +693,6 @@ const ProductsContent: React.FC = () => {
           ]}
         >
           <div className="inactive-modal">
-            {/* <h2 className="inactive-modal-title">{inactiveVariantData.product?.title}</h2> */}
             <p className="inactive-modal-message">{inactiveVariantData.message}</p>
 
             <div className="inactive-modal-content">
