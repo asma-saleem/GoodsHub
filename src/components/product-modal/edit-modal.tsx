@@ -460,10 +460,15 @@ useEffect(() => {
           rules={[{ required: true, message: 'Upload an image' }]}
         >
           <Upload
-            listType='picture-card'
+            listType="picture-card"
             beforeUpload={() => false}
             fileList={fileList}
-            onChange={({ fileList }) => setFileList(fileList)}
+            onChange={({ fileList: newList }) => {
+              setFileList(newList);
+              if (newList.length === 0) {
+                form.setFieldValue('image', undefined);
+              }
+            }}
             maxCount={1}
           >
             {fileList.length === 0 && (
@@ -473,6 +478,7 @@ useEffect(() => {
               </div>
             )}
           </Upload>
+
         </Form.Item>
 
         <Form.Item>
