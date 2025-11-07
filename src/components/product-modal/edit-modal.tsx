@@ -279,26 +279,26 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
   []
 );
   useEffect(() => {
-    if (!open) return;
+  if (!open) return;
 
-    if (mode === 'edit' && initialValues) {
-      form.setFieldsValue(initialValues);
-
-      if (initialValues.image) {
-        setFileList([
-          {
-            uid: '-1',
-            name: 'variant.png',
-            status: 'done',
-            url: initialValues.image
-          }
-        ]);
-      }
-    } else if (mode === 'add') {
-      form.resetFields();
+  if (mode === 'edit' && initialValues) {
+    form.setFieldsValue(initialValues);
+    if (initialValues.image) {
+      setFileList([{
+        uid: '-1',
+        name: 'variant.png',
+        status: 'done',
+        url: initialValues.image
+      }]);
+    } else {
       setFileList([]);
     }
-  }, [open, mode, initialValues, form]);
+  } else if (mode === 'add') {
+    form.resetFields();
+    setFileList([]);
+  }
+}, [open, mode, initialValues, form]);
+
   const colorValue = Form.useWatch('color', form);
 
 useEffect(() => {
@@ -464,11 +464,16 @@ useEffect(() => {
             beforeUpload={() => false}
             fileList={fileList}
             onChange={({ fileList: newList }) => {
-              setFileList(newList);
-              if (newList.length === 0) {
+            setFileList(newList);
+
+            if (newList.length === 0) {
+              // defer this to the next tick to avoid circular render
+              setTimeout(() => {
                 form.setFieldValue('image', undefined);
-              }
-            }}
+              }, 0);
+            }
+          }}
+
             maxCount={1}
           >
             {fileList.length === 0 && (
