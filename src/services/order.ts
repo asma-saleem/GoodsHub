@@ -110,12 +110,10 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
   for (const item of cart) {
     const dbVariant = dbVariants.find(v => v.id === item.variantId);
     if (!dbVariant) {
-      errors.push(`Variant not found for product "${item.title}".`);
-      continue;
+      throw new Error(`Variant not found for product "${item.title}".`);
     }
     if (dbVariant.isVariantDeleted) {
-        errors.push(`"${item.title}" (${item.color}/${item.size}) is no longer available.`);
-        continue;
+        throw new Error(`"${item.title}" (${item.color}/${item.size}) is no longer available.`);
     }
     if (dbVariant.stock < item.qty) {
       errors.push(

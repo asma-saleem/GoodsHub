@@ -4,6 +4,7 @@ import json
 import uuid
 import redis
 from datetime import datetime, timezone
+from collections import defaultdict
 
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -27,11 +28,7 @@ def calculate_order_summary(db: Session):
     # """
 
     now = datetime.now(timezone.utc)
-
-    # 🔹 Step 1: Fetch existing summary (only one row)
     existing_summary = db.query(OrderSummary).first()
-
-    # Agar koi summary nahi hai (first run)
     if not existing_summary:
         total_orders = db.query(func.count(Order.id)).scalar() or 0
         total_amount = db.query(func.sum(Order.total)).scalar() or 0
@@ -53,7 +50,6 @@ def calculate_order_summary(db: Session):
         }
 
     else:
-        # 🔹 Step 2: Naye orders since last update
         last_update_time = existing_summary.updatedAt
 
         new_orders = (
@@ -69,8 +65,6 @@ def calculate_order_summary(db: Session):
                 "totalUnits": existing_summary.totalUnits,
                 "totalAmount": existing_summary.totalAmount,
             }
-
-        # 🔹 Step 3: Count new data
         new_order_ids = [o.id for o in new_orders]
 
         new_units = (
@@ -87,7 +81,6 @@ def calculate_order_summary(db: Session):
         )
         new_count = len(new_orders)
 
-        # 🔹 Step 4: Add to existing totals
         existing_summary.totalOrders += new_count
         existing_summary.totalUnits += new_units
         existing_summary.totalAmount += new_amount
@@ -100,7 +93,6 @@ def calculate_order_summary(db: Session):
             "totalAmount": existing_summary.totalAmount
         }
 
-    # 🔹 Step 5: Update Redis
     r.set("latest_order_summary", json.dumps(summary_data))
     r.set("last_summary_time", now.isoformat())
 
@@ -116,80 +108,92 @@ def calculate_order_summary_task(self):
         db.close()
 
 @celery_app.task(name="app.tasks.process_csv_task")
-def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0):
+def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0, chunk_size: int = 5):
     """
-    Efficient chunked CSV processor using Celery async scheduling.
+    Simple CSV processor: reads chunk_size rows at a time and inserts into DB.
+    Avoids inserting duplicate variants (same color + size for a product).
+    Prints memory read and DB insert info.
     """
     if not os.path.exists(file_path):
         return {"error": f"File not found: {file_path}"}
 
     db = SessionLocal()
     try:
+        rows_chunk = []
+        current_index = 0
+
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
-            products = {}
+
+            for _ in range(start_index):
+                next(reader, None)
+                current_index += 1
 
             for row in reader:
-                title = row["title"].strip()
-                products.setdefault(title, []).append(row)
+                rows_chunk.append(row)
+                current_index += 1
+                if len(rows_chunk) >= chunk_size:
+                    break
 
-            product_items = list(products.items())
-            chunk_size = 5
-            total_chunks = (len(product_items) + chunk_size - 1) // chunk_size
-
-            chunk = product_items[start_index:start_index + chunk_size]
-
-            for title, variants in chunk:
-
-                product = db.query(Product).filter(Product.title == title).first()
-                if not product:
-                    product = Product(id=str(uuid.uuid4()), title=title)
-                    db.add(product)
-                    db.flush()  # get product.id quickly
-                else:
-                    print(f"✅ Product already exists: {title}")
-
-                variant_objects = [
-                    ProductVariant(
-                        productId=product.id,
-                        color=v.get("color"),
-                        colorCode=v.get("colorCode"),
-                        size=v.get("size"),
-                        image=v.get("image"),
-                        price=float(v.get("price", 0)),
-                        stock=int(v.get("stock", 0)),
-                    )
-                    for v in variants
-                ]
-                db.add_all(variant_objects)
-
-            db.commit()
-            print(f"Processed chunk {start_index // chunk_size + 1}/{total_chunks}")
-
+        if not rows_chunk:
             r.set(
                 f"csv_upload_status:{file_uuid}",
-                json.dumps({
-                    "status": "in-progress",
-                    "processed_chunks": start_index // chunk_size + 1,
-                    "total_chunks": total_chunks,
-                })
+                json.dumps({"status": "completed", "total_rows": start_index})
             )
+            print(" CSV import completed!")
+            return
 
-            next_index = start_index + chunk_size
-            if next_index < len(product_items):
-                process_csv_task.apply_async(
-                    args=[file_path, file_uuid, next_index],
-                    countdown=2 
-                )
-            else:
-                r.set(
-                    f"csv_upload_status:{file_uuid}",
-                    json.dumps({
-                        "status": "completed",
-                        "total_products": len(products)
-                    })
-                )
-                print("CSV import completed!")
+        print(f" Loaded {len(rows_chunk)} rows into memory (start_index={start_index})")
+        inserted_count = 0
+
+        for row in rows_chunk:
+            title = row["title"].strip()
+
+            product = db.query(Product).filter(Product.title == title).first()
+            if not product:
+                product = Product(id=str(uuid.uuid4()), title=title)
+                db.add(product)
+                db.flush()
+                print(f"🆕 Created Product: {title}")
+
+            exists = db.query(ProductVariant).filter(
+                ProductVariant.productId == product.id,
+                ProductVariant.color == row.get("color"),
+                ProductVariant.size == row.get("size")
+            ).first()
+
+            if exists:
+                print(f" Variant already exists for {title} - Color: {row.get('color')}, Size: {row.get('size')}")
+                continue
+
+            variant = ProductVariant(
+                productId=product.id,
+                color=row.get("color"),
+                colorCode=row.get("colorCode"),
+                size=row.get("size"),
+                image=row.get("image"),
+                price=float(row.get("price", 0)),
+                stock=int(row.get("stock", 0)),
+            )
+            db.add(variant)
+            inserted_count += 1
+            print(f" Added Variant for {title} - Color: {row.get('color')}, Size: {row.get('size')}")
+
+        db.commit()
+        if inserted_count > 0:
+            print(f" Inserted {inserted_count} row/rows into DB (start_index={start_index})")
+
+        r.set(
+            f"csv_upload_status:{file_uuid}",
+            json.dumps({
+                "status": "in-progress",
+                "processed_rows": current_index
+            })
+        )
+        process_csv_task.apply_async(
+            args=[file_path, file_uuid, current_index, chunk_size],
+            countdown=1
+        )
 
     except Exception as e:
         db.rollback()

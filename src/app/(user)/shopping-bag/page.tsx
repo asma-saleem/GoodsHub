@@ -92,152 +92,84 @@ const ShoppingBagPage: React.FC = () => {
     setDeleteTarget(null);
   };
 
-//   const handleCheckout = async () => {
-//   if (!session?.user?.id) {
-//     router.push('/auth/login');
-//     return;
-//   }
-
-//   const cart = JSON.parse(localStorage.getItem(`cart_${session.user.id}`) || '[]');
-//   if (!cart.length) {
-//     toast.error('Your cart is empty!');
-//     return;
-//   }
-//    const outOfStockItems = cart.filter((item: CartItemType) => item.qty > item.stock);
-
-//   if (outOfStockItems.length > 0) {
-//     outOfStockItems.forEach((item: CartItemType) => {
-//       toast.error(
-//         `${item.title}(${item.color}) has only ${item.stock} left in stock — please adjust quantity.`
-//       );
-//     });
-//     return; 
-//   }
-//   setIsCheckoutProcessing(true);
-//   console.log(JSON.stringify(cart));
-//   try {
-//     const res = await fetch('/api/checkout', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({
-//         cart,
-//         userId: session.user.id
-//       })
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok) {
-//       toast.error(data.error || 'Checkout failed!');
-//       const match = data.error?.match(/Only (\d+) left/);
-//       if (match) {
-//         const newStock = Number(match[1]);
-//         const productMatch = data.error.match(/product (.+?)\./);
-//         const productTitle = productMatch ? productMatch[1] : null;
-
-//         if (productTitle) {
-//           const updatedCart = cart.map((item:CartItemType) =>
-//             item.title === productTitle ? { ...item, stock: newStock } : item
-//           );
-//           console.log(updatedCart);
-//           setDataSource(updatedCart);
-//           localStorage.setItem(`cart_${session.user.id}`, JSON.stringify(updatedCart));
-
-//         }
-//       }
-//       setIsCheckoutProcessing(false);
-//       return;
-//     }
-//     window.location.href = data.url;
-//   } catch (error) {
-//     console.error(error);
-//     toast.error('Unexpected error during checkout');
-//     setIsCheckoutProcessing(false);
-//   }
-// };  
-const handleCheckout = async () => {
+  const handleCheckout = async () => {
   if (!session?.user?.id) {
     router.push('/auth/login');
     return;
   }
 
-  const cartKey = `cart_${session.user.id}`;
-  const cart: CartItemType[] = JSON.parse(localStorage.getItem(cartKey) || '[]');
-
+  const cart = JSON.parse(localStorage.getItem(`cart_${session.user.id}`) || '[]');
   if (!cart.length) {
     toast.error('Your cart is empty!');
     return;
   }
+   const outOfStockItems = cart.filter((item: CartItemType) => item.qty > item.stock);
 
-  const cartHash = JSON.stringify(cart.map(i => ({
-    id: i.id,
-    qty: i.qty,
-    variantId: i.variantId
-  })));
-
-  const cacheKey = `checkout_errors_${session.user.id}`;
-  const cachedDataRaw = localStorage.getItem(cacheKey);
-  const cachedData = cachedDataRaw ? JSON.parse(cachedDataRaw) : null;
-
-  if (cachedData && cachedData.cartHash === cartHash && Array.isArray(cachedData.errors) && cachedData.errors.length > 0) {
-    cachedData.errors.forEach((message: string) => toast.error(message));
-    return;
-  }
-
-  const outOfStockItems = cart.filter(item => item.qty > item.stock);
   if (outOfStockItems.length > 0) {
-    outOfStockItems.forEach(item => {
-      toast.error(`${item.title} (${item.color}) has only ${item.stock} left in stock — please adjust quantity.`);
+    outOfStockItems.forEach((item: CartItemType) => {
+      toast.error(
+        `${item.title}(${item.color}) has only ${item.stock} left in stock — please adjust quantity.`
+      );
     });
-    return;
+    return; 
   }
-
   setIsCheckoutProcessing(true);
-
+  console.log(JSON.stringify(cart));
   try {
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cart, userId: session.user.id })
+      body: JSON.stringify({
+        cart,
+        userId: session.user.id
+      })
     });
 
     const data = await res.json();
 
-    if (!data.success && Array.isArray(data.errors)) {
-      data.errors.forEach((message: string) => toast.error(message));
+    if (!res.ok) {
+  if (Array.isArray(data.errors)) {
+    const updatedCart = [...cart];
 
-      localStorage.setItem(cacheKey, JSON.stringify({ cartHash, errors: data.errors }));
+    data.errors.forEach((errMsg: string) => {
+      toast.error(errMsg);
 
-      const updatedCart = cart.map(item => {
-        const match = data.errors.find((msg: string) =>
-          msg.includes(item.title) && msg.includes('Only')
+      const stockMatch = errMsg.match(/Only (\d+) left/);
+      const newStock = stockMatch ? Number(stockMatch[1]) : null;
+
+      const titleMatch = errMsg.match(/product (.+?) with/i);
+      const title = titleMatch ? titleMatch[1].trim() : null;
+
+      if (title && newStock !== null) {
+        const index = updatedCart.findIndex(
+          (item) => item.title === title
         );
-        if (match) {
-          const stockMatch = match.match(/Only (\d+) left/);
-          const newStock = stockMatch ? Number(stockMatch[1]) : item.stock;
-          return { ...item, stock: newStock };
+
+        if (index !== -1) {
+          updatedCart[index].stock = newStock;
+
         }
-        return item;
-      });
+      }
+    });
 
-      localStorage.setItem(cartKey, JSON.stringify(updatedCart));
-      setDataSource(updatedCart);
-      setIsCheckoutProcessing(false);
-      return;
-    }
+    setDataSource(updatedCart);
+    localStorage.setItem(`cart_${session.user.id}`, JSON.stringify(updatedCart));
 
-    if (data.success && data.url) {
-      localStorage.removeItem(cacheKey);
-      window.location.href = data.url;
-    } else {
-      toast.error(data.error || 'Checkout failed');
-    }
-  } catch {
+    setIsCheckoutProcessing(false);
+    return; 
+  }
+  toast.error(data.error || 'Checkout failed!');
+  setIsCheckoutProcessing(false);
+  return;
+}
+
+    window.location.href = data.url;
+  } catch (error) {
+    console.error(error);
     toast.error('Unexpected error during checkout');
-  } finally {
     setIsCheckoutProcessing(false);
   }
-};
+};  
   const handleDeleteSelected = () => {
     if (selectedRowKeys.length === 0) {
       toast.error('No products selected!');
