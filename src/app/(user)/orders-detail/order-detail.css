@@ -22,7 +22,7 @@ body {
 }
 
 .orderDetail-loading-container {
-  @apply flex justify-center items-center min-h-[800px];
+  @apply flex justify-center items-center min-h-[900px];
 }
 
 .error-text {

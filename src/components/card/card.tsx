@@ -128,6 +128,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     console.log(JSON.stringify(cart));
     localStorage.setItem(storageKey, JSON.stringify(cart));
     window.dispatchEvent(new Event('cartUpdated'));
+    setQuantity(1);
   };
 
   const colors = Array.from(
