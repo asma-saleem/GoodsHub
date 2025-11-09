@@ -272,3 +272,8 @@ export async function updateOrderStripeSessionId(orderId: string, stripeSessionI
   });
 }
 
+export async function fetchOrderForStripeVerification(orderId: string) {
+  return prisma.order.findUnique({ where: { id: orderId } });
+}
+
+

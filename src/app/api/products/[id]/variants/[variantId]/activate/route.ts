@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getVariantById, reactivateVariant } from '@/services/product';
+
 
 export async function PATCH(
   req: Request,
@@ -7,10 +8,7 @@ export async function PATCH(
 ) {
   try {
     const { variantId } = await context.params;
-
-    const variant = await prisma.productVariant.findUnique({
-      where: { id: variantId }
-    });
+    const variant = await getVariantById(variantId);
 
     if (!variant) {
       return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
@@ -23,10 +21,7 @@ export async function PATCH(
       );
     }
 
-    const reactivatedVariant = await prisma.productVariant.update({
-      where: { id: variantId },
-      data: { isVariantDeleted: false }
-    });
+    const reactivatedVariant = await reactivateVariant(variantId);
 
     return NextResponse.json({
       success: true,

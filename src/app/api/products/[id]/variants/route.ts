@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { ProductVariantType } from '@/types/product';
+import {
+  findVariant,
+  createVariant
+} from '@/services/product';
 
 export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
     const value = (await req.json()) as ProductVariantType;
-    const existingVariant = await prisma.productVariant.findFirst({
-      where: {
-        productId: id,
-        size: value.size,
-        color: value.color
-      }
-    });
+    const existingVariant = await findVariant({ productId: id, color: value.color, size: value.size });
 
     if (existingVariant && !existingVariant.isVariantDeleted) {
       return NextResponse.json(
@@ -41,16 +38,14 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       }
     }
 
-    const newVariant = await prisma.productVariant.create({
-      data: {
-        productId: id,
-        color: value.color ?? null,
-        colorCode: value.colorCode ?? null,
-        size: value.size ?? null,
-        price: Number(value.price),
-        stock: Number(value.stock),
-        image: imageUrl || null
-      }
+    const newVariant = await createVariant({
+      productId: id,
+      color: value.color,
+      colorCode: value.colorCode,
+      size: value.size,
+      price: Number(value.price),
+      stock: Number(value.stock),
+      image: imageUrl
     });
 
     return NextResponse.json(newVariant);

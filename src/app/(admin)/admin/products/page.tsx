@@ -676,6 +676,7 @@ const ProductsContent: React.FC = () => {
       {inactiveVariantData && (
         <Modal
           open={!!inactiveVariantData}
+          centered
           title={
             <div className="inactive-variant-title">
               Inactive Variant Found

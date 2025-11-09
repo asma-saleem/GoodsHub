@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { prisma } from '@/lib/prisma';
+import {
+  fetchOrderForStripeVerification
+} from '@/services/order';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -22,9 +24,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing orderId or userId in session metadata' }, { status: 400 });
     }
 
-    const order = await prisma.order.findUnique({
-      where: { id: orderId }
-    });
+    const order = await fetchOrderForStripeVerification(orderId);
+
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });

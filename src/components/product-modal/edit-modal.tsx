@@ -118,8 +118,7 @@ useEffect(() => {
       );
 
       if (!hasChanges) {
-        toast.error('No changes detected. Nothing to update.');
-        setOpen(false);
+        toast.info('No changes detected. Nothing to update.');
         return;
       }
       await onSubmit(updatedData);

@@ -1,26 +1,18 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import {
+  findProductByTitleExcludingId,
+  updateProductTitle,
+  softDeleteProduct
+} from '@/services/product';
 
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await context.params;
     const value = await req.json();
 
-    // const existingProduct = await prisma.product.findFirst({
-    //   where: {
-    //     title: value.name,
-    //     NOT: { id } 
-    //   }
-    // });
-
-    const existingProduct = await prisma.product.findFirst({
-      where: {
-        title: {
-          equals: value.name,
-          mode: 'insensitive' 
-        },
-        NOT: { id } 
-      }
+    const existingProduct = await findProductByTitleExcludingId({
+      title: value.name,
+      id
     });
 
     if (existingProduct) {
@@ -30,11 +22,11 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       );
     }
 
-    const updatedProduct = await prisma.product.update({
-      where: { id },
-      data: { title: value.name },
-      include: { variants: true }
+    const updatedProduct = await updateProductTitle({
+      id,
+      data: { title: value.name }
     });
+
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
@@ -53,10 +45,7 @@ export async function PATCH(
   try {
     const { id } = await context.params;
 
-    await prisma.product.update({
-      where: { id },
-      data: { isProductDeleted: true } 
-    });
+    await softDeleteProduct({ id });
 
     return NextResponse.json({ message: 'Product marked as inactive' });
   } catch (error) {
