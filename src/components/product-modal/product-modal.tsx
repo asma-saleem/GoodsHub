@@ -117,6 +117,14 @@ const ProductModal: React.FC<ProductModalProps> = ({
         toast.error('Product ID is missing!');
         return;
       }
+      if (
+      values.name.trim().toLowerCase() ===
+      initialValues.name.trim().toLowerCase()
+    ) {
+      toast.info('No changes detected in the product name.');
+      setSubmitting(false);
+      return; 
+    }
       const payload = {
         id: initialValues?.id,
         name: values.name
