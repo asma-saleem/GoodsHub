@@ -56,22 +56,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
     { name: 'Black', code: '#000000' },
     { name: 'White', code: '#FFFFFF' },
     { name: 'Gray', code: '#808080' },
-    { name: 'Navy', code: '#000080' },
-    { name: 'Blue', code: '#0000FF' },
     { name: 'Red', code: '#FF0000' },
+    { name: 'Blue', code: '#0000FF' },
     { name: 'Green', code: '#008000' },
     { name: 'Brown', code: '#8B4513' },
-    { name: 'Beige', code: '#F5F5DC' },
     { name: 'Pink', code: '#FFC0CB' }
   ];
   useEffect(() => {
     if (open) {
       if (initialValues) {
         if (mode === 'edit') {
-          // Only prefill title in edit mode
           form.setFieldsValue({ name: initialValues.name });
         } else {
-          // Prefill title and variants in add mode
           const variantsWithFiles = initialValues.variants.map((v) => ({
             ...v,
             image: v.image
@@ -388,9 +384,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                                 if (value === undefined || value === null || value === '') {
                                     return Promise.resolve();
                                   }
-                                // if (value === undefined || value === null || value === '') {
-                                //   return Promise.reject('Enter price');
-                                // }
                                 if (Number(value) < 0) {
                                   return Promise.reject('Stock must be greater or equal to 0');
                                 }
