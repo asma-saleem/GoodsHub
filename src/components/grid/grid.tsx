@@ -148,7 +148,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
       )}
       {products.length === 0 && !loading && hasFetched.current ? (
         <div className='grid-empty'>
-          <Empty description='No matching products found' />
+          <Empty description='No products found' />
         </div>
       ) : (
         <Row

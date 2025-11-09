@@ -46,6 +46,7 @@ export default function Page() {
               style={{ width: 200 }}
               className='dashboard-select'
               placeholder='Sort by:'
+              value={sortBy || 'createdAt_desc'}
               optionFilterProp='label'
               onChange={(value) => setSortBy(value)}
               filterSort={(optionA, optionB) =>

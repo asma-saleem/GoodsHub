@@ -45,7 +45,7 @@
   @apply mobile:!w-[234px] tablet:!w-[350px] [&_.ant-input-affix-wrapper]:!h-[36px] [&_.ant-input-search-button]:!h-[36px] rounded-lg;
 }
 
-.loading-container {
+.loading-container-products-admin {
   @apply flex justify-center items-center min-h-[800px];
 }
 
@@ -139,4 +139,8 @@
 
 .reactivate-btn {
   @apply bg-[#007BFF] text-white hover:bg-[#0066d6] transition-colors;
+}
+
+.admin-products-empty {
+    @apply flex justify-center mt-10 text-center;
 }

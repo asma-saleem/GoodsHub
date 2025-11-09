@@ -13,7 +13,8 @@ import {
   Select,
   Modal,
   Tooltip,
-  Tag
+  Tag,
+  Empty
 } from 'antd';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -388,7 +389,7 @@ const ProductsContent: React.FC = () => {
         </div>
       </div>
       {loading ? (
-        <div className='loading-container'>
+        <div className='loading-container-products-admin'>
           <Spin size='large' />
         </div>
       ) : (
@@ -407,6 +408,21 @@ const ProductsContent: React.FC = () => {
           }}
           bordered
           className='products-table'
+          locale={{
+    emptyText: (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '60vh',
+          padding: '50px 0'
+        }}
+      >
+        <Empty description="No products found" />
+      </div>
+    )
+  }}
         />
       )}
       {openModal && (

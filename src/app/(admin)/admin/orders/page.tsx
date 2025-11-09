@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Spin, Button, Card, Drawer, Space } from 'antd';
+import { Table, Input, Spin, Button, Card, Drawer, Space, Empty } from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
@@ -242,6 +242,21 @@ const OrdersContent: React.FC = () => {
         }}
         bordered
         className='orders-table'
+        locale={{
+    emptyText: (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '60vh',
+          padding: '50px 0'
+        }}
+      >
+        <Empty description="No Orders found" />
+      </div>
+    )
+  }}
       />
       <Drawer
         title={<h2 className='orders-title'>Order Details</h2>}

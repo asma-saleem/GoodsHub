@@ -46,7 +46,7 @@ body {
 }
 
 .table-wrapper {
-  @apply overflow-x-auto;
+  @apply overflow-x-auto min-h-[700px];
 }
 
 .table-cell {
@@ -112,7 +112,7 @@ body {
 }
 
 .empty-cart-container {
-  @apply flex flex-col justify-center items-center py-10 gap-4;
+  @apply flex flex-col justify-center items-center py-10 gap-4 min-h-[600px];
 }
 
 .empty-cart-text {
