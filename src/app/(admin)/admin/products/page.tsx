@@ -81,7 +81,8 @@ const ProductsContent: React.FC = () => {
   >(null);
 
   const [variantMode, setVariantMode] = useState<'add' | 'edit'>('add');
-
+  const [submitting, setSubmitting] = useState(false); 
+  
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(localSearch);
@@ -541,8 +542,10 @@ const ProductsContent: React.FC = () => {
           setOpen={setOpenSingleVariantModal}
           mode={variantMode}
           initialValues={singleVariantData}
+          submitting={submitting}
           onSubmit={async (values) => {
             try {
+              setSubmitting(true);
               console.log('Variant form values:', values);
 
               const variantPayload = {
@@ -617,6 +620,8 @@ const ProductsContent: React.FC = () => {
                 message = error;
               }
               toast.error(message);
+            }finally {
+              setSubmitting(false);
             }
           }}
         />

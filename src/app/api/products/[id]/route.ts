@@ -15,7 +15,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
     if (existingProduct) {
       return NextResponse.json(
-        { error: 'A product with this title already exists, cannot update' },
+        { error: 'A product with this title already exists' },
         { status: 400 }
       );
     }

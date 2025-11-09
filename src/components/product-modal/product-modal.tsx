@@ -11,8 +11,8 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { Select } from 'antd';
 const { Option } = Select;
 import './product-modal.css';
-import { addProduct, updateProduct } from '@/redux/store/slices/product-slice';
-import { useAppDispatch } from '@/redux/store/hooks';
+import { addProduct, updateProduct, fetchProductsReplace } from '@/redux/store/slices/product-slice';
+import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import { toast } from 'react-toastify';
 
 export interface ProductVariant {
@@ -47,6 +47,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onSubmit
 }) => {
   const dispatch = useAppDispatch();
+    const { searchTerm, sortBy } = useAppSelector(
+      (state) => state.products
+    );
   const [submitting, setSubmitting] = useState(false); 
   const [form] = Form.useForm<ProductFormValues>();
   const colorOptions = [
@@ -118,25 +121,24 @@ const ProductModal: React.FC<ProductModalProps> = ({
         id: initialValues?.id,
         name: values.name
       };
-
-      // await fetch(`/api/products/${initialValues?.id ?? ''}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload)
-      // });
-
-      // onSubmit(payload as ProductFormValues);
-      // setOpen(false);
       try {
       const updatedProduct =  await dispatch(updateProduct(payload)).unwrap();
       toast.success('Product name updated successfully!');
       onSubmit(updatedProduct);
       setOpen(false);
+      dispatch(
+        fetchProductsReplace({
+          page: 1,
+          query: searchTerm,
+          sortBy,
+          limit: 12
+        })
+      );
     } catch (error) {
       toast.error(String(error) || 'Failed to update product name');
     }
     finally {
-      setSubmitting(false); // enable button after submission
+      setSubmitting(false);
     }
       return;
     }
@@ -187,9 +189,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
       toast.success('Product added successfully!');
       onSubmit(payload);
       setOpen(false);
+      dispatch(
+        fetchProductsReplace({
+          page: 1,
+          query: searchTerm,
+          sortBy,
+          limit: 12
+        })
+      );
     } catch (error) {
-      console.error('Add product failed:', error);
       toast.error(String(error) || 'Failed to create product');
+    } finally {
+      setSubmitting(false);
     }
 
   };

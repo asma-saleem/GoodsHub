@@ -17,6 +17,7 @@ interface SingleVariantEditModalProps {
   initialValues?: SingleVariantFormValues;
   // eslint-disable-next-line no-unused-vars
   onSubmit: (values: SingleVariantFormValues) => void;
+  submitting?: boolean;
 }
 
 const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
@@ -24,10 +25,12 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
   setOpen,
   mode,
   initialValues,
-  onSubmit
+  onSubmit,
+  submitting = false
 }) => {
   const [form] = Form.useForm<SingleVariantFormValues>();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [localSubmitting, setLocalSubmitting] = useState(false);
 
   const colorOptions = React.useMemo(
   () => [
@@ -79,49 +82,55 @@ useEffect(() => {
 }, [colorValue, colorOptions, form]);
 
   const handleFinish = async (values: SingleVariantFormValues) => {
-  let imageUrl = initialValues?.image || '';
+  if (localSubmitting) return;
+  setLocalSubmitting(true);
+  try {
+      let imageUrl = initialValues?.image || '';
 
-  if (fileList[0]?.originFileObj) {
-    const fd = new FormData();
-    fd.append('file', fileList[0].originFileObj as File);
+      if (fileList[0]?.originFileObj) {
+        const fd = new FormData();
+        fd.append('file', fileList[0].originFileObj as File);
 
-    const res = await fetch('/api/products/upload-image', {
-      method: 'POST',
-      body: fd
-    });
-    if (!res.ok) throw new Error('Upload failed');
-    const { url } = await res.json();
-    imageUrl = url;
-  } else if (fileList[0]?.url) {
-    imageUrl = fileList[0].url;
+        const res = await fetch('/api/products/upload-image', {
+          method: 'POST',
+          body: fd
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        const { url } = await res.json();
+        imageUrl = url;
+      } else if (fileList[0]?.url) {
+        imageUrl = fileList[0].url;
+      }
+
+      const updatedData: SingleVariantFormValues = {
+        ...values,
+        colorCode:
+          values.colorCode ||
+          colorOptions.find(c => c.name === values.color)?.code ||
+          '',
+        id: initialValues?.id || values.id,
+        variantId: initialValues?.variantId || values.variantId,
+        image: imageUrl
+      };
+
+      const hasChanges = Object.keys(updatedData).some(
+        key =>
+          updatedData[key as keyof SingleVariantFormValues] !==
+          initialValues?.[key as keyof SingleVariantFormValues]
+      );
+
+      if (!hasChanges) {
+        toast.error('No changes detected. Nothing to update.');
+        setOpen(false);
+        return;
+      }
+      await onSubmit(updatedData);
+      setOpen(true);
+    }catch (error) {
+    toast.error(String(error) || 'Failed to save variant. Please try again.');
+  } finally {
+    setLocalSubmitting(false);
   }
-
-  const updatedData: SingleVariantFormValues = {
-    ...values,
-    colorCode:
-      values.colorCode ||
-      colorOptions.find(c => c.name === values.color)?.code ||
-      '',
-    id: initialValues?.id || values.id,
-    variantId: initialValues?.variantId || values.variantId,
-    image: imageUrl
-  };
-
-  const hasChanges = Object.keys(updatedData).some(
-    key =>
-      updatedData[key as keyof SingleVariantFormValues] !==
-      initialValues?.[key as keyof SingleVariantFormValues]
-  );
-
-  if (!hasChanges) {
-    toast.error('No changes detected. Nothing to update.');
-    setOpen(false);
-    return;
-  }
-
-  onSubmit(updatedData);
-  setOpen(false);
-  setFileList([]);
 };
 
 
@@ -250,7 +259,7 @@ useEffect(() => {
         </Form.Item>
 
         <Form.Item>
-          <Button type='primary' htmlType='submit' block>
+          <Button type='primary' htmlType='submit' block loading={submitting || localSubmitting} disabled={submitting || localSubmitting}>
             {mode === 'edit' ? 'Update Variant' : 'Add Variant'}
           </Button>
         </Form.Item>
