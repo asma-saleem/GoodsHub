@@ -40,7 +40,16 @@ export default function Header() {
   const menu: MenuProps['items'] = [
     {
       key: 'orders',
-      label: <Link href='/orders'>Orders</Link>
+      label: (
+      <span
+        onClick={() => {
+          window.location.href = '/orders';
+        }}
+        style={{ cursor: 'pointer' }}
+      >
+        Orders
+      </span>
+    )
     },
     {
       type: 'divider'
@@ -50,7 +59,6 @@ export default function Header() {
       label: (
         <span
           onClick={() => {
-            // localStorage.removeItem(`cart_${session?.user.id}`);
             signOut({ callbackUrl: '/auth/login' });
           }}
         >
