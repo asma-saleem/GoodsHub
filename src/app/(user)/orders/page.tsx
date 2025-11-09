@@ -101,13 +101,13 @@ const Orders: React.FC = () => {
       )
     }
   ];
-  if (loadingList) {
-    return (
-      <div className='loading-container'>
-        <Spin size='large' />
-      </div>
-    );
-  }
+  // if (loadingList) {
+  //   return (
+  //     <div className='loading-container'>
+  //       <Spin size='large' />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
@@ -134,6 +134,13 @@ const Orders: React.FC = () => {
             />
           </div>
         </div>
+        {loadingList ? (
+                <div className='orders-user-loading-container'>
+                  <Spin size='large' />
+                </div>
+               ) :
+              
+              (
 
         <div className='table-container'>
           <Table<OrderType>
@@ -155,7 +162,9 @@ const Orders: React.FC = () => {
             locale={{ emptyText: 'No orders found' }}
           />
         </div>
+        )}
       </div>
+          
       <Drawer
         title={<h2 className='orders-title'>Order Details</h2>}
         className='order-detail-drawer'

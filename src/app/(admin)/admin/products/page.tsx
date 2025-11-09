@@ -409,20 +409,20 @@ const ProductsContent: React.FC = () => {
           bordered
           className='products-table'
           locale={{
-    emptyText: (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '60vh',
-          padding: '50px 0'
+          emptyText: (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '60vh',
+                padding: '50px 0'
+              }}
+            >
+              <Empty description="No products found" />
+            </div>
+          )
         }}
-      >
-        <Empty description="No products found" />
-      </div>
-    )
-  }}
         />
       )}
       {openModal && (

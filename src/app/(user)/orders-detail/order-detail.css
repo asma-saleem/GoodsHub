@@ -21,8 +21,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.loading-container {
-  @apply flex justify-center items-center min-h-screen;
+.orderDetail-loading-container {
+  @apply flex justify-center items-center min-h-[800px];
 }
 
 .error-text {

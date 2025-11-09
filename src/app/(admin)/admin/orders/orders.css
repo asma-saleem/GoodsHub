@@ -75,7 +75,7 @@
 }
 
 .orders-loading-container {
-  @apply flex justify-center items-center min-h-[800px];
+  @apply flex justify-center items-center min-h-[600px];
 }
 
 .order-detail-drawer {

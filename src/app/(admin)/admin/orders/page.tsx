@@ -151,14 +151,6 @@ const OrdersContent: React.FC = () => {
     }
   ];
 
-  if (loadingList) {
-    return (
-      <div className='orders-loading-container'>
-        <Spin size='large' />
-      </div>
-    );
-  }
-
   return (
     <div className='orders-wrapper'>
       <div className='orders-stats-grid'>
@@ -229,7 +221,13 @@ const OrdersContent: React.FC = () => {
           </div>
         </div>
       </div>
-      <Table<OrderType>
+      {loadingList ? (
+        <div className='orders-loading-container'>
+          <Spin size='large' />
+        </div>
+       ) :
+      
+      (<Table<OrderType>
         dataSource={data}
         columns={columns}
         rowKey='id'
@@ -243,21 +241,22 @@ const OrdersContent: React.FC = () => {
         bordered
         className='orders-table'
         locale={{
-    emptyText: (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '60vh',
-          padding: '50px 0'
-        }}
-      >
-        <Empty description="No Orders found" />
-      </div>
-    )
-  }}
+        emptyText: (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '60vh',
+              padding: '50px 0'
+            }}
+          >
+            <Empty description="No Orders found" />
+          </div>
+        )
+      }}
       />
+      )}
       <Drawer
         title={<h2 className='orders-title'>Order Details</h2>}
         className='order-detail-drawer'

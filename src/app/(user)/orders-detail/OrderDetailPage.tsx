@@ -30,7 +30,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
 
   if (loadingDetail) {
     return (
-      <div className="loading-container">
+      <div className="orderDetail-loading-container">
         <Spin size="large" />
       </div>
     );
@@ -38,7 +38,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
 
   if (!order) {
     return (
-      <div className="loading-container">
+      <div className="orderDetail-loading-container">
         <p className="error-text">Order not found!</p>
       </div>
     );
