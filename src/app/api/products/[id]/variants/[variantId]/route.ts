@@ -41,7 +41,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
 
     if (duplicate) {
       return NextResponse.json(
-        { error: 'Variant with this color and size already exists and cannot be updated.' },
+        { error: 'Variant with this color and size already exists.' },
         { status: 400 }
       );
     }

@@ -6,9 +6,19 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     const { id } = await context.params;
     const value = await req.json();
 
+    // const existingProduct = await prisma.product.findFirst({
+    //   where: {
+    //     title: value.name,
+    //     NOT: { id } 
+    //   }
+    // });
+
     const existingProduct = await prisma.product.findFirst({
       where: {
-        title: value.name,
+        title: {
+          equals: value.name,
+          mode: 'insensitive' 
+        },
         NOT: { id } 
       }
     });

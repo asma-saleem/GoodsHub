@@ -123,9 +123,8 @@ const ProductsContent: React.FC = () => {
       dispatch(
         fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 })
       );
-      toast.success('Product marked as inactive successfully!');
+      toast.success('Product deleted successfully!');
     } catch (err) {
-      console.error('Failed to delete product:', err);
       toast.error(String(err) || 'Failed to delete product');
     } finally {
       setOpenDeleteModal(false);
@@ -602,11 +601,13 @@ const ProductsContent: React.FC = () => {
                   variant: ProductVariantType;
                   message: string;
                 };
-
-                setInactiveVariantData({
-                  ...payload.variant,
-                  message: payload.message
-                });
+                setTimeout(() => {
+                  setOpenSingleVariantModal(false);
+                  setInactiveVariantData({
+                    ...payload.variant,
+                    message: payload.message
+                  });
+                }, 0);
 
                 return; 
               }
@@ -631,7 +632,7 @@ const ProductsContent: React.FC = () => {
           onConfirm={async () => {
             try {
               await dispatch(deleteVariant(variantToDelete));
-              toast.success('Variant marked as inactive successfully');
+              toast.success('Variant deleted successfully!');
               dispatch(
                 fetchProductsReplace({
                   page: 1,
@@ -641,8 +642,7 @@ const ProductsContent: React.FC = () => {
                 })
               );
             } catch (error) {
-              console.error('Failed to delete variant:', error);
-              toast.error('Failed to delete variant');
+              toast.error(String(error) || 'Failed to delete variant');
             } finally {
               setOpenVariantDeleteModal(false);
               setVariantToDelete(null);
@@ -652,8 +652,7 @@ const ProductsContent: React.FC = () => {
           title='Remove Variant'
           message={
             <>
-              Are you sure you want to delete this <b>variant</b>? It will be
-              marked as <span className='text-red-500'>inactive</span>.
+              Are you sure you want to delete this <b>variant</b>?
             </>
           }
         />
@@ -688,8 +687,7 @@ const ProductsContent: React.FC = () => {
                   setInactiveVariantData(null);
                   dispatch(fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 }));
                 } catch (error) {
-                  console.error('Failed to reactivate variant:', error);
-                  toast.error('Failed to reactivate variant');
+                  toast.error(String(error) || 'Failed to reactivate variant');
                 }
               }}
             >

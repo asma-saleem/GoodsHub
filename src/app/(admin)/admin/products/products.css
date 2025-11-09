@@ -46,7 +46,7 @@
 }
 
 .loading-container {
-  @apply flex justify-center items-center min-h-[300px];
+  @apply flex justify-center items-center min-h-[800px];
 }
 
 .products-table {
