@@ -125,6 +125,20 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
         with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
 
+            required_headers = {"title", "image", "price", "color", "colorCode", "stock", "size"}
+            csv_headers = set(reader.fieldnames or [])
+            missing = required_headers - csv_headers
+
+            if missing:
+                error_msg = f"Invalid CSV Format. Missing headers: {', '.join(missing)}"
+                print(error_msg)
+
+                r.set(
+                    f"csv_upload_status:{file_uuid}",
+                    json.dumps({"status": "failed", "error": error_msg})
+                )
+                return
+
             for _ in range(start_index):
                 next(reader, None)
                 current_index += 1
@@ -149,6 +163,7 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
         for row in rows_chunk:
             title = row["title"].strip()
 
+            # Get or create product
             product = db.query(Product).filter(Product.title == title).first()
             if not product:
                 product = Product(id=str(uuid.uuid4()), title=title)
@@ -156,6 +171,7 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
                 db.flush()
                 print(f"🆕 Created Product: {title}")
 
+            # Check if variant already exists
             exists = db.query(ProductVariant).filter(
                 ProductVariant.productId == product.id,
                 ProductVariant.color == row.get("color"),
@@ -166,6 +182,7 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
                 print(f" Variant already exists for {title} - Color: {row.get('color')}, Size: {row.get('size')}")
                 continue
 
+            # Insert new variant
             variant = ProductVariant(
                 productId=product.id,
                 color=row.get("color"),
@@ -190,6 +207,8 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
                 "processed_rows": current_index
             })
         )
+
+        # Schedule next chunk
         process_csv_task.apply_async(
             args=[file_path, file_uuid, current_index, chunk_size],
             countdown=1
