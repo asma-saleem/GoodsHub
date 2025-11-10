@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
     const nodeReq = toNodeReadable(req);
 
     form.parse(nodeReq, (err, _fields, files) => {
+      
       if (err) {
         resolve(
           NextResponse.json({ error: 'Upload failed' }, { status: 500 })
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
         : uploaded;
 
       const { error } = fileSchema.validate({ file }, { allowUnknown: true });
+      
       if (error) {
         resolve(
           NextResponse.json({ error: 'Invalid file', details: error.details }, { status: 400 })

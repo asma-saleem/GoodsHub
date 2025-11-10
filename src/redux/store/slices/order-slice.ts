@@ -55,7 +55,7 @@ const initialState: OrdersState = {
   totalUnits: 0,
   totalAmount: 0,
   order: null,
-  loadingList: false,     // 👈 for main Orders table
+  loadingList: false,  
   loadingDetail: false,
   error: null
 };
@@ -90,6 +90,7 @@ const ordersSlice = createSlice({
           id: order.id,
           date: order.createdAt,
           userName: order.user?.fullname ?? '',
+          email: order.user?.email ?? '',
           orderStatus: order.orderStatus,
           orderNo: order.orderNo,
           products: order.items?.length || 0,

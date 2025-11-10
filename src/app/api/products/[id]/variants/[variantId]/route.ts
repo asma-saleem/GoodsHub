@@ -36,6 +36,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
     }
 
     let imageUrl = '';
+    
     if (typeof value.image === 'string') {
       imageUrl = value.image;
     } else if (Array.isArray(value.image) && value.image[0]?.url) {
@@ -51,10 +52,6 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
       stock: Number(value.stock),
       image: imageUrl
     });
-
-    // if (value.name) {
-    //   await prisma.product.update({ where: { id }, data: { title: value.name } });
-    // }
 
     return NextResponse.json(
       {

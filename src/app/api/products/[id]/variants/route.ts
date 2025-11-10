@@ -29,10 +29,12 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     }
 
     let imageUrl = '';
+    
     if (typeof value.image === 'string') {
       imageUrl = value.image;
     } else if (Array.isArray(value.image)) {
       const firstImage = value.image[0] as { url?: string } | undefined;
+      
       if (firstImage?.url) {
         imageUrl = firstImage.url;
       }

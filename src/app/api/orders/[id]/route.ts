@@ -47,6 +47,7 @@ export async function PATCH(
     const id = params.id; 
 
     const order = await updateOrderStatus(id,OrderStatus.COMPLETED);
+    
     return NextResponse.json({ success: true, order });
   } catch (error) {
     console.error('Error marking order as complete:', error);

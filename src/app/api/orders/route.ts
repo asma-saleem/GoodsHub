@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     };
     
     const { error, value } = orderQuerySchema.validate(queryObj, { convert: true });
+    
     if (error) {
       return NextResponse.json({ error: 'Invalid query parameters', details: error.details }, { status: 400 });
     }

@@ -96,6 +96,7 @@ const OrdersContent: React.FC = () => {
       render: (val: string | number) => <span>{val}</span>
     },
     { title: 'User Name', dataIndex: 'userName', key: 'userName' },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'Product(s)', dataIndex: 'products', key: 'products' },
     {
       title: 'Order Status',

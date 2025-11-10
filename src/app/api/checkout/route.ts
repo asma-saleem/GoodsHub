@@ -17,25 +17,27 @@ function isError(err: unknown): err is Error {
 export async function POST(req: Request) {
   try {
     const { cart } = await req.json();
-
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const order = await createOrder(cart, userId);
-    
+
     if (!order?.id) {
       throw new Error('Failed to create order');
     }
 
     const user = await getUserById(userId);
+
     if (!user) {
       throw new Error('User not found');
     }
 
     const stripeCustomerId = user.stripeCustomerId;
+
     if (!stripeCustomerId) {
       throw new Error('Stripe customer ID not found for user');
     }
@@ -83,7 +85,7 @@ export async function POST(req: Request) {
     );
   } catch (err: unknown) {
     console.error('Checkout error:', err);
-    
+
     if (
       typeof err === 'object' &&
       err &&
@@ -91,7 +93,10 @@ export async function POST(req: Request) {
       'errors' in err
     ) {
       const e = err as { errors: string[] };
-      return NextResponse.json({ success: false, errors: e.errors }, { status: 400 });
+      return NextResponse.json(
+        { success: false, errors: e.errors },
+        { status: 400 }
+      );
     }
 
     const message = isError(err)

@@ -15,6 +15,7 @@ export interface OrderType {
   orderNo: number | string;
   user?: {
     fullname: string;
+    email: string;
   };
   products: number;
   amount: number;

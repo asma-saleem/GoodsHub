@@ -26,7 +26,6 @@ export async function GET(req: Request) {
 
     const order = await fetchOrderForStripeVerification(orderId);
 
-
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }

@@ -211,7 +211,7 @@ export async function getAllOrders(
       orderNo: true,
       createdAt: true,
       orderStatus: true,
-      user: {select:{fullname:true}},
+      user: {select:{fullname:true,email: true}},
       items: {
         select: {
           quantity: true,

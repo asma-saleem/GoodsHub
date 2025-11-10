@@ -27,7 +27,6 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       data: { title: value.name }
     });
 
-
     return NextResponse.json(updatedProduct);
   } catch (error) {
     console.error('Failed to update product title:', error);
