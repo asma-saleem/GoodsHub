@@ -107,14 +107,18 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
     include: { product: true }
   });
   const errors: string[] = [];
+  
   for (const item of cart) {
     const dbVariant = dbVariants.find(v => v.id === item.variantId);
+    
     if (!dbVariant) {
       throw new Error(`Variant not found for product "${item.title}".`);
     }
+    
     if (dbVariant.isVariantDeleted) {
         throw new Error(`"${item.title}" (${item.color}/${item.size}) is no longer available.`);
     }
+    
     if (dbVariant.stock < item.qty) {
       errors.push(
         `Not enough stock for product ${item.title} with (${item.color}/${item.size}). Only ${dbVariant.stock} left.`
@@ -127,29 +131,6 @@ export async function createOrder(cart: CartItemType[], userId: string ) {
   }
   
   const order = await prisma.$transaction(async (tx) => {
-  //  const productIds = cart.map((item) => item.id);
-  //  const products = await tx.product.findMany({
-  //   where: { id: { in: productIds } },
-  //   include: { variants: true }
-  //   });
-  //   for (const item of cart) {
-  //     const product = products.find((p) => p.id === item.id);
-  //     if (!product) {
-  //       throw new Error(`Product with id ${item.id} not found`);
-  //     }
-  //     const variant = product.variants.find(v => v.id === item.variantId);
-  //     if (!variant) {
-  //         throw new Error(`Variant with id ${item.variantId} not found for product ${product.title}`);
-  //     }
-  //     if (variant.isVariantDeleted) {
-  //         throw new Error(`Variant "${variant.size}" (${variant.color}) is no longer available.`);
-  //     }
-  //     if (variant.stock < item.qty) {
-  //       throw new Error(
-  //         `Not enough stock for product ${product.title}. Only ${variant.stock} left.`
-  //       );
-  //     }
-  //   }
     const newOrder = await tx.order.create({
       data: {
         userId,

@@ -22,7 +22,7 @@ export const getProducts = async (
           }
         }
       : {}),
-      ...(role !== 'ADMIN'
+    ...(role !== 'ADMIN'
       ? {
           variants: {
             some: { isVariantDeleted: false }
@@ -108,7 +108,10 @@ export async function reactivateVariant(variantId: string) {
   });
 }
 
-export async function findProductByTitleExcludingId({title, id}: {
+export async function findProductByTitleExcludingId({
+  title,
+  id
+}: {
   title: string;
   id: string;
 }) {
@@ -123,7 +126,10 @@ export async function findProductByTitleExcludingId({title, id}: {
   });
 }
 
-export async function updateProductTitle({id, data}: {
+export async function updateProductTitle({
+  id,
+  data
+}: {
   id: string;
   data: { title: string };
 }) {
@@ -134,9 +140,7 @@ export async function updateProductTitle({id, data}: {
   });
 }
 
-export async function softDeleteProduct({ id }: {
-  id: string;
-}) {
+export async function softDeleteProduct({ id }: { id: string }) {
   return prisma.product.update({
     where: { id },
     data: { isProductDeleted: true }
@@ -145,10 +149,11 @@ export async function softDeleteProduct({ id }: {
 
 export async function findProductByTitle({ title }: { title: string }) {
   return prisma.product.findFirst({
-    where: { title: {
+    where: {
+      title: {
         equals: title.trim(),
-        mode: 'insensitive' // makes it case-insensitive
-      } 
+        mode: 'insensitive'
+      }
     }
   });
 }
@@ -165,8 +170,10 @@ export async function createVariants(variants: ProductVariantType[]) {
       if (seen.has(key)) return null;
       seen.add(key);
 
-      const imageData =
-        variant.image as string | { url?: string }[] | undefined;
+      const imageData = variant.image as
+        | string
+        | { url?: string }[]
+        | undefined;
 
       return {
         color: variant.color ?? null,
@@ -183,7 +190,10 @@ export async function createVariants(variants: ProductVariantType[]) {
     .filter((v) => v !== null);
 }
 
-export async function createProductWithVariants({ title, variantData }: {
+export async function createProductWithVariants({
+  title,
+  variantData
+}: {
   title: string;
   variantData: Awaited<ReturnType<typeof createVariants>>;
 }) {
@@ -198,13 +208,20 @@ export async function createProductWithVariants({ title, variantData }: {
   });
 }
 
-export async function findVariant({ productId, color, size }: { productId: string; color?: string; size?: string }) {
+export async function findVariant({
+  productId,
+  color,
+  size
+}: {
+  productId: string;
+  color?: string;
+  size?: string;
+}) {
   return prisma.productVariant.findFirst({
     where: { productId, color, size }
   });
 }
 
-// Create a new variant
 export async function createVariant({
   productId,
   color,
@@ -235,13 +252,22 @@ export async function createVariant({
   });
 }
 
-// Find a variant by its ID
 export async function findVariantById(variantId: string) {
   return prisma.productVariant.findUnique({ where: { id: variantId } });
 }
 
 // Check for duplicate variant in same product
-export async function findDuplicateVariant({ productId, color, size, excludeId }: { productId: string; color?: string; size?: string; excludeId?: string }) {
+export async function findDuplicateVariant({
+  productId,
+  color,
+  size,
+  excludeId
+}: {
+  productId: string;
+  color?: string;
+  size?: string;
+  excludeId?: string;
+}) {
   return prisma.productVariant.findFirst({
     where: {
       productId,
@@ -283,7 +309,3 @@ export async function softDeleteVariant(variantId: string) {
     data: { isVariantDeleted: true }
   });
 }
-
-
-
-

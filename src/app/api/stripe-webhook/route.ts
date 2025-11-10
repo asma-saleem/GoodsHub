@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { updateOrderStatus } from '@/services/order';
-import { metadataSchema } from '@/validations/stripe/stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -21,17 +20,7 @@ export async function POST(req: Request) {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-
-      const { error, value } = metadataSchema.validate(session.metadata, {
-        abortEarly: false,
-        allowUnknown: true 
-      });
-
-      if (error) {
-        console.error('Invalid session metadata:', error.details);
-        return NextResponse.json({ received: true });
-      }
-      const { orderId, userId } = value;
+      const { orderId, userId } = session.metadata as { orderId?: string; userId?: string };
 
       if (!orderId || !userId) {
         console.error('Missing orderId or userId in metadata.');
@@ -44,13 +33,14 @@ export async function POST(req: Request) {
     }
     if (event.type === 'checkout.session.expired' || event.type === 'payment_intent.canceled') {
       const session = event.data.object as Stripe.Checkout.Session;
-      const { error, value } = metadataSchema.validate(session.metadata, { allowUnknown: true });
-      if (!error) {
-        const { orderId } = value;
+        const { orderId } = session.metadata as { orderId?: string };
+        if (!orderId) {
+          console.error('Missing orderId in metadata.');
+          return NextResponse.json({ received: true });
+        }
         await updateOrderStatus(orderId, 'CANCELED');
         console.log(`Order ${orderId} marked as CANCELLED`);
       }
-    }
     return NextResponse.json({ received: true });
   } catch (err) {
     if (err instanceof Error) {
