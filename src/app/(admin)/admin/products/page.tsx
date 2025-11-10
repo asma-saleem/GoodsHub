@@ -78,12 +78,12 @@ const ProductsContent: React.FC = () => {
   } | null>(null);
 
   const [inactiveVariantData, setInactiveVariantData] = useState<
-  (ProductVariantType & { message?: string }) | null
+    (ProductVariantType & { message?: string }) | null
   >(null);
 
   const [variantMode, setVariantMode] = useState<'add' | 'edit'>('add');
-  const [submitting, setSubmitting] = useState(false); 
-  
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(localSearch);
@@ -140,8 +140,12 @@ const ProductsContent: React.FC = () => {
       key: 'title',
       render: (text: string, record: ProductType) => (
         <Space>
-          <Avatar shape='square' size={24} src={record.image || '/dashboard-image-1.png'} />
-          <span className='product-title'>{text}</span>
+          <Avatar
+            shape="square"
+            size={24}
+            src={record.image || '/dashboard-image-1.png'}
+          />
+          <span className="product-title">{text}</span>
         </Space>
       )
     },
@@ -172,13 +176,13 @@ const ProductsContent: React.FC = () => {
             title={
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {uniquePrices.map((price, i) => (
-                  <Tag key={i} color='grey' style={{ margin: 0 }}>
+                  <Tag key={i} color="grey" style={{ margin: 0 }}>
                     ${price.toFixed(2)}
                   </Tag>
                 ))}
               </div>
             }
-            placement='bottom'
+            placement="bottom"
           >
             <span style={{ cursor: 'pointer', color: '#000000' }}>
               ${firstVariant.price.toFixed(2)}
@@ -223,7 +227,7 @@ const ProductsContent: React.FC = () => {
                 ))}
               </div>
             }
-            placement='bottom'
+            placement="bottom"
           >
             <span style={{ cursor: 'pointer', color: '#000000' }}>
               {firstVariant.stock}
@@ -258,13 +262,13 @@ const ProductsContent: React.FC = () => {
             title={
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {uniqueSizes.map((size, i) => (
-                  <Tag key={i} color='grey' style={{ margin: 0 }}>
+                  <Tag key={i} color="grey" style={{ margin: 0 }}>
                     {size}
                   </Tag>
                 ))}
               </div>
             }
-            placement='bottom'
+            placement="bottom"
           >
             <span style={{ cursor: 'pointer', color: '#000000' }}>
               {firstVariant.size ?? 'N/A'}
@@ -279,62 +283,61 @@ const ProductsContent: React.FC = () => {
       render: (_: unknown, record: ProductType) => (
         <Space>
           <Tooltip title="View all variants of product">
-          <Button
-            type='text'
-            icon={<EyeOutlined />}
-            onClick={() => {
-              setViewProduct(record);
-              setOpenViewModal(true);
-            }}
-          />
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => {
+                setViewProduct(record);
+                setOpenViewModal(true);
+              }}
+            />
           </Tooltip>
           <Tooltip title="Edit Product name">
-          <Button
-            type='text'
-            icon={<EditOutlined />}
-            onClick={() => {
-              setModalMode('edit');
-              setEditData({
-                id: record.id,
-                name: record.title,
-                variants: []
-              });
-              setOpenModal(true);
-            }}
-          />
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setModalMode('edit');
+                setEditData({
+                  id: record.id,
+                  name: record.title,
+                  variants: []
+                });
+                setOpenModal(true);
+              }}
+            />
           </Tooltip>
-           <Tooltip title="Delete Product">
-          <Button
-            danger
-            type='text'
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              setProductToDelete(record);
-              setOpenDeleteModal(true);
-            }}
-          />
+          <Tooltip title="Delete Product">
+            <Button
+              danger
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                setProductToDelete(record);
+                setOpenDeleteModal(true);
+              }}
+            />
           </Tooltip>
-           <Tooltip title="Add Variant to Product">
-          <Button
-            type='text'
-            className='single-variant-button'
-            onClick={() => {
-              setVariantMode('add');
-              setSingleVariantData({
-                id: record.id,
-                color: '',
-                colorCode: '',
-                size: '',
-                price: 0,
-                stock: 0,
-                image: ''
-              });
-              setOpenSingleVariantModal(true);
-          }
-          }
-          >
-            + Variant
-          </Button>
+          <Tooltip title="Add Variant to Product">
+            <Button
+              type="text"
+              className="single-variant-button"
+              onClick={() => {
+                setVariantMode('add');
+                setSingleVariantData({
+                  id: record.id,
+                  color: '',
+                  colorCode: '',
+                  size: '',
+                  price: 0,
+                  stock: 0,
+                  image: ''
+                });
+                setOpenSingleVariantModal(true);
+              }}
+            >
+              + Variant
+            </Button>
           </Tooltip>
         </Space>
       )
@@ -343,31 +346,31 @@ const ProductsContent: React.FC = () => {
 
   return (
     <>
-      <div className='products-wrapper'>
-        <div className='products-header'>
-          <h4 className='products-heading'>Products</h4>
-          <div className='products-actions'>
+      <div className="products-wrapper">
+        <div className="products-header">
+          <h4 className="products-heading">Products</h4>
+          <div className="products-actions">
             <Button
               onClick={() => {
                 setModalMode('add');
                 setEditData(undefined);
                 setOpenModal(true);
               }}
-              className='btn-outline'
+              className="btn-outline"
             >
               + Add a single Product
             </Button>
             <Button
               onClick={() => setOpenUploadModal(true)}
-              className='btn-outline'
+              className="btn-outline"
             >
               + Add Multiple Products
             </Button>
-            <div className='search-sort-wrapper'>
-              <div className='search-container'>
+            <div className="search-sort-wrapper">
+              <div className="search-container">
                 <Input.Search
-                  placeholder='Search by title'
-                  className='search-input'
+                  placeholder="Search by title"
+                  className="search-input"
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
                   onSearch={(value) => setDebouncedTerm(value)}
@@ -377,9 +380,9 @@ const ProductsContent: React.FC = () => {
               <Select
                 showSearch
                 style={{ width: 200 }}
-                className='dashboard-select'
-                placeholder='Sort by:'
-                optionFilterProp='label'
+                className="dashboard-select"
+                placeholder="Sort by:"
+                optionFilterProp="label"
                 value={sortBy || 'createdAt_desc'}
                 onChange={(value) =>
                   dispatch(setSearchAndSort({ searchTerm, sortBy: value }))
@@ -396,14 +399,14 @@ const ProductsContent: React.FC = () => {
         </div>
       </div>
       {loading ? (
-        <div className='loading-container-products-admin'>
-          <Spin size='large' />
+        <div className="loading-container-products-admin">
+          <Spin size="large" />
         </div>
       ) : (
         <Table
           dataSource={products}
           columns={columns}
-          rowKey='id'
+          rowKey="id"
           pagination={{
             current: page,
             pageSize: 12,
@@ -414,22 +417,22 @@ const ProductsContent: React.FC = () => {
             }
           }}
           bordered
-          className='products-table'
+          className="products-table"
           locale={{
-          emptyText: (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '60vh',
-                padding: '50px 0'
-              }}
-            >
-              <Empty description="No products found" />
-            </div>
-          )
-        }}
+            emptyText: (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: '60vh',
+                  padding: '50px 0'
+                }}
+              >
+                <Empty description="No products found" />
+              </div>
+            )
+          }}
         />
       )}
       {openModal && (
@@ -452,11 +455,11 @@ const ProductsContent: React.FC = () => {
         <RemoveProductModal
           onConfirm={handleDeleteConfirm}
           onCancel={() => setOpenDeleteModal(false)}
-          title='Remove Product'
+          title="Remove Product"
           message={
             <>
               Are You Sure You Want To Delete{' '}
-              <span className='text-red-500'>
+              <span className="text-red-500">
                 &quot;{productToDelete.title}&quot;
               </span>
               !
@@ -472,87 +475,84 @@ const ProductsContent: React.FC = () => {
           width={900}
           title={viewProduct.title}
           style={{ maxHeight: '80vh' }}
-          className='product-view-modal'
+          className="product-view-modal"
         >
           <div
-            className='view-modal-container'
+            className="view-modal-container"
             style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}
           >
             {viewProduct.variants.map(
               (variant: ProductVariantType, idx: number) => (
-                <div
-                  key={idx}
-                  className='variant-container'
-                >
-                  <div className='variant-image-wrapper'>
+                <div key={idx} className="variant-container">
+                  <div className="variant-image-wrapper">
                     {variant.image ? (
                       <Image
                         src={variant.image}
                         alt={variant.color || 'product image'}
                         fill
-                        className='object-cover rounded'
+                        className="object-cover rounded"
                       />
                     ) : (
-                      <div className='variant-fallback-image' />
+                      <div className="variant-fallback-image" />
                     )}
                   </div>
 
-                  <div className='variant-details'>
-                    <p className='variant-color-text'>
-                      {variant.color || '-'}
-                    </p>
+                  <div className="variant-details">
+                    <p className="variant-color-text">{variant.color || '-'}</p>
                     {variant.colorCode && (
                       <span
-                        className='variant-color-code'
+                        className="variant-color-code"
                         style={{ backgroundColor: variant.colorCode }}
                         title={variant.colorCode}
                       />
                     )}
-                    <p className='variant-size-text'>Size: {variant.size || '-'}</p>
-                    <p className='variant-price-text'>${variant.price}</p>
-                    <p className='variant-stock-text'>Stock: {variant.stock}</p>
+                    <p className="variant-size-text">
+                      Size: {variant.size || '-'}
+                    </p>
+                    <p className="variant-price-text">${variant.price}</p>
+                    <p className="variant-stock-text">Stock: {variant.stock}</p>
                   </div>
-                  <div className='variant-button-wrapper'>
+                  <div className="variant-button-wrapper">
                     <Tooltip title="Edit Variant">
-                    <Button
-                      type='primary'
-                      size='small'
-                      icon={<EditOutlined />}
-                      onClick={() => {
-                        setOpenViewModal(false);
-                        setVariantMode('edit'); 
-                        setSingleVariantData({
-                          id: viewProduct.id,
-                          variantId: variant.id,
-                          colorCode: variant.colorCode,
-                          color: variant.color || '',
-                          size: variant.size || '',
-                          price: Number(variant.price ?? ''),
-                          stock: Number(variant.stock ?? ''),
-                          image: variant.image || ''
-                        });
-                        setOpenSingleVariantModal(true);
-                      }}
-                    >
-                      Edit
-                    </Button>
+                      <Button
+                        type="primary"
+                        size="small"
+                        icon={<EditOutlined />}
+                        onClick={() => {
+                          setOpenViewModal(false);
+                          setVariantMode('edit');
+                          setSingleVariantData({
+                            id: viewProduct.id,
+                            variantId: variant.id,
+                            colorCode: variant.colorCode,
+                            color: variant.color || '',
+                            size: variant.size || '',
+                            price: Number(variant.price ?? ''),
+                            stock: Number(variant.stock ?? ''),
+                            image: variant.image || ''
+                          });
+                          setOpenSingleVariantModal(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
                     </Tooltip>
                     <Tooltip title="Delete Variant">
-                    <Button
-                      danger
-                      size='small'
-                      icon={<DeleteOutlined />}
-                      onClick={() => {
-                        setOpenViewModal(false);
-                        setVariantToDelete({
-                          productId: viewProduct.id,
-                          variantId: variant.id
-                        });
-                        setOpenVariantDeleteModal(true);
-                      }}
-                    >
-                      Delete
-                    </Button>
+                      <Button
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        onClick={() => {
+                          setOpenViewModal(false);
+                          setVariantToDelete({
+                            productId: viewProduct.id,
+                            variantId: variant.id
+                          });
+                          setOpenVariantDeleteModal(true);
+                        }}
+                      >
+                        Delete
+                      </Button>
                     </Tooltip>
                   </div>
                 </div>
@@ -636,11 +636,17 @@ const ProductsContent: React.FC = () => {
                   });
                 }, 0);
 
-                return; 
+                return;
               }
-              let message = values.variantId ? 'Failed to update variant' : 'Failed to add variant';
+              let message = values.variantId
+                ? 'Failed to update variant'
+                : 'Failed to add variant';
 
-              if (typeof error === 'object' && error !== null && 'payload' in error) {
+              if (
+                typeof error === 'object' &&
+                error !== null &&
+                'payload' in error
+              ) {
                 message = String(error.payload) || message;
               } else if (error instanceof Error) {
                 message = error.message;
@@ -648,7 +654,7 @@ const ProductsContent: React.FC = () => {
                 message = error;
               }
               toast.error(message);
-            }finally {
+            } finally {
               setSubmitting(false);
             }
           }}
@@ -676,7 +682,7 @@ const ProductsContent: React.FC = () => {
             }
           }}
           onCancel={() => setOpenVariantDeleteModal(false)}
-          title='Remove Variant'
+          title="Remove Variant"
           message={
             <>
               Are you sure you want to delete this <b>variant</b>?
@@ -689,10 +695,8 @@ const ProductsContent: React.FC = () => {
           open={!!inactiveVariantData}
           centered
           title={
-            <div className="inactive-variant-title">
-              Inactive Variant Found
-            </div>
-          } 
+            <div className="inactive-variant-title">Inactive Variant Found</div>
+          }
           onCancel={() => setInactiveVariantData(null)}
           footer={[
             <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
@@ -713,7 +717,14 @@ const ProductsContent: React.FC = () => {
 
                   toast.success('Variant reactivated successfully');
                   setInactiveVariantData(null);
-                  dispatch(fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 }));
+                  dispatch(
+                    fetchProductsReplace({
+                      page: 1,
+                      query: searchTerm,
+                      sortBy,
+                      limit: 12
+                    })
+                  );
                 } catch (error) {
                   toast.error(String(error) || 'Failed to reactivate variant');
                 }
@@ -724,14 +735,20 @@ const ProductsContent: React.FC = () => {
           ]}
         >
           <div className="inactive-modal">
-            <p className="inactive-modal-message">{inactiveVariantData.message}</p>
+            <p className="inactive-modal-message">
+              {inactiveVariantData.message}
+            </p>
 
             <div className="inactive-modal-content">
               <div className="inactive-image">
                 {inactiveVariantData.image ? (
                   <Image
                     src={inactiveVariantData.image}
-                    alt={inactiveVariantData.color || inactiveVariantData.product?.title || 'Product Image'}
+                    alt={
+                      inactiveVariantData.color ||
+                      inactiveVariantData.product?.title ||
+                      'Product Image'
+                    }
                     width={120}
                     height={120}
                     className="inactive-product-image"
@@ -742,7 +759,9 @@ const ProductsContent: React.FC = () => {
               </div>
 
               <div className="inactive-details">
-                <div><b>Color:</b> {inactiveVariantData.color}</div>
+                <div>
+                  <b>Color:</b> {inactiveVariantData.color}
+                </div>
                 <div className="flex items-center gap-2">
                   <b>Color Code:</b>{' '}
                   <span
@@ -750,9 +769,15 @@ const ProductsContent: React.FC = () => {
                     style={{ backgroundColor: inactiveVariantData.colorCode }}
                   ></span>
                 </div>
-                <div><b>Size:</b> {inactiveVariantData.size}</div>
-                <div><b>Price:</b> ${inactiveVariantData.price}</div>
-                <div><b>Stock:</b> {inactiveVariantData.stock}</div>
+                <div>
+                  <b>Size:</b> {inactiveVariantData.size}
+                </div>
+                <div>
+                  <b>Price:</b> ${inactiveVariantData.price}
+                </div>
+                <div>
+                  <b>Stock:</b> {inactiveVariantData.stock}
+                </div>
               </div>
             </div>
           </div>
@@ -763,4 +788,3 @@ const ProductsContent: React.FC = () => {
 };
 
 export default ProductsContent;
-

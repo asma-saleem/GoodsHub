@@ -49,17 +49,16 @@ export const authOptions: NextAuthOptions = {
         rememberMe: { label: 'Remember Me', type: 'text' }
       },
       async authorize(credentials) {
-        
         if (!credentials?.email || !credentials?.password) return null;
         const user = await findUserByEmail(credentials.email);
-        
+
         if (!user) return null;
 
         const isValid = await bcrypt.compare(
           credentials.password,
           user.password
         );
-        
+
         if (!isValid) return null;
 
         return {
@@ -91,7 +90,6 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
-      
       if (account?.provider === 'google' && user?.email) {
         const existingUser = await findUserByEmail(user.email);
 
@@ -123,7 +121,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, trigger }) {
-      
       if (trigger === 'signIn' && user) {
         const now = Math.floor(Date.now() / 1000);
         const remember = user.rememberMe ?? false;
@@ -140,7 +137,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      
       if (token) {
         session.user.id = token.sub as string;
         session.user.role = token.role as string | undefined;

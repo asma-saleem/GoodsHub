@@ -5,7 +5,10 @@ import {
   softDeleteProduct
 } from '@/services/product';
 
-export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await context.params;
     const value = await req.json();

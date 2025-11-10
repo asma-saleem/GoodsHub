@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { updateStripeCustomerId } from '@/services/user';
 import { hashPassword } from '@/utils/hash';
@@ -11,15 +10,21 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { fullname, email, mobile, password } = body;
-    
+
     if (!fullname || !email || !password) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
     const existingUser = await findUserByEmail(email);
-    
+
     if (existingUser) {
-      return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Email already in use' },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await hashPassword(password);
@@ -39,10 +44,15 @@ export async function POST(req: Request) {
 
     await updateStripeCustomerId(user.id, stripeCustomer.id);
 
-    return NextResponse.json({ user:{ ...user, stripeCustomerId: stripeCustomer.id } }, { status: 201 });
+    return NextResponse.json(
+      { user: { ...user, stripeCustomerId: stripeCustomer.id } },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
   }
 }
-

@@ -41,15 +41,15 @@ export default function Header() {
     {
       key: 'orders',
       label: (
-      <span
-        onClick={() => {
-          window.location.href = '/orders';
-        }}
-        style={{ cursor: 'pointer' }}
-      >
-        Orders
-      </span>
-    )
+        <span
+          onClick={() => {
+            window.location.href = '/orders';
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          Orders
+        </span>
+      )
     },
     {
       type: 'divider'
@@ -68,10 +68,10 @@ export default function Header() {
     }
   ];
   return (
-    <header className='main-header-container'>
-      <p className='header-title'>E-commerce</p>
-      <div className='icons-container'>
-        <Badge count={cartCount} offset={[0, -3]} className='cart-badge'>
+    <header className="main-header-container">
+      <p className="header-title">E-commerce</p>
+      <div className="icons-container">
+        <Badge count={cartCount} offset={[0, -3]} className="cart-badge">
           <ShoppingOutlined
             onClick={() => {
               if (status === 'authenticated') {
@@ -80,26 +80,26 @@ export default function Header() {
                 window.location.href = '/auth/login';
               }
             }}
-            className='cursor-pointer'
+            className="cursor-pointer"
             style={{ fontSize: 16, color: '#007BFF' }}
           />
         </Badge>
-        <BellOutlined className='belloutlined' style={{ color: '#007BFF' }} />
+        <BellOutlined className="belloutlined" style={{ color: '#007BFF' }} />
         {session ? (
           <Dropdown
             menu={{ items: menu, style: { padding: '0.5rem 2rem' } }}
             trigger={['click']}
           >
-            <span className='dropdown-container'>
+            <span className="dropdown-container">
               <UserOutlined
-                className='dropdown-useroutlined'
+                className="dropdown-useroutlined"
                 style={{ color: '#007BFF' }}
               />
-              <span className='header-username'>{session.user?.name}</span>
+              <span className="header-username">{session.user?.name}</span>
             </span>
           </Dropdown>
         ) : (
-          <Link href='/auth/login' className='login-link'>
+          <Link href="/auth/login" className="login-link">
             Login
           </Link>
         )}

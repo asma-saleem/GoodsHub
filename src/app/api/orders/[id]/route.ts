@@ -10,17 +10,17 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const params = await context.params;
-  const id = params.id; 
+  const id = params.id;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }        
+  }
 
   try {
     const order = await getOrderById(id);
-    
+
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
@@ -28,6 +28,7 @@ export async function GET(
     if (session.user.role !== 'ADMIN' && order.userId !== session.user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
+
     return NextResponse.json({ success: true, order });
   } catch (err) {
     console.error('Order fetch error:', err);
@@ -42,12 +43,13 @@ export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  
   try {
     const params = await context.params;
-    const id = params.id; 
+    const id = params.id;
 
-    const order = await updateOrderStatus(id,OrderStatus.COMPLETED);
-    
+    const order = await updateOrderStatus(id, OrderStatus.COMPLETED);
+
     return NextResponse.json({ success: true, order });
   } catch (error) {
     console.error('Error marking order as complete:', error);

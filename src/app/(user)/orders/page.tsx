@@ -120,46 +120,38 @@ const Orders: React.FC = () => {
       title: 'Actions',
       dataIndex: 'actions',
       render: (_, record) => (
-        <Tooltip title='View Details'>
-        <Button
-          type='text'
-          icon={<ExportOutlined />}
-          className='order-number'
-          onClick={() => {
-            setSelectedOrderId(record.id);
-            setOpenDrawer(true);
-          }}
-        />
+        <Tooltip title="View Details">
+          <Button
+            type="text"
+            icon={<ExportOutlined />}
+            className="order-number"
+            onClick={() => {
+              setSelectedOrderId(record.id);
+              setOpenDrawer(true);
+            }}
+          />
         </Tooltip>
       )
     }
   ];
-  // if (loadingList) {
-  //   return (
-  //     <div className='loading-container'>
-  //       <Spin size='large' />
-  //     </div>
-  //   );
-  // }
-
   return (
     <div>
       <Header />
-      <div className='orders-container'>
-        <div className='orders-header-with-search'>
-          <div className='orders-header'>
-            <Link href='/'>
+      <div className="orders-container">
+        <div className="orders-header-with-search">
+          <div className="orders-header">
+            <Link href="/">
               <ArrowLeftOutlined
                 style={{ color: '#007BFF' }}
                 onClick={() => router.push('/')}
               />
             </Link>
-            <h4 className='orders-title'>Orders</h4>
+            <h4 className="orders-title">Orders</h4>
           </div>
-          <div className='ant-search-icon'>
+          <div className="ant-search-icon">
             <Input.Search
-              placeholder='Search by order ID'
-              className='ant-input-search'
+              placeholder="Search by order ID"
+              className="ant-input-search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onSearch={(value) => setDebouncedTerm(value)}
@@ -168,39 +160,36 @@ const Orders: React.FC = () => {
           </div>
         </div>
         {loadingList ? (
-                <div className='orders-user-loading-container'>
-                  <Spin size='large' />
-                </div>
-               ) :
-              
-              (
-
-        <div className='table-container'>
-          <Table<OrderType>
-            columns={columns}
-            dataSource={data}
-            pagination={{
-              current: currentPage,
-              pageSize: 10,
-              total: total,
-              onChange: (page) => dispatch(setPage(page)),
-              showSizeChanger: false,
-              showTotal: (total) => (
-                <span className='pagination-total'>{total} Total Count</span>
-              )
-            }}
-            bordered
-            scroll={{ x: 'max-content' }}
-            rowClassName={() => 'h-12'}
-            locale={{ emptyText: 'No orders found' }}
-          />
-        </div>
+          <div className="orders-user-loading-container">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div className="table-container">
+            <Table<OrderType>
+              columns={columns}
+              dataSource={data}
+              pagination={{
+                current: currentPage,
+                pageSize: 10,
+                total: total,
+                onChange: (page) => dispatch(setPage(page)),
+                showSizeChanger: false,
+                showTotal: (total) => (
+                  <span className="pagination-total">{total} Total Count</span>
+                )
+              }}
+              bordered
+              scroll={{ x: 'max-content' }}
+              rowClassName={() => 'h-12'}
+              locale={{ emptyText: 'No orders found' }}
+            />
+          </div>
         )}
       </div>
-          
+
       <Drawer
-        title={<h2 className='orders-title'>Order Details</h2>}
-        className='order-detail-drawer'
+        title={<h2 className="orders-title">Order Details</h2>}
+        className="order-detail-drawer"
         open={openDrawer}
         onClose={() => {
           setOpenDrawer(false);

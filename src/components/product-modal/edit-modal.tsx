@@ -33,56 +33,58 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
   const [localSubmitting, setLocalSubmitting] = useState(false);
 
   const colorOptions = React.useMemo(
-  () => [
-    { name: 'Black', code: '#000000' },
-    { name: 'White', code: '#FFFFFF' },
-    { name: 'Gray', code: '#808080' },
-    { name: 'Red', code: '#FF0000' },
-    { name: 'Blue', code: '#0000FF' },
-    { name: 'Green', code: '#008000' },
-    { name: 'Brown', code: '#8B4513' },
-    { name: 'Pink', code: '#FFC0CB' }
-  ],
-  []
-);
+    () => [
+      { name: 'Black', code: '#000000' },
+      { name: 'White', code: '#FFFFFF' },
+      { name: 'Grey', code: '#808080' },
+      { name: 'Green', code: '#008000' },
+      { name: 'Camel', code: '#C19A6B' },
+      { name: 'Pink', code: '#FFC0CB' },
+      { name: 'Maroon', code: '#800000' },
+      { name: 'Skyblue', code: '#87CEEB' }
+    ],
+    []
+  );
   useEffect(() => {
-  if (!open) return;
+    if (!open) return;
 
-  if (mode === 'edit' && initialValues) {
-    form.setFieldsValue(initialValues);
-    if (initialValues.image) {
-      setFileList([{
-        uid: '-1',
-        name: 'variant.png',
-        status: 'done',
-        url: initialValues.image
-      }]);
-    } else {
+    if (mode === 'edit' && initialValues) {
+      form.setFieldsValue(initialValues);
+      if (initialValues.image) {
+        setFileList([
+          {
+            uid: '-1',
+            name: 'variant.png',
+            status: 'done',
+            url: initialValues.image
+          }
+        ]);
+      } else {
+        setFileList([]);
+      }
+    } else if (mode === 'add') {
+      form.resetFields();
       setFileList([]);
     }
-  } else if (mode === 'add') {
-    form.resetFields();
-    setFileList([]);
-  }
-}, [open, mode, initialValues, form]);
+  }, [open, mode, initialValues, form]);
 
   const colorValue = Form.useWatch('color', form);
 
-useEffect(() => {
-  if (colorValue) {
-    const color = colorOptions.find((c) => c.name === colorValue);
-    if (color) {
-      form.setFieldsValue({ colorCode: color.code });
-    } else {
-      form.setFieldsValue({ colorCode: '' });
+  useEffect(() => {
+    if (colorValue) {
+      const color = colorOptions.find((c) => c.name === colorValue);
+      if (color) {
+        form.setFieldsValue({ colorCode: color.code });
+      } else {
+        form.setFieldsValue({ colorCode: '' });
+      }
     }
-  }
-}, [colorValue, colorOptions, form]);
+  }, [colorValue, colorOptions, form]);
 
   const handleFinish = async (values: SingleVariantFormValues) => {
-  if (localSubmitting) return;
-  setLocalSubmitting(true);
-  try {
+    if (localSubmitting) return;
+    setLocalSubmitting(true);
+    try {
       let imageUrl = initialValues?.image || '';
 
       if (fileList[0]?.originFileObj) {
@@ -104,7 +106,7 @@ useEffect(() => {
         ...values,
         colorCode:
           values.colorCode ||
-          colorOptions.find(c => c.name === values.color)?.code ||
+          colorOptions.find((c) => c.name === values.color)?.code ||
           '',
         id: initialValues?.id || values.id,
         variantId: initialValues?.variantId || values.variantId,
@@ -112,7 +114,7 @@ useEffect(() => {
       };
 
       const hasChanges = Object.keys(updatedData).some(
-        key =>
+        (key) =>
           updatedData[key as keyof SingleVariantFormValues] !==
           initialValues?.[key as keyof SingleVariantFormValues]
       );
@@ -123,17 +125,15 @@ useEffect(() => {
       }
       await onSubmit(updatedData);
       setOpen(true);
-    }catch (error) {
-    toast.error(String(error) || 'Failed to save variant. Please try again.');
-  } finally {
-    setLocalSubmitting(false);
-  }
-};
-
-
+    } catch (error) {
+      toast.error(String(error) || 'Failed to save variant. Please try again.');
+    } finally {
+      setLocalSubmitting(false);
+    }
+  };
   return (
     <Modal
-      title={mode === 'edit' ? 'Edit Variant' : 'Add Variant'} 
+      title={mode === 'edit' ? 'Edit Variant' : 'Add Variant'}
       open={open}
       onCancel={() => setOpen(false)}
       footer={null}
@@ -145,10 +145,7 @@ useEffect(() => {
           name='color'
           rules={[{ required: true, message: 'Select color' }]}
         >
-          <Select
-            placeholder='Select Color'
-
-          >
+          <Select placeholder='Select Color'>
             {colorOptions.map((c) => (
               <Option key={c.name} value={c.name}>
                 <span
@@ -193,7 +190,8 @@ useEffect(() => {
             {
               validator(_, value) {
                 if (!value) return Promise.resolve();
-                if (Number(value) <= 0) return Promise.reject('Price must be greater than 0');
+                if (Number(value) <= 0)
+                  return Promise.reject('Price must be greater than 0');
                 if (Number(value) > 1000000)
                   return Promise.reject('Price cannot exceed 1,000,000');
                 return Promise.resolve();
@@ -230,19 +228,18 @@ useEffect(() => {
           rules={[{ required: true, message: 'Upload an image' }]}
         >
           <Upload
-            listType="picture-card"
+            listType='picture-card'
             beforeUpload={() => false}
             fileList={fileList}
             onChange={({ fileList: newList }) => {
-            setFileList(newList);
+              setFileList(newList);
 
-            if (newList.length === 0) {
-              setTimeout(() => {
-                form.setFieldValue('image', undefined);
-              }, 0);
-            }
-          }}
-
+              if (newList.length === 0) {
+                setTimeout(() => {
+                  form.setFieldValue('image', undefined);
+                }, 0);
+              }
+            }}
             maxCount={1}
           >
             {fileList.length === 0 && (
@@ -252,11 +249,16 @@ useEffect(() => {
               </div>
             )}
           </Upload>
-
         </Form.Item>
 
         <Form.Item>
-          <Button type='primary' htmlType='submit' block loading={submitting || localSubmitting} disabled={submitting || localSubmitting}>
+          <Button
+            type='primary'
+            htmlType='submit'
+            block
+            loading={submitting || localSubmitting}
+            disabled={submitting || localSubmitting}
+          >
             {mode === 'edit' ? 'Update Variant' : 'Add Variant'}
           </Button>
         </Form.Item>

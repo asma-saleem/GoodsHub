@@ -117,11 +117,13 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
 
       const data = await res.json();
       console.log('CSV Upload Started:', data);
+      toast.success(data?.message || 'CSV uploaded successfully');
 
       setFileList([]);
       setOpen(false);
     } catch (err) {
       console.error('Upload error:', err);
+      toast.error('Something went wrong while uploading the CSV');
     }
   };
   return (
@@ -131,20 +133,20 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
       footer={null}
       centered
       width={700}
-      className='!p-0'
+      className="!p-0"
     >
-      <div className='p-6'>
-        <h2 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2'>
+      <div className="p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <span
             onClick={() => setOpen(false)}
-            className='cursor-pointer text-blue-500'
+            className="cursor-pointer text-blue-500"
           >
             &larr;
           </span>
           Add Multiple Products
         </h2>
 
-        <div className='border-b border-gray-200 mb-4' />
+        <div className="border-b border-gray-200 mb-4" />
 
         <Upload.Dragger
           fileList={fileList}
@@ -152,45 +154,45 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
           disabled={fileList.length >= 1}
           beforeUpload={() => false}
           multiple
-          className='!border-gray-300 !rounded-lg'
+          className="!border-gray-300 !rounded-lg"
         >
-          <p className='ant-upload-drag-icon flex justify-center'>
-            <UploadOutlined className='text-3xl text-blue-500' />
+          <p className="ant-upload-drag-icon flex justify-center">
+            <UploadOutlined className="text-3xl text-blue-500" />
           </p>
-          <p className='text-gray-600'>
+          <p className="text-gray-600">
             {fileList.length >= 1
               ? 'File uploaded, cannot add more'
               : 'Drop your file here or click to browse'}
           </p>
         </Upload.Dragger>
-        <div className='mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-          <h3 className='font-semibold text-blue-700 mb-2'>
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h3 className="font-semibold text-blue-700 mb-2">
             Sample CSV Format
           </h3>
-          <p className='text-gray-700 text-sm mb-3'>
+          <p className="text-gray-700 text-sm mb-3">
             Use the following structure for uploading multiple products. Click
             the button below to download a sample CSV file.
           </p>
-          <Button type='primary' onClick={downloadSampleCSV}>
+          <Button type="primary" onClick={downloadSampleCSV}>
             Download Sample CSV
           </Button>
         </div>
 
         {fileList.length > 0 && (
-          <div className='mt-4 bg-gray-50 p-3 rounded-lg border'>
-            <Text className='block font-medium mb-2'>Uploaded Files</Text>
+          <div className="mt-4 bg-gray-50 p-3 rounded-lg border">
+            <Text className="block font-medium mb-2">Uploaded Files</Text>
             {fileList.map((file) => (
               <div
                 key={file.uid}
-                className='flex items-center justify-between py-1'
+                className="flex items-center justify-between py-1"
               >
-                <div className='flex items-center gap-2'>
-                  <FileOutlined className='text-gray-500' />
+                <div className="flex items-center gap-2">
+                  <FileOutlined className="text-gray-500" />
                   <Text>{file.name}</Text>
                 </div>
                 <Button
-                  type='text'
-                  icon={<DeleteOutlined className='text-red-500' />}
+                  type="text"
+                  icon={<DeleteOutlined className="text-red-500" />}
                   onClick={() =>
                     setFileList(fileList.filter((f) => f.uid !== file.uid))
                   }
@@ -200,9 +202,9 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
           </div>
         )}
 
-        <div className='flex justify-end mt-6'>
+        <div className="flex justify-end mt-6">
           <Button
-            type='primary'
+            type="primary"
             onClick={handleUpload}
             disabled={fileList.length === 0}
           >

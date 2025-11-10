@@ -1,4 +1,7 @@
-import { credentialsAuthorize, authOptions } from '@/app/api/auth/[...nextauth]/route';
+import {
+  credentialsAuthorize,
+  authOptions
+} from '@/app/api/auth/[...nextauth]/route';
 import bcrypt from 'bcryptjs';
 import Stripe from 'stripe';
 import {
@@ -67,7 +70,7 @@ describe('NextAuth Configuration', () => {
 
       expect(result).toEqual({
         id: '1',
-        name: 'John',   
+        name: 'John',
         email: 'john@x.com',
         role: 'admin',
         rememberMe: true
@@ -75,7 +78,10 @@ describe('NextAuth Configuration', () => {
     });
 
     it('returns null if credentials missing', async () => {
-      const result = await credentialsAuthorize(undefined as never, {} as never);
+      const result = await credentialsAuthorize(
+        undefined as never,
+        {} as never
+      );
       expect(result).toBeNull();
     });
 
@@ -120,7 +126,9 @@ describe('NextAuth Configuration', () => {
         email: 'new@x.com'
       });
       (updateStripeCustomerId as jest.Mock).mockResolvedValue({});
-      (Stripe as unknown as jest.MockedClass<typeof Stripe>).prototype.customers = {
+      (
+        Stripe as unknown as jest.MockedClass<typeof Stripe>
+      ).prototype.customers = {
         create: jest.fn().mockResolvedValue(mockStripeCustomer)
       } as unknown as Stripe.CustomersResource;
 
@@ -216,79 +224,101 @@ describe('NextAuth Configuration', () => {
       expect(typeof session.expires).toBe('string');
     });
   });
-  
+
   it('returns null if rememberMe is not provided', async () => {
-  (findUserByEmail as jest.Mock).mockResolvedValue({ id: 1, fullname: 'John', email: 'john@x.com', password: 'hashed', role: 'admin' });
-  (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    (findUserByEmail as jest.Mock).mockResolvedValue({
+      id: 1,
+      fullname: 'John',
+      email: 'john@x.com',
+      password: 'hashed',
+      role: 'admin'
+    });
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-  const result = await credentialsAuthorize?.(
-    { email: 'john@x.com', password: '123' },
-    {} as never
-  );
+    const result = await credentialsAuthorize?.(
+      { email: 'john@x.com', password: '123' },
+      {} as never
+    );
 
-  expect(result).toEqual({
-    id: '1',
-    name: 'John',
-    email: 'john@x.com',
-    role: 'admin',
-    rememberMe: false // default to false
+    expect(result).toEqual({
+      id: '1',
+      name: 'John',
+      email: 'john@x.com',
+      role: 'admin',
+      rememberMe: false 
+    });
   });
- });
 
   it('throws or logs error if findUserByEmail fails', async () => {
     (findUserByEmail as jest.Mock).mockRejectedValue(new Error('DB down'));
 
-    await expect(credentialsAuthorize?.(
-      { email: 'john@x.com', password: '123' },
-      {} as never
-    )).rejects.toThrow('DB down');
+    await expect(
+      credentialsAuthorize?.(
+        { email: 'john@x.com', password: '123' },
+        {} as never
+      )
+    ).rejects.toThrow('DB down');
   });
 
   it('does not create stripe customer if newUser already has stripeCustomerId', async () => {
-  (findUserByEmail as jest.Mock).mockResolvedValue(null);
-  (createUser as jest.Mock).mockResolvedValue({ id: 10, fullname: 'Stripe User', email: 'stripe@x.com', stripeCustomerId: 'existing_cus' });
+    (findUserByEmail as jest.Mock).mockResolvedValue(null);
+    (createUser as jest.Mock).mockResolvedValue({
+      id: 10,
+      fullname: 'Stripe User',
+      email: 'stripe@x.com',
+      stripeCustomerId: 'existing_cus'
+    });
 
-  const account = { provider: 'google' } as Account;
-  const user = { email: 'stripe@x.com', name: 'Stripe User' } as User;
+    const account = { provider: 'google' } as Account;
+    const user = { email: 'stripe@x.com', name: 'Stripe User' } as User;
 
-  const result = await authOptions.callbacks?.signIn?.({ user, account });
-  
-  expect(result).toBe(true);
-  expect(updateStripeCustomerId).not.toHaveBeenCalled();
-});
-it('does not overwrite token if trigger is not signIn', async () => {
-  const token = { sub: '1', role: 'admin', remember: true, exp: 123, maxAge: 3600 };
-  const user = { id: '2', role: 'USER', rememberMe: true } as User;
+    const result = await authOptions.callbacks?.signIn?.({ user, account });
 
-  const result = await authOptions.callbacks?.jwt?.({
-    token,
-    user,
-    trigger: 'update',
-    account: null 
+    expect(result).toBe(true);
+    expect(updateStripeCustomerId).not.toHaveBeenCalled();
+  });
+  it('does not overwrite token if trigger is not signIn', async () => {
+    const token = {
+      sub: '1',
+      role: 'admin',
+      remember: true,
+      exp: 123,
+      maxAge: 3600
+    };
+    const user = { id: '2', role: 'USER', rememberMe: true } as User;
+
+    const result = await authOptions.callbacks?.jwt?.({
+      token,
+      user,
+      trigger: 'update',
+      account: null
+    });
+
+    expect(result).toEqual(token);
   });
 
-  expect(result).toEqual(token); 
-});
+  it('assigns default name if Google user has no name', async () => {
+    (findUserByEmail as jest.Mock).mockResolvedValue(null);
+    (createUser as jest.Mock).mockResolvedValue({
+      id: 20,
+      fullname: 'No Name',
+      email: 'anon@x.com'
+    });
 
-it('assigns default name if Google user has no name', async () => {
-  (findUserByEmail as jest.Mock).mockResolvedValue(null);
-  (createUser as jest.Mock).mockResolvedValue({ id: 20, fullname: 'No Name', email: 'anon@x.com' });
+    const account = { provider: 'google' } as Account;
+    const user = { email: 'anon@x.com', name: null } as User;
 
-  const account = { provider: 'google' } as Account;
-  const user = { email: 'anon@x.com', name: null } as User;
+    const result = await authOptions.callbacks?.signIn?.({ user, account });
+    expect(result).toBe(true);
+    expect(user.name).toBeNull();
+  });
+  it('does not create user or stripe customer for non-Google providers', async () => {
+    const user = { email: 'user@x.com', name: 'User' } as User;
+    const account = { provider: 'credentials' } as Account;
 
-  const result = await authOptions.callbacks?.signIn?.({ user, account });
-  expect(result).toBe(true);
-  expect(user.name).toBeNull(); 
-});
-it('does not create user or stripe customer for non-Google providers', async () => {
-  const user = { email: 'user@x.com', name: 'User' } as User;
-  const account = { provider: 'credentials' } as Account;
-
-  const result = await authOptions.callbacks?.signIn?.({ user, account });
-  expect(result).toBe(true);
-  expect(createUser).not.toHaveBeenCalled();
-  expect(updateStripeCustomerId).not.toHaveBeenCalled();
-});
-
+    const result = await authOptions.callbacks?.signIn?.({ user, account });
+    expect(result).toBe(true);
+    expect(createUser).not.toHaveBeenCalled();
+    expect(updateStripeCustomerId).not.toHaveBeenCalled();
+  });
 });

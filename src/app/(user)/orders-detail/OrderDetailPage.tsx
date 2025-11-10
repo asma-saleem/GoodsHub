@@ -17,7 +17,9 @@ interface OrderDetailPageProps {
   orderId: string;
 }
 
-export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => {
+export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({
+  orderId
+}) => {
   const dispatch = useAppDispatch();
   const { order, loadingDetail } = useAppSelector((state) => state.orders);
 
@@ -45,15 +47,15 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
   }
 
   const dataSource: OrderItemType[] =
-  order.items?.map((item, index: number) => ({
-    key: index,
-    product: item.variant.product, 
-    variantId: item.variantId,
-    variant: item.variant,    
-    image: item.variant?.image || '',     
-    quantity: item.quantity,
-    price: item.variant?.price || item.price 
-  })) || [];
+    order.items?.map((item, index: number) => ({
+      key: index,
+      product: item.variant.product,
+      variantId: item.variantId,
+      variant: item.variant,
+      image: item.variant?.image || '',
+      quantity: item.quantity,
+      price: item.variant?.price || item.price
+    })) || [];
 
   const columns: TableColumnsType<OrderItemType> = [
     {
@@ -75,20 +77,18 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
     {
       title: <span className="main-text-color">Color</span>,
       dataIndex: 'color',
-       onCell: () => ({
-        style:{
+      onCell: () => ({
+        style: {
           minWidth: '200px'
         }
       }),
       render: (_, record) => (
-        <div className='color-container'>
+        <div className="color-container">
           <span
-            className='color-circle'
+            className="color-circle"
             style={{ backgroundColor: record.variant.colorCode }}
           />
-          <span className='color-text'>
-            {record.variant.color}
-          </span>
+          <span className="color-text">{record.variant.color}</span>
         </div>
       )
     },
@@ -102,7 +102,9 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
     {
       title: <span className="main-text-color">Unit Price</span>,
       render: (_, record) => (
-        <span className="main-text-color">{formatPrice(record.variant?.price)}</span>
+        <span className="main-text-color">
+          {formatPrice(record.variant?.price)}
+        </span>
       )
     },
     {
@@ -124,7 +126,6 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
 
   return (
     <div className="order-detail-container">
-
       <div className="order-summary-grid">
         <div>
           <p className="summary-label">Date</p>

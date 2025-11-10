@@ -15,6 +15,7 @@ function isError(err: unknown): err is Error {
 }
 
 export async function POST(req: Request) {
+  
   try {
     const { cart } = await req.json();
     const session = await getServerSession(authOptions);

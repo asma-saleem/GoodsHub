@@ -21,13 +21,15 @@ export default function SignupPage() {
     const payload = {
       fullname: values.fullName as string,
       email: values.email as string,
-      mobile: values.mobile, 
+      mobile: values.mobile,
       password: values.password as string
     };
     dispatch(signupUser(payload));
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
+    errorInfo
+  ) => {
     console.log('Signup Failed:', errorInfo);
   };
 
@@ -45,38 +47,41 @@ export default function SignupPage() {
 
   return (
     <AuthLayout>
-      <div className='auth-container'>
-        <h2 className='auth-title'>SignUp</h2>
-        <Card className='auth-card'>
+      <div className="auth-container">
+        <h2 className="auth-title">SignUp</h2>
+        <Card className="auth-card">
           <Form
-            name='signup'
-            layout='vertical'
+            name="signup"
+            layout="vertical"
             style={{ maxWidth: 544 }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
-            autoComplete='off'
+            autoComplete="off"
           >
             <Form.Item<FieldType>
-              label='Fullname'
-              name='fullName'
+              label="Fullname"
+              name="fullName"
               validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter your full name' },
                 {
-                   pattern: /^[a-zA-Z\s]+$/, 
-                   message: 'Full name can only contain letters and spaces!'
+                  pattern: /^[a-zA-Z\s]+$/,
+                  message: 'Full name can only contain letters and spaces!'
                 },
                 {
-                    min: 3,
-                    message: 'Full name must be at least 3 characters long'
+                  min: 3,
+                  message: 'Full name must be at least 3 characters long'
                 }
               ]}
             >
-              <Input placeholder='Enter your full name e.g. Asma Saleem' className='auth-input' />
+              <Input
+                placeholder="Enter your full name e.g. Asma Saleem"
+                className="auth-input"
+              />
             </Form.Item>
             <Form.Item<FieldType>
-              label='Email address'
-              name='email'
+              label="Email address"
+              name="email"
               validateTrigger="onBlur"
               rules={[
                 {
@@ -89,26 +94,31 @@ export default function SignupPage() {
                 }
               ]}
             >
-              <Input placeholder='Enter email address e.g. user@gmail.com' className='auth-input' />
+              <Input
+                placeholder="Enter email address e.g. user@gmail.com"
+                className="auth-input"
+              />
             </Form.Item>
             <Form.Item<FieldType>
-              label='Mobile'
-              name='mobile'
+              label="Mobile"
+              name="mobile"
               validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter a valid mobile number' },
                 {
                   pattern: /^(?:\+92|0)[0-9]{10}$/,
-                  message:
-                    'Enter a valid mobile number'
+                  message: 'Enter a valid mobile number'
                 }
               ]}
             >
-              <Input placeholder='Enter your number e.g. 03001234567 or +923001234567' className='auth-input' />
+              <Input
+                placeholder="Enter your number e.g. 03001234567 or +923001234567"
+                className="auth-input"
+              />
             </Form.Item>
             <Form.Item<FieldType>
-              label='Password'
-              name='password'
+              label="Password"
+              name="password"
               validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter a valid password' },
@@ -120,11 +130,14 @@ export default function SignupPage() {
                 }
               ]}
             >
-              <Input.Password placeholder='Enter your password e.g. User@123' className='auth-input' />
+              <Input.Password
+                placeholder="Enter your password e.g. User@123"
+                className="auth-input"
+              />
             </Form.Item>
             <Form.Item<FieldType>
-              label='Confirm Password'
-              name='confirmPassword'
+              label="Confirm Password"
+              name="confirmPassword"
               validateTrigger="onBlur"
               dependencies={['password']}
               hasFeedback
@@ -140,16 +153,19 @@ export default function SignupPage() {
                 })
               ]}
             >
-              <Input.Password placeholder='Enter your password again e.g. User@123' className='auth-input' />
+              <Input.Password
+                placeholder="Enter your password again e.g. User@123"
+                className="auth-input"
+              />
             </Form.Item>
             <Form.Item label={null}>
-              <Button type='primary' htmlType='submit' className='auth-button'>
+              <Button type="primary" htmlType="submit" className="auth-button">
                 SignUp
               </Button>
             </Form.Item>
-            <p className='auth-text-spaced'>
+            <p className="auth-text-spaced">
               Already have an account!{' '}
-              <a href='/auth/login' className='auth-link'>
+              <a href="/auth/login" className="auth-link">
                 Login
               </a>
             </p>

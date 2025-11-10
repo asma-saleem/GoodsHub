@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server';
 import { ProductVariantType } from '@/types/product';
-import {
-  findVariant,
-  createVariant
-} from '@/services/product';
+import { findVariant, createVariant } from '@/services/product';
 
-export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  
   try {
     const { id } = await context.params;
     const value = (await req.json()) as ProductVariantType;
-    const existingVariant = await findVariant({ productId: id, color: value.color, size: value.size });
+    const existingVariant = await findVariant({
+      productId: id,
+      color: value.color,
+      size: value.size
+    });
 
     if (existingVariant && !existingVariant.isVariantDeleted) {
       return NextResponse.json(
@@ -22,19 +27,20 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
       return NextResponse.json(
         {
           inactiveVariant: existingVariant,
-          message: 'An inactive variant with same size and color exists. Reactivate it?'
+          message:
+            'An inactive variant with same size and color exists. Reactivate it?'
         },
         { status: 409 }
       );
     }
 
     let imageUrl = '';
-    
+
     if (typeof value.image === 'string') {
       imageUrl = value.image;
     } else if (Array.isArray(value.image)) {
       const firstImage = value.image[0] as { url?: string } | undefined;
-      
+
       if (firstImage?.url) {
         imageUrl = firstImage.url;
       }
@@ -59,4 +65,3 @@ export async function POST(req: Request, context: { params: Promise<{ id: string
     );
   }
 }
-

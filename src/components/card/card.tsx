@@ -31,32 +31,32 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-  if (!product?.variants?.length) {
-    setSelectedVariant(null);
-    setQuantity(0);
-    return;
-  }
+    if (!product?.variants?.length) {
+      setSelectedVariant(null);
+      setQuantity(0);
+      return;
+    }
 
-  const sortedVariants = [...product.variants].sort((a, b) => {
-    const dateA = new Date(a.createdAt || 0).getTime();
-    const dateB = new Date(b.createdAt || 0).getTime();
-    return dateB - dateA;
-  });
+    const sortedVariants = [...product.variants].sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
 
-  const sizeOrder = ['S', 'M', 'L', 'XL'];
-  const firstColor = sortedVariants[0].color;
-  const variantsForColor = sortedVariants.filter(
-    (v) => v.color === firstColor
-  );
-  const sortedBySize = [...variantsForColor].sort((a, b) => {
-    const indexA = sizeOrder.indexOf(a.size?.toUpperCase() || '');
-    const indexB = sizeOrder.indexOf(b.size?.toUpperCase() || '');
-    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
-  });
-  const firstVariant = sortedBySize[0];
-  setSelectedVariant(firstVariant);
-  setQuantity(1);
-}, [product]);
+    const sizeOrder = ['S', 'M', 'L', 'XL'];
+    const firstColor = sortedVariants[0].color;
+    const variantsForColor = sortedVariants.filter(
+      (v) => v.color === firstColor
+    );
+    const sortedBySize = [...variantsForColor].sort((a, b) => {
+      const indexA = sizeOrder.indexOf(a.size?.toUpperCase() || '');
+      const indexB = sizeOrder.indexOf(b.size?.toUpperCase() || '');
+      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+    });
+    const firstVariant = sortedBySize[0];
+    setSelectedVariant(firstVariant);
+    setQuantity(1);
+  }, [product]);
 
   const increment = () =>
     setQuantity((prev) => Math.min(prev + 1, selectedVariant?.stock ?? 1));
@@ -136,13 +136,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   );
   const sizeOrder = ['S', 'M', 'L', 'XL'];
 
-  const sizes = Array.from(new Set(product.variants.map((v) => v.size || 'M')))
-  .sort((a, b) => {
+  const sizes = Array.from(
+    new Set(product.variants.map((v) => v.size || 'M'))
+  ).sort((a, b) => {
     const indexA = sizeOrder.indexOf(a.toUpperCase());
     const indexB = sizeOrder.indexOf(b.toUpperCase());
     return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
   });
-
 
   const variantsByColor = product.variants.filter(
     (v) => v.color === selectedVariant?.color
@@ -157,50 +157,49 @@ const ProductCard: React.FC<ProductCardProps> = ({
           src={selectedVariant?.image || product.image || '/placeholder.png'}
           width={257}
           height={222}
-          className='product-image-card'
+          className="product-image-card"
         />
       }
     >
-      <div className='title-price-container'>
-        <p className='product-title'>{product.title}</p>
-        <div className='price-container'>
-          <p className='price-label'>Price:</p>
-          <p className='price-value'>
+      <div className="title-price-container">
+        <p className="product-title">{product.title}</p>
+        <div className="price-container">
+          <p className="price-label">Price:</p>
+          <p className="price-value">
             {formatPrice(selectedVariant?.price || 0)}
           </p>
-         
         </div>
-         <div className='daraz-stock-status'>
-            <span
-              className={`stock-box ${
-                (selectedVariant?.stock ?? 0) === 0
-                  ? 'low-stock' 
-                  : (selectedVariant?.stock ?? 0) < 5
-                  ? 'low-stock'
-                  : 'in-stock'
-              }`}
-            >
-              {(selectedVariant?.stock ?? 0) === 0
-                ? 'Out of Stock'
+        <div className="daraz-stock-status">
+          <span
+            className={`stock-box ${
+              (selectedVariant?.stock ?? 0) === 0
+                ? 'low-stock'
                 : (selectedVariant?.stock ?? 0) < 5
-                ? `Only ${selectedVariant?.stock} left!`
-                : 'In Stock'}
-            </span>
-          </div>
+                ? 'low-stock'
+                : 'in-stock'
+            }`}
+          >
+            {(selectedVariant?.stock ?? 0) === 0
+              ? 'Out of Stock'
+              : (selectedVariant?.stock ?? 0) < 5
+              ? `Only ${selectedVariant?.stock} left!`
+              : 'In Stock'}
+          </span>
+        </div>
       </div>
 
       {colors.length > 0 && (
-        <div className='color-selection'>
-          <div className='color-selection-container'>
-            <p className='label font-semibold'>
+        <div className="color-selection">
+          <div className="color-selection-container">
+            <p className="label font-semibold">
               Color Family:
               {selectedVariant?.color && (
-                <span className='variant-color'>{selectedVariant.color}</span>
+                <span className="variant-color">{selectedVariant.color}</span>
               )}
             </p>
           </div>
 
-          <div className='variant-container'>
+          <div className="variant-container">
             {colors.map((color) => {
               const variantForColor = product.variants.find(
                 (v) => v.color === color
@@ -229,10 +228,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     alt={color}
                     width={45}
                     height={45}
-                    className='image-options'
+                    className="image-options"
                   />
                   {selectedVariant?.color === color && (
-                    <span className='tick-color-selection'>✓</span>
+                    <span className="tick-color-selection">✓</span>
                   )}
                 </div>
               );
@@ -241,9 +240,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       )}
       {sizes.length > 0 && (
-        <div className='size-selection mt-2'>
-          <p className='label'>Size:</p>
-          <div className='size-container'>
+        <div className="size-selection mt-2">
+          <p className="label">Size:</p>
+          <div className="size-container">
             {sizes
               .filter((size) => {
                 const variantForSize = variantsByColor.find(
@@ -269,9 +268,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                       setQuantity(1);
                     }}
                   >
-                    <span className='relative'>
+                    <span className="relative">
                       {size}
-                      {isOutOfStock && <span className='strike-line'></span>}
+                      {isOutOfStock && <span className="strike-line"></span>}
                     </span>
                   </button>
                 );
@@ -280,29 +279,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       )}
       {!hideCart && (
-        <div className='quantity-container'>
-          <div className='quantity-subcontainer'>
+        <div className="quantity-container">
+          <div className="quantity-subcontainer">
             <Button
               onClick={decrement}
               disabled={quantity <= 1}
-              className='quantity-btn'
+              className="quantity-btn"
             >
               -
             </Button>
             <input
-              type='number'
+              type="number"
               value={quantity}
               onChange={(e) => {
                 const val = e.target.value;
                 if (/^[1-9]\d*$/.test(val)) setQuantity(Number(val));
               }}
               onFocus={(e) => e.target.select()}
-              className='quantity-input'
+              className="quantity-input"
             />
             <Button
               onClick={increment}
               disabled={quantity >= (selectedVariant?.stock || 1)}
-              className='quantity-btn'
+              className="quantity-btn"
             >
               +
             </Button>

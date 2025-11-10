@@ -6,17 +6,23 @@ import {
   softDeleteVariant
 } from '@/services/product';
 
-
-export async function PUT(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string; variantId: string }> }
+) {
+  
   try {
     const { id, variantId } = await context.params;
     const value = await req.json();
 
     if (!variantId) {
-      return NextResponse.json({ error: 'variantId is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'variantId is required' },
+        { status: 400 }
+      );
     }
     const existingVariant = await findVariantById(variantId);
-    
+
     if (!existingVariant) {
       return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
     }
@@ -36,7 +42,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
     }
 
     let imageUrl = '';
-    
+
     if (typeof value.image === 'string') {
       imageUrl = value.image;
     } else if (Array.isArray(value.image) && value.image[0]?.url) {
@@ -61,7 +67,6 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
       },
       { status: 200 }
     );
-
   } catch (error) {
     console.error('Single variant update failed:', error);
     return NextResponse.json(
@@ -71,7 +76,11 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string;
   }
 }
 
-export async function PATCH(req: Request, context: { params: Promise<{ id: string; variantId: string }> }) {
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ id: string; variantId: string }> }
+) {
+  
   try {
     const { variantId } = await context.params;
     const existingVariant = await findVariantById(variantId);
@@ -80,7 +89,7 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
       return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
     }
 
-   const updatedVariant = await softDeleteVariant(variantId);
+    const updatedVariant = await softDeleteVariant(variantId);
 
     return NextResponse.json({
       message: 'Variant marked as inactive',

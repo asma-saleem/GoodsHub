@@ -18,7 +18,8 @@ function toNodeReadable(req: NextRequest): IncomingMessage {
     throw new Error('Request body is empty');
   }
   console.log('req.body:', req.body);
-  const webStream = req.body as unknown as import('stream/web').ReadableStream<Uint8Array>;
+  const webStream =
+    req.body as unknown as import('stream/web').ReadableStream<Uint8Array>;
   const readable = Readable.fromWeb(webStream);
 
   const nodeReq = Object.assign(readable, {
@@ -49,11 +50,8 @@ export async function POST(req: NextRequest) {
     const nodeReq = toNodeReadable(req);
 
     form.parse(nodeReq, (err, _fields, files) => {
-      
       if (err) {
-        resolve(
-          NextResponse.json({ error: 'Upload failed' }, { status: 500 })
-        );
+        resolve(NextResponse.json({ error: 'Upload failed' }, { status: 500 }));
         return;
       }
 
@@ -63,10 +61,13 @@ export async function POST(req: NextRequest) {
         : uploaded;
 
       const { error } = fileSchema.validate({ file }, { allowUnknown: true });
-      
+
       if (error) {
         resolve(
-          NextResponse.json({ error: 'Invalid file', details: error.details }, { status: 400 })
+          NextResponse.json(
+            { error: 'Invalid file', details: error.details },
+            { status: 400 }
+          )
         );
         return;
       }

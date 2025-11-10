@@ -32,7 +32,6 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <p className='sidebar-title'>
           E-commerce
         </p>
-
         <div className="sidebar-buttons">
           <Button
             type={selectedKey === 'products' ? 'primary' : 'default'}

@@ -18,7 +18,11 @@ export const findUserByEmail = async (email: string) => {
   });
 };
 
-export const updateUser = async (email: string, token: string, expiry: Date) => {
+export const updateUser = async (
+  email: string,
+  token: string,
+  expiry: Date
+) => {
   return prisma.user.update({
     where: { email },
     data: {
@@ -41,7 +45,10 @@ export async function getUserById(userId: string) {
   return user;
 }
 
-export async function updateStripeCustomerId(userId: string, stripeCustomerId: string) {
+export async function updateStripeCustomerId(
+  userId: string,
+  stripeCustomerId: string
+) {
   return await prisma.user.update({
     where: { id: userId },
     data: { stripeCustomerId }

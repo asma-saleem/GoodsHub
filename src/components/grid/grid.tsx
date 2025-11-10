@@ -33,44 +33,44 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
     dispatch(setSearchAndSort({ searchTerm, sortBy }));
     dispatch(fetchProducts({ page: 1, query: searchTerm, sortBy, limit }));
   }, [searchTerm, sortBy, dispatch, limit]);
-  
+
   useEffect(() => {
-  if (!products?.length) return;
-  for (const key in localStorage) {
-    if (!key.startsWith('cart_')) continue;
+    if (!products?.length) return;
+    for (const key in localStorage) {
+      if (!key.startsWith('cart_')) continue;
 
-    const cart: {
-      id: string;
-      variantId: string; 
-      stock: number;
-    }[] = JSON.parse(localStorage.getItem(key) || '[]');
+      const cart: {
+        id: string;
+        variantId: string;
+        stock: number;
+      }[] = JSON.parse(localStorage.getItem(key) || '[]');
 
-    let updated = false;
+      let updated = false;
 
-    const updatedCart = cart.map((item) => {
-      const matchedProduct = products.find(
-        (p: ProductType) => p.id === item.id
-      );
+      const updatedCart = cart.map((item) => {
+        const matchedProduct = products.find(
+          (p: ProductType) => p.id === item.id
+        );
 
-      const matchedVariant = matchedProduct?.variants.find(
-        (v: ProductVariantType) => v.id === item.variantId
-      );
+        const matchedVariant = matchedProduct?.variants.find(
+          (v: ProductVariantType) => v.id === item.variantId
+        );
 
-      if (matchedVariant && item.stock !== matchedVariant.stock) {
-        updated = true;
-        return { ...item, stock: matchedVariant.stock };
+        if (matchedVariant && item.stock !== matchedVariant.stock) {
+          updated = true;
+          return { ...item, stock: matchedVariant.stock };
+        }
+
+        return item;
+      });
+
+      if (updated) {
+        localStorage.setItem(key, JSON.stringify(updatedCart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        console.log(`Cart updated for ${key}`);
       }
-
-      return item;
-    });
-
-    if (updated) {
-      localStorage.setItem(key, JSON.stringify(updatedCart));
-      window.dispatchEvent(new Event('cartUpdated'));
-      console.log(`✅ Cart updated for ${key}`);
     }
-  }
-}, [products]);
+  }, [products]);
 
   useLayoutEffect(() => {
     if (topLoading && prevScrollHeight.current) {
@@ -140,15 +140,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
     <div style={{ position: 'relative' }}>
       {topLoading && (
         <div
-          className='grid-loading'
+          className="grid-loading"
           style={{ textAlign: 'center', padding: '20px 0' }}
         >
-          <Spin size='large' />
+          <Spin size="large" />
         </div>
       )}
       {products.length === 0 && !loading && hasFetched.current ? (
-        <div className='grid-empty'>
-          <Empty description='No products found' />
+        <div className="grid-empty">
+          <Empty description="No products found" />
         </div>
       ) : (
         <Row
@@ -156,7 +156,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
             { xs: 12, sm: 12, lg: 30, xl: 30 },
             { xs: 12, sm: 12, lg: 32, xl: 32 }
           ]}
-          justify='start'
+          justify="start"
         >
           {products.map((product) => (
             <Col key={product.id} span={6} xs={12} sm={12} md={8} lg={8} xl={6}>
@@ -181,7 +181,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({ searchTerm, sortBy }) => {
           <Spin size="large" />
         ) : null}
       </div>
-
     </div>
   );
 };

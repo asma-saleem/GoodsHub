@@ -1,7 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Spin, Button, Card, Drawer, Space, Empty, Skeleton, Tooltip} from 'antd';
+import {
+  Table,
+  Input,
+  Spin,
+  Button,
+  Card,
+  Drawer,
+  Space,
+  Empty,
+  Skeleton,
+  Tooltip
+} from 'antd';
 import { ArrowRightOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
@@ -146,15 +157,15 @@ const OrdersContent: React.FC = () => {
         console.log('Order status:', record.orderStatus),
         (
           <Space>
-            <Tooltip title='View Details'>
-            <Button
-              type='text'
-              icon={<ArrowRightOutlined />}
-              onClick={() => {
-                setSelectedOrderId(record.id);
-                setOpenDrawer(true);
-              }}
-            />
+            <Tooltip title="View Details">
+              <Button
+                type="text"
+                icon={<ArrowRightOutlined />}
+                onClick={() => {
+                  setSelectedOrderId(record.id);
+                  setOpenDrawer(true);
+                }}
+              />
             </Tooltip>
             {(record.orderStatus === 'PAID' ||
               record.orderStatus === 'COMPLETED') && (
@@ -191,81 +202,82 @@ const OrdersContent: React.FC = () => {
       )
     }
   ];
-
   return (
-    <div className='orders-wrapper'>
-      <div className='orders-stats-grid'>
-        <Card className='orders-card'>
+    <div className="orders-wrapper">
+      <div className="orders-stats-grid">
+        <Card className="orders-card">
           {loadingList ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-           ) : (
-          <div className='orders-card-inner'>
-            <div className='orders-card-text'>
-              <p className='orders-card-title'>Total Orders:</p>
-              <h2 className='orders-card-value'>{totalOrders}</h2>
+            <Skeleton active paragraph={{ rows: 1 }} />
+          ) : (
+            <div className="orders-card-inner">
+              <div className="orders-card-text">
+                <p className="orders-card-title">Total Orders:</p>
+                <h2 className="orders-card-value">{totalOrders}</h2>
+              </div>
+              <div className="orders-card-icon">
+                <Image
+                  alt="example"
+                  src="/total-orders.png"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
             </div>
-            <div className='orders-card-icon'>
-              <Image
-                alt='example'
-                src='/total-orders.png'
-                width={48}
-                height={48}
-                className='object-contain'
-              />
-            </div>
-          </div>
           )}
         </Card>
-        <Card className='orders-card'>
+        <Card className="orders-card">
           {loadingList ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-           ) : (
-          <div className='orders-card-inner'>
-            <div className='orders-card-text'>
-              <p className='orders-card-title'>Total Units:</p>
-              <h2 className='orders-card-value'>{totalUnits}</h2>
+            <Skeleton active paragraph={{ rows: 1 }} />
+          ) : (
+            <div className="orders-card-inner">
+              <div className="orders-card-text">
+                <p className="orders-card-title">Total Units:</p>
+                <h2 className="orders-card-value">{totalUnits}</h2>
+              </div>
+              <div className="orders-card-icon">
+                <Image
+                  alt="example"
+                  src="/total-units.png"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
             </div>
-            <div className='orders-card-icon'>
-              <Image
-                alt='example'
-                src='/total-units.png'
-                width={48}
-                height={48}
-                className='object-contain'
-              />
-            </div>
-          </div>
-           )}
+          )}
         </Card>
-        <Card className='orders-card'>
+        <Card className="orders-card">
           {loadingList ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-           ) : (
-          <div className='orders-card-inner'>
-            <div className='orders-card-text'>
-              <p className='orders-card-title'>Total Amount:</p>
-              <h2 className='orders-card-value'>{formatPrice(totalAmount)}</h2>
+            <Skeleton active paragraph={{ rows: 1 }} />
+          ) : (
+            <div className="orders-card-inner">
+              <div className="orders-card-text">
+                <p className="orders-card-title">Total Amount:</p>
+                <h2 className="orders-card-value">
+                  {formatPrice(totalAmount)}
+                </h2>
+              </div>
+              <div className="orders-card-icon">
+                <Image
+                  alt="example"
+                  src="/total-amount.png"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
             </div>
-            <div className='orders-card-icon'>
-              <Image
-                alt='example'
-                src='/total-amount.png'
-                width={48}
-                height={48}
-                className='object-contain'
-              />
-            </div>
-          </div>
-           )}
+          )}
         </Card>
       </div>
-      <div className='orders-header'>
-        <h4 className='orders-header-title'>Orders</h4>
-        <div className='orders-search'>
-          <div className='orders-search-inner'>
+      <div className="orders-header">
+        <h4 className="orders-header-title">Orders</h4>
+        <div className="orders-search">
+          <div className="orders-search-inner">
             <Input.Search
-              placeholder='Search by username & order ID'
-              className='orders-search-input'
+              placeholder="Search by username & order ID"
+              className="orders-search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onSearch={(value) => setDebouncedTerm(value)}
@@ -275,44 +287,43 @@ const OrdersContent: React.FC = () => {
         </div>
       </div>
       {loadingList ? (
-        <div className='orders-loading-container'>
-          <Spin size='large' />
+        <div className="orders-loading-container">
+          <Spin size="large" />
         </div>
-       ) :
-      
-      (<Table<OrderType>
-        dataSource={data}
-        columns={columns}
-        rowKey='id'
-        pagination={{
-          current: currentPage,
-          pageSize: 12,
-          total,
-          showSizeChanger: false,
-          onChange: (page) => dispatch(setPage(page))
-        }}
-        bordered
-        className='orders-table'
-        locale={{
-        emptyText: (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '60vh',
-              padding: '50px 0'
-            }}
-          >
-            <Empty description="No Orders found" />
-          </div>
-        )
-      }}
-      />
+      ) : (
+        <Table<OrderType>
+          dataSource={data}
+          columns={columns}
+          rowKey="id"
+          pagination={{
+            current: currentPage,
+            pageSize: 12,
+            total,
+            showSizeChanger: false,
+            onChange: (page) => dispatch(setPage(page))
+          }}
+          bordered
+          className="orders-table"
+          locale={{
+            emptyText: (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: '60vh',
+                  padding: '50px 0'
+                }}
+              >
+                <Empty description="No Orders found" />
+              </div>
+            )
+          }}
+        />
       )}
       <Drawer
-        title={<h2 className='orders-title'>Order Details</h2>}
-        className='order-detail-drawer'
+        title={<h2 className="orders-title">Order Details</h2>}
+        className="order-detail-drawer"
         open={openDrawer}
         onClose={() => {
           setOpenDrawer(false);

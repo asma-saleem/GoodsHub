@@ -161,37 +161,30 @@ export async function findProductByTitle({ title }: { title: string }) {
 export async function createVariants(variants: ProductVariantType[]) {
   const seen = new Set<string>();
 
-  return variants
-    .map((variant) => {
-      const color = variant.color?.trim().toLowerCase() || '';
-      const size = variant.size?.trim().toLowerCase() || '';
-      const key = `${color}-${size}`;
+  return variants.map((variant) => {
+    const color = variant.color?.trim().toLowerCase() || '';
+    const size = variant.size?.trim().toLowerCase() || '';
+    const key = `${color}-${size}`;
 
-      if (seen.has(key)) 
-      {
-        throw new Error(
+    if (seen.has(key)) {
+      throw new Error(
         `Duplicate variant found with color "${variant.color}" and size "${variant.size}".`
       );
     }
-      seen.add(key);
+    seen.add(key);
 
-      const imageData = variant.image as
-        | string
-        | { url?: string }[]
-        | undefined;
+    const imageData = variant.image as string | { url?: string }[] | undefined;
 
-      return {
-        color: variant.color ?? null,
-        colorCode: variant.colorCode ?? null,
-        size: variant.size ?? null,
-        price: Number(variant.price),
-        stock: Number(variant.stock),
-        image:
-          typeof imageData === 'string'
-            ? imageData
-            : imageData?.[0]?.url ?? null
-      };
-    });
+    return {
+      color: variant.color ?? null,
+      colorCode: variant.colorCode ?? null,
+      size: variant.size ?? null,
+      price: Number(variant.price),
+      stock: Number(variant.stock),
+      image:
+        typeof imageData === 'string' ? imageData : imageData?.[0]?.url ?? null
+    };
+  });
 }
 
 export async function createProductWithVariants({
@@ -260,7 +253,6 @@ export async function findVariantById(variantId: string) {
   return prisma.productVariant.findUnique({ where: { id: variantId } });
 }
 
-// Check for duplicate variant in same product
 export async function findDuplicateVariant({
   productId,
   color,
@@ -282,7 +274,6 @@ export async function findDuplicateVariant({
   });
 }
 
-// Update a variant
 export async function updateVariant({
   variantId,
   color,
@@ -306,7 +297,6 @@ export async function updateVariant({
   });
 }
 
-// Soft delete a variant
 export async function softDeleteVariant(variantId: string) {
   return prisma.productVariant.update({
     where: { id: variantId },

@@ -1,5 +1,5 @@
 'use client';
-import React, { Suspense, useEffect} from 'react';
+import React, { Suspense, useEffect } from 'react';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Card } from 'antd';
 import { useSearchParams } from 'next/navigation';
@@ -13,7 +13,6 @@ import { FieldType } from '@/types/form';
 import AuthLayout from '../auth-layout';
 import '../auth.css';
 
-
 const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Reset Password Failed:', errorInfo);
 };
@@ -23,9 +22,7 @@ function ResetPasswordForm() {
   const token = searchParams.get('token');
 
   const dispatch = useAppDispatch();
-  const { message, error } = useAppSelector(
-    (state) => state.auth
-  );
+  const { message, error } = useAppSelector((state) => state.auth);
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     if (!token) {

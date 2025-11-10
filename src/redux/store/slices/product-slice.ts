@@ -1,149 +1,3 @@
-// import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-// import { ProductType } from '@/types/product';
-
-// interface ProductState {
-//   products: ProductType[];
-//   page: number;
-//   total: number;
-//   loading: boolean;
-//   searchTerm: string;
-//   sortBy: string;
-//   limit: number;
-// }
-
-// const initialState: ProductState = {
-//   products: [],
-//   page: 1,
-//   total: 0,
-//   loading: false,
-//   searchTerm: '',
-//   sortBy: 'createdAt_desc', 
-//   limit: 8
-// };
-
-// export const fetchProducts = createAsyncThunk(
-//   'products/fetchProducts',
-//   async (
-//     {
-//       page,
-//       query,
-//       sortBy,
-//       limit
-//     }: { page: number; query: string; sortBy: string; limit: number },
-//     { rejectWithValue }
-//   ) => {
-//     try {
-//       const res = await fetch(
-//         `/api/products?page=${page}&limit=${limit}&q=${query}&sortBy=${sortBy}`
-//       );
-
-//       if (!res.ok) throw new Error('Failed to fetch products');
-
-//       const data = await res.json();
-//       return { ...data, page, limit };
-//     } catch (error) {
-//       console.error(error);
-//       return rejectWithValue('Failed to fetch products');
-//     }
-//   }
-// );
-// export const fetchProductsReplace = createAsyncThunk(
-//   'products/fetchProductsReplace',
-//   async (
-//     { page, query, sortBy, limit }: { page: number; query: string; sortBy: string; limit: number },
-//     { rejectWithValue }
-//   ) => {
-//     try {
-//       const res = await fetch(
-//         `/api/products?page=${page}&limit=${limit}&q=${query}&sortBy=${sortBy}`
-//       );
-
-//       if (!res.ok) throw new Error('Failed to fetch products');
-
-//       const data = await res.json();
-//       return { ...data, page, limit };
-//     } catch (error) {
-//       console.error(error);
-//       return rejectWithValue('Failed to fetch products');
-//     }
-//   }
-// );
-
-// const productSlice = createSlice({
-//   name: 'products',
-//   initialState,
-//   reducers: {
-//     resetProducts: (state) => {
-//       state.products = [];
-//       state.page = 1;
-//       state.total = 0;
-//     },
-//     setPage: (state, action: PayloadAction<number>) => {
-//       state.page = action.payload;
-//     },
-//     setSearchAndSort: (
-//       state,
-//       action: PayloadAction<{ searchTerm: string; sortBy: string }>
-//     ) => {
-//       state.searchTerm = action.payload.searchTerm;
-//       state.sortBy = action.payload.sortBy;
-//       state.page = 1;
-//       state.products = [];
-//     }
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(fetchProducts.pending, (state) => {
-//         state.loading = true;
-//       })
-//       .addCase(fetchProducts.fulfilled, (state, action) => {
-//         const { products, total, page, limit } = action.payload as {
-//           products: ProductType[];
-//           total: number;
-//           page: number;
-//           limit: number;
-//         };
-
-//         // ✅ Handle first page vs infinite scroll
-//         state.products =
-//           page === 1 ? products : [...state.products, ...products];
-
-//         state.total = total;
-//         state.page = page;
-//         state.limit = limit;
-//         state.loading = false;
-//       })
-//       .addCase(fetchProducts.rejected, (state) => {
-//         state.loading = false;
-//       });
-//       builder
-//       .addCase(fetchProductsReplace.pending, (state) => {
-//         state.loading = true;
-//       })
-//       .addCase(fetchProductsReplace.fulfilled, (state, action) => {
-//         const { products, total, page, limit } = action.payload as {
-//           products: ProductType[];
-//           total: number;
-//           page: number;
-//           limit: number;
-//         };
-
-//         // ✅ Always replace products
-//         state.products = products;
-//         state.total = total;
-//         state.page = page;
-//         state.limit = limit;
-//         state.loading = false;
-//       })
-//       .addCase(fetchProductsReplace.rejected, (state) => {
-//         state.loading = false;
-//       });
-//   }
-// });
-
-// export const { resetProducts, setSearchAndSort, setPage } = productSlice.actions;
-// export default productSlice.reducer;
-
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { ProductType } from '@/types/product';
 import { ProductFormValues } from '@/components/product-modal/product-modal';
@@ -156,8 +10,8 @@ interface ProductState {
   searchTerm: string;
   sortBy: string;
   limit: number;
-  pageWindow: number[]; 
-  pageCache: Record<number, ProductType[]>; 
+  pageWindow: number[];
+  pageCache: Record<number, ProductType[]>;
 }
 
 const initialState: ProductState = {
@@ -174,7 +28,12 @@ const initialState: ProductState = {
 export const fetchProductsReplace = createAsyncThunk(
   'products/fetchProductsReplace',
   async (
-    { page, query, sortBy, limit }: { page: number; query: string; sortBy: string; limit: number },
+    {
+      page,
+      query,
+      sortBy,
+      limit
+    }: { page: number; query: string; sortBy: string; limit: number },
     { rejectWithValue }
   ) => {
     try {
@@ -228,7 +87,7 @@ export const fetchProducts = createAsyncThunk(
     }
   }
 );
-// ---- Add Product ----
+
 export const addProduct = createAsyncThunk(
   'products/addProduct',
   async (productData: ProductFormValues, { rejectWithValue }) => {
@@ -238,12 +97,14 @@ export const addProduct = createAsyncThunk(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       });
-      
+
       const data = await res.json();
       if (!res.ok) {
-        return rejectWithValue(data?.message || data?.error || 'Failed to add product');
+        return rejectWithValue(
+          data?.message || data?.error || 'Failed to add product'
+        );
       }
-      return; 
+      return;
     } catch (error) {
       console.log(error);
       return rejectWithValue('Failed to add product');
@@ -251,24 +112,20 @@ export const addProduct = createAsyncThunk(
   }
 );
 
-// ---- Update Product ----
 export const updateProduct = createAsyncThunk(
   'products/updateProduct',
-  async (
-    { id, name }: { id: string; name: string },
-    { rejectWithValue }
-  ) => {
+  async ({ id, name }: { id: string; name: string }, { rejectWithValue }) => {
     try {
       const res = await fetch(`/api/products/${id}`, {
-        method: 'PUT', 
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }) 
+        body: JSON.stringify({ name })
       });
       const data = await res.json();
       if (!res.ok) {
         return rejectWithValue(data?.error || 'Failed to update product');
       }
-      return data; 
+      return data;
     } catch (error) {
       console.log(error);
       return rejectWithValue(String(error) || 'Failed to update product');
@@ -276,9 +133,6 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
-
-
-// ---- Delete Product ----
 export const deleteProduct = createAsyncThunk(
   'products/deleteProduct',
   async (id: string, { rejectWithValue }) => {
@@ -293,7 +147,6 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-// ---- Add Variant ----
 export const addVariant = createAsyncThunk(
   'products/addVariant',
   async (
@@ -329,7 +182,6 @@ export const addVariant = createAsyncThunk(
   }
 );
 
-// ---- Update Variant ----
 export const updateVariant = createAsyncThunk(
   'products/updateVariant',
   async (
@@ -396,8 +248,6 @@ export const reactivateVariant = createAsyncThunk(
   }
 );
 
-
-// ---- Delete Variant ----
 export const deleteVariant = createAsyncThunk(
   'products/deleteVariant',
   async (
@@ -419,7 +269,6 @@ export const deleteVariant = createAsyncThunk(
   }
 );
 
-
 const MAX_PRODUCTS = 24;
 const REMOVE_COUNT = 8;
 
@@ -439,7 +288,7 @@ const productSlice = createSlice({
       state.total = 0;
     },
     setPage: (state, action: PayloadAction<number>) => {
-       state.page = action.payload;
+      state.page = action.payload;
     },
     resetProducts: (state) => {
       state.products = [];
@@ -466,20 +315,19 @@ const productSlice = createSlice({
           state.pageWindow.sort((a, b) => a - b);
         }
 
-        let combined = state.pageWindow
-          .map((p) => state.pageCache[p])
-          .flat();
+        let combined = state.pageWindow.map((p) => state.pageCache[p]).flat();
 
         if (combined.length > MAX_PRODUCTS) {
           if (page > state.pageWindow[0]) {
-            const removedPages = state.pageWindow.slice(0, REMOVE_COUNT / limit);
+            const removedPages = state.pageWindow.slice(
+              0,
+              REMOVE_COUNT / limit
+            );
             removedPages.forEach((rp) => delete state.pageCache[rp]);
             state.pageWindow = state.pageWindow.slice(removedPages.length);
             combined = state.pageWindow.map((p) => state.pageCache[p]).flat();
           } else {
-            const removedPages = state.pageWindow.slice(
-              -REMOVE_COUNT / limit
-            );
+            const removedPages = state.pageWindow.slice(-REMOVE_COUNT / limit);
             removedPages.forEach((rp) => delete state.pageCache[rp]);
             state.pageWindow = state.pageWindow.slice(
               0,
@@ -497,7 +345,7 @@ const productSlice = createSlice({
       .addCase(fetchProducts.rejected, (state) => {
         state.loading = false;
       });
-      builder
+    builder
       .addCase(fetchProductsReplace.pending, (state) => {
         state.loading = true;
       })
@@ -519,41 +367,36 @@ const productSlice = createSlice({
         state.loading = false;
       })
 
-// ---- Delete Product ----
-.addCase(deleteProduct.fulfilled, (state, action) => {
-  state.products = state.products.filter((p) => p.id !== action.payload);
-})
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.products = state.products.filter((p) => p.id !== action.payload);
+      })
 
-// ---- Add Variant ----
-.addCase(addVariant.fulfilled, (state, action) => {
-  const { productId, variant } = action.payload;
-  const product = state.products.find((p) => p.id === productId);
-  if (product) product.variants.push(variant);
-})
+      .addCase(addVariant.fulfilled, (state, action) => {
+        const { productId, variant } = action.payload;
+        const product = state.products.find((p) => p.id === productId);
+        if (product) product.variants.push(variant);
+      })
 
-// ---- Update Variant ----
-.addCase(updateVariant.fulfilled, (state, action) => {
-  const { productId, variant } = action.payload;
-  const product = state.products.find((p) => p.id === productId);
-  if (product) {
-    product.variants = product.variants.map((v) =>
-      v.id === variant.id ? variant : v
-    );
-  }
-})
+      .addCase(updateVariant.fulfilled, (state, action) => {
+        const { productId, variant } = action.payload;
+        const product = state.products.find((p) => p.id === productId);
+        if (product) {
+          product.variants = product.variants.map((v) =>
+            v.id === variant.id ? variant : v
+          );
+        }
+      })
 
-// ---- Delete Variant ----
-.addCase(deleteVariant.fulfilled, (state, action) => {
-  const { productId, variantId } = action.payload;
-  const product = state.products.find((p) => p.id === productId);
-  if (product) {
-    product.variants = product.variants.filter((v) => v.id !== variantId);
+      .addCase(deleteVariant.fulfilled, (state, action) => {
+        const { productId, variantId } = action.payload;
+        const product = state.products.find((p) => p.id === productId);
+        if (product) {
+          product.variants = product.variants.filter((v) => v.id !== variantId);
+        }
+      });
   }
 });
 
-  }
-  }
-);
-
-export const { resetProducts, setSearchAndSort, setPage } = productSlice.actions;
+export const { resetProducts, setSearchAndSort, setPage } =
+  productSlice.actions;
 export default productSlice.reducer;

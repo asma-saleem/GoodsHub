@@ -41,9 +41,7 @@ export default function LoginPage() {
       if (res?.ok) {
         toast.success('Login successful!');
       } else {
-        toast.error(
-          'Wrong email password, please enter correct credentials'
-        );
+        toast.error('Wrong email password, please enter correct credentials');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -71,23 +69,21 @@ export default function LoginPage() {
   };
   return (
     <AuthLayout>
-      <div className='auth-container'>
-        <h2 className='auth-title'>
-          Login
-        </h2>
-        <Card className='auth-card'>
+      <div className="auth-container">
+        <h2 className="auth-title">Login</h2>
+        <Card className="auth-card">
           <Form
-            name='login'
-            layout='vertical'
+            name="login"
+            layout="vertical"
             style={{ maxWidth: 544 }}
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
-            autoComplete='off'
+            autoComplete="off"
           >
             <Form.Item<FieldType>
-              label='Enter email address'
-              name='email'
+              label="Enter email address"
+              name="email"
               validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter a valid email address' },
@@ -98,14 +94,14 @@ export default function LoginPage() {
               ]}
             >
               <Input
-                placeholder='Enter your email e.g. user@gmail.com'
-                className='auth-input'
+                placeholder="Enter your email e.g. user@gmail.com"
+                className="auth-input"
               />
             </Form.Item>
 
             <Form.Item<FieldType>
-              label='Password'
-              name='password'
+              label="Password"
+              name="password"
               validateTrigger="onBlur"
               rules={[
                 { required: true, message: 'Enter a valid password' },
@@ -118,57 +114,47 @@ export default function LoginPage() {
               ]}
             >
               <Input.Password
-                placeholder='Enter your password e.g. User@123'
-                className='auth-input'
+                placeholder="Enter your password e.g. User@123"
+                className="auth-input"
               />
             </Form.Item>
 
             <Form.Item<FieldType>
-              name='remember'
-              valuePropName='checked'
+              name="remember"
+              valuePropName="checked"
               label={null}
-              className='auth-checkbox'
+              className="auth-checkbox"
             >
               <Checkbox>Remember me</Checkbox>
             </Form.Item>
 
             <Form.Item label={null}>
-              <Button
-                type='primary'
-                htmlType='submit'
-                className='auth-button'
-              >
+              <Button type="primary" htmlType="submit" className="auth-button">
                 Login
               </Button>
             </Form.Item>
-            <div className='auth-div'>
-              <p className='auth-text'>
+            <div className="auth-div">
+              <p className="auth-text">
                 Forgot Password?{' '}
-                <a
-                  href='/auth/forgot'
-                  className='auth-link'
-                >
+                <a href="/auth/forgot" className="auth-link">
                   Reset
                 </a>
               </p>
-              <p className='auth-text-signup'>
+              <p className="auth-text-signup">
                 I don’t have an account!{' '}
-                <a
-                  href='/auth/signup'
-                  className='auth-link'
-                >
+                <a href="/auth/signup" className="auth-link">
                   SignUp
                 </a>
               </p>
             </div>
-            <div className='auth-div'>
+            <div className="auth-div">
               <Button
-                type='default'
-                htmlType='button'
+                type="default"
+                htmlType="button"
                 onClick={handleGoogleLogin}
-                className='auth-google-login-button'
+                className="auth-google-login-button"
               >
-                <FcGoogle className='mr-2' size={20} />
+                <FcGoogle className="mr-2" size={20} />
                 Login with Google
               </Button>
             </div>

@@ -28,7 +28,12 @@ function extractParamsFromPath(pathname: string, schemaPath: string) {
   return params;
 }
 
-const publicRoutes = ['/auth/login', '/auth/signup', '/auth/reset', '/auth/forgot'];
+const publicRoutes = [
+  '/auth/login',
+  '/auth/signup',
+  '/auth/reset',
+  '/auth/forgot'
+];
 
 export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
@@ -37,30 +42,44 @@ export async function middleware(req: NextRequest) {
   console.log('Middleware triggered for:', pathname);
 
   const isApiRoute = pathname.startsWith('/api');
+  
   if (isApiRoute) {
     const matchedSchema = schemas.find(
       (schema) =>
         pathname.match(new RegExp(schema.path.replace(/\[.*?\]/g, '[^/]+'))) &&
         schema.method === method
     ) as RouteSchema | undefined;
-    const skipValidationRoutes = ['/api/products/upload-image',  '/api/stripe-webhook','/api/stripe/verify'];
-  if (skipValidationRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.next();
-  }
+    const skipValidationRoutes = [
+      '/api/products/upload-image',
+      '/api/stripe-webhook',
+      '/api/stripe/verify'
+    ];
+    
+    if (skipValidationRoutes.some((route) => pathname.startsWith(route))) {
+      return NextResponse.next();
+    }
 
-    if (matchedSchema) {
+    if (matchedSchema) {     
       try {
+        
         if (matchedSchema.body && ['POST', 'PUT', 'PATCH'].includes(method)) {
           let body: Record<string, unknown> = {};
           try {
             const parsedBody = await req.json();
+            
             if (typeof parsedBody === 'object' && parsedBody !== null) {
               body = parsedBody as Record<string, unknown>;
             } else {
-              return NextResponse.json({ error: ['Invalid JSON body'] }, { status: 400 });
+              return NextResponse.json(
+                { error: ['Invalid JSON body'] },
+                { status: 400 }
+              );
             }
           } catch {
-            return NextResponse.json({ error: ['Invalid JSON body'] }, { status: 400 });
+            return NextResponse.json(
+              { error: ['Invalid JSON body'] },
+              { status: 400 }
+            );
           }
 
           const { error } = matchedSchema.body.validate(body, {
@@ -78,7 +97,9 @@ export async function middleware(req: NextRequest) {
         }
 
         if (matchedSchema.query && method === 'GET') {
-          const queryObject: Record<string, string> = Object.fromEntries(searchParams.entries());
+          const queryObject: Record<string, string> = Object.fromEntries(
+            searchParams.entries()
+          );
           const { error } = matchedSchema.query.validate(queryObject, {
             abortEarly: false,
             allowUnknown: false
@@ -91,6 +112,7 @@ export async function middleware(req: NextRequest) {
             );
           }
         }
+        
         if (matchedSchema.params) {
           const params = extractParamsFromPath(pathname, matchedSchema.path);
           const { error } = matchedSchema.params.validate(params, {

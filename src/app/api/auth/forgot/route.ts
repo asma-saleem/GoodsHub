@@ -21,11 +21,11 @@ export async function POST(req: Request) {
         }
       );
     }
-    
+
     const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
       expiresIn: '10m'
     });
-    
+
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
     await updateUser(email, token, expiry);
     const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset?token=${token}`;

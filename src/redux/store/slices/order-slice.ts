@@ -5,7 +5,9 @@ export const fetchOrderDetail = createAsyncThunk(
   'orders/fetchOrderDetail',
   async (id: string) => {
     const res = await fetch(`/api/orders/${id}`);
+    
     if (!res.ok) throw new Error('Failed to fetch order');
+    
     const json = await res.json();
     return json.order;
   }
@@ -13,12 +15,25 @@ export const fetchOrderDetail = createAsyncThunk(
 
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
-  async ({ page, pageSize, query }: { page: number; pageSize: number; query?: string }) => {
-    const res = await fetch(`/api/orders?page=${page}&pageSize=${pageSize}&q=${query || ''}`, {
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin'
-    });
+  async ({
+    page,
+    pageSize,
+    query
+  }: {
+    page: number;
+    pageSize: number;
+    query?: string;
+  }) => {
+    const res = await fetch(
+      `/api/orders?page=${page}&pageSize=${pageSize}&q=${query || ''}`,
+      {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin'
+      }
+    );
+    
     if (!res.ok) throw new Error('Failed to fetch orders');
+    
     const json = await res.json();
     return {
       orders: json.orders,
@@ -42,7 +57,7 @@ interface OrdersState {
   totalAmount: number;
   order: OrderType | null;
   loadingList: boolean;
-  loadingDetail: boolean; 
+  loadingDetail: boolean;
   error: string | null;
 }
 
@@ -55,7 +70,7 @@ const initialState: OrdersState = {
   totalUnits: 0,
   totalAmount: 0,
   order: null,
-  loadingList: false,  
+  loadingList: false,
   loadingDetail: false,
   error: null
 };
@@ -111,7 +126,7 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOrderDetail.fulfilled, (state, action) => {
-       state.loadingDetail = false;
+        state.loadingDetail = false;
         state.order = action.payload;
       })
       .addCase(fetchOrderDetail.rejected, (state, action) => {

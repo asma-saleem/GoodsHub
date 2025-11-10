@@ -11,7 +11,11 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { Select } from 'antd';
 const { Option } = Select;
 import './product-modal.css';
-import { addProduct, updateProduct, fetchProductsReplace } from '@/redux/store/slices/product-slice';
+import {
+  addProduct,
+  updateProduct,
+  fetchProductsReplace
+} from '@/redux/store/slices/product-slice';
 import { useAppDispatch, useAppSelector } from '@/redux/store/hooks';
 import { toast } from 'react-toastify';
 
@@ -47,20 +51,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
   onSubmit
 }) => {
   const dispatch = useAppDispatch();
-    const { searchTerm, sortBy } = useAppSelector(
-      (state) => state.products
-    );
-  const [submitting, setSubmitting] = useState(false); 
+  const { searchTerm, sortBy } = useAppSelector((state) => state.products);
+  const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm<ProductFormValues>();
   const colorOptions = [
     { name: 'Black', code: '#000000' },
     { name: 'White', code: '#FFFFFF' },
-    { name: 'Gray', code: '#808080' },
-    { name: 'Red', code: '#FF0000' },
-    { name: 'Blue', code: '#0000FF' },
+    { name: 'Grey', code: '#808080' },
     { name: 'Green', code: '#008000' },
-    { name: 'Brown', code: '#8B4513' },
-    { name: 'Pink', code: '#FFC0CB' }
+    { name: 'Camel', code: '#C19A6B' },
+    { name: 'Pink', code: '#FFC0CB' },
+    { name: 'Maroon', code: '#800000' },
+    { name: 'Skyblue', code: '#87CEEB' }
   ];
   useEffect(() => {
     if (open) {
@@ -114,42 +116,41 @@ const ProductModal: React.FC<ProductModalProps> = ({
         return;
       }
       if (
-      values.name.trim().toLowerCase() ===
-      initialValues.name.trim().toLowerCase()
-    ) {
-      toast.info('No changes detected in the product name.');
-      setSubmitting(false);
-      return; 
-    }
+        values.name.trim().toLowerCase() ===
+        initialValues.name.trim().toLowerCase()
+      ) {
+        toast.info('No changes detected in the product name.');
+        setSubmitting(false);
+        return;
+      }
       const payload = {
         id: initialValues?.id,
         name: values.name
       };
       try {
-      const updatedProduct =  await dispatch(updateProduct(payload)).unwrap();
-      toast.success('Product name updated successfully!');
-      onSubmit(updatedProduct);
-      setOpen(false);
-      dispatch(
-        fetchProductsReplace({
-          page: 1,
-          query: searchTerm,
-          sortBy,
-          limit: 12
-        })
-      );
-    } catch (error) {
-      toast.error(String(error) || 'Failed to update product name');
-    }
-    finally {
-      setSubmitting(false);
-    }
+        const updatedProduct = await dispatch(updateProduct(payload)).unwrap();
+        toast.success('Product name updated successfully!');
+        onSubmit(updatedProduct);
+        setOpen(false);
+        dispatch(
+          fetchProductsReplace({
+            page: 1,
+            query: searchTerm,
+            sortBy,
+            limit: 12
+          })
+        );
+      } catch (error) {
+        toast.error(String(error) || 'Failed to update product name');
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
     if (!values.variants || values.variants.length < 1) {
-    toast.error('At least one variant is required.');
-    return;
-  }
+      toast.error('At least one variant is required.');
+      return;
+    }
     const variants = await Promise.all(
       values.variants.map(async (variant) => {
         let imageUrl = '';
@@ -206,7 +207,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
     } finally {
       setSubmitting(false);
     }
-
   };
 
   return (
@@ -216,7 +216,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
       onCancel={() => setOpen(false)}
       footer={null}
       width={500}
-      className='product-modal'
+      className="product-modal"
       styles={{
         body: {
           maxHeight: '70vh',
@@ -226,7 +226,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
       }}
     >
       <Form<ProductFormValues>
-        layout='vertical'
+        layout="vertical"
         form={form}
         onFinish={handleFinish}
         initialValues={{
@@ -249,11 +249,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 }
               ]
         }}
-        className='product-form'
+        className="product-form"
       >
         <Form.Item
-          name='name'
-          label='Product Name'
+          name="name"
+          label="Product Name"
           rules={[{ required: true, message: 'Please enter product name' }]}
         >
           <Input placeholder="e.g. Men's Casual Shirt" />
@@ -261,13 +261,13 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
         {mode === 'add' && (
           <>
-            <Form.List name='variants'>
+            <Form.List name="variants">
               {(fields, { add, remove }) => (
                 <>
                   {fields.map(({ key, name, ...rest }) => (
                     <div
                       key={key}
-                      className='variant-item'
+                      className="variant-item"
                       style={{
                         border: '1px solid #f0f0f0',
                         padding: '16px',
@@ -287,13 +287,13 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <Form.Item
                           {...rest}
                           name={[name, 'color']}
-                          label='Color'
+                          label="Color"
                           rules={[
                             { required: true, message: 'Select a color' }
                           ]}
                         >
                           <Select
-                            placeholder='Select Color'
+                            placeholder="Select Color"
                             style={{ width: '100%' }}
                             onChange={(value: string) => {
                               const color = colorOptions.find(
@@ -332,11 +332,11 @@ const ProductModal: React.FC<ProductModalProps> = ({
                         <Form.Item
                           {...rest}
                           name={[name, 'size']}
-                          label='Size'
+                          label="Size"
                           rules={[{ required: true, message: 'Select a size' }]}
                         >
                           <Select
-                            placeholder='Select Size'
+                            placeholder="Select Size"
                             style={{ width: '100%' }}
                           >
                             {['S', 'M', 'L', 'XL'].map((size) => (
@@ -346,75 +346,96 @@ const ProductModal: React.FC<ProductModalProps> = ({
                             ))}
                           </Select>
                         </Form.Item>
-
                         <Form.Item
                           {...rest}
                           name={[name, 'price']}
-                          label='Price'
-                          rules={[{ required: true, message: 'Enter price' },
+                          label="Price"
+                          rules={[
+                            { required: true, message: 'Enter price' },
                             {
                               validator(_, value) {
-                                if (value === undefined || value === null || value === '') {
-                                    return Promise.resolve();
-                                  }
-                                // if (value === undefined || value === null || value === '') {
-                                //   return Promise.reject('Enter price');
-                                // }
-                                if (Number(value) <= 0) {
-                                  return Promise.reject('Price must be greater than 0');
+                                if (
+                                  value === undefined ||
+                                  value === null ||
+                                  value === ''
+                                ) {
+                                  return Promise.resolve();
                                 }
+                          
+                                if (Number(value) <= 0) {
+                                  return Promise.reject(
+                                    'Price must be greater than 0'
+                                  );
+                                }
+                                
                                 if (Number(value) > 1000000) {
-                                  return Promise.reject('Price cannot exceed 1,000,000');
+                                  return Promise.reject(
+                                    'Price cannot exceed 1,000,000'
+                                  );
                                 }
                                 return Promise.resolve();
                               }
                             }
                           ]}
                         >
-                          <Input placeholder='e.g. 1200' type='number' />
+                          <Input placeholder="e.g. 1200" type="number" />
                         </Form.Item>
 
                         <Form.Item
                           {...rest}
                           name={[name, 'stock']}
-                          label='Stock'
-                          rules={[{ required: true, message: 'Enter stock' },
+                          label="Stock"
+                          rules={[
+                            { required: true, message: 'Enter stock' },
                             {
                               validator(_, value) {
-                                if (value === undefined || value === null || value === '') {
-                                    return Promise.resolve();
-                                  }
-                                if (Number(value) < 0) {
-                                  return Promise.reject('Stock must be greater or equal to 0');
+                                
+                                if (
+                                  value === undefined ||
+                                  value === null ||
+                                  value === ''
+                                ) {
+                                  return Promise.resolve();
                                 }
+                                
+                                if (Number(value) < 0) {
+                                  return Promise.reject(
+                                    'Stock must be greater or equal to 0'
+                                  );
+                                }
+                                
                                 if (Number(value) > 1000000) {
-                                  return Promise.reject('Stock cannot exceed 1,000,000');
+                                  return Promise.reject(
+                                    'Stock cannot exceed 1,000,000'
+                                  );
                                 }
                                 return Promise.resolve();
                               }
                             }
                           ]}
                         >
-                          <Input placeholder='10' type='number' />
+                          <Input placeholder="10" type="number" />
                         </Form.Item>
 
                         <Form.Item
                           {...rest}
                           name={[name, 'image']}
-                          label='Image'
-                          rules={[{ required: true, message: 'Upload an image' }]}
-                          valuePropName='fileList'
+                          label="Image"
+                          rules={[
+                            { required: true, message: 'Upload an image' }
+                          ]}
+                          valuePropName="fileList"
                           getValueFromEvent={(e) =>
                             Array.isArray(e) ? e : e?.fileList
                           }
-                          className='variant-upload-item'
+                          className="variant-upload-item"
                         >
                           <Upload
-                            listType='picture-card'
+                            listType="picture-card"
                             beforeUpload={() => false}
                             multiple={false}
                             maxCount={1}
-                            className='variant-upload'
+                            className="variant-upload"
                             onChange={() => {
                               form.setFieldsValue({
                                 variants: [...form.getFieldValue('variants')]
@@ -425,19 +446,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
                               form.getFieldValue(['variants', name, 'image']) ||
                               []
                             ).length && (
-                              <div className='upload-btn-wrapper'>
-                                <UploadOutlined className='upload-icon' />
-                                <p className='upload-text'>Upload</p>
+                              <div className="upload-btn-wrapper">
+                                <UploadOutlined className="upload-icon" />
+                                <p className="upload-text">Upload</p>
                               </div>
                             )}
                           </Upload>
                         </Form.Item>
                       </div>
-
-                      <div className='flex justify-end mt-2'>
+                      <div className="flex justify-end mt-2">
                         <Button
                           danger
-                          type='link'
+                          type="link"
                           icon={<MinusCircleOutlined />}
                           onClick={() => remove(name)}
                         >
@@ -446,10 +466,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       </div>
                     </div>
                   ))}
-
                   <Form.Item>
                     <Button
-                      type='dashed'
+                      type="dashed"
                       onClick={() =>
                         add({
                           color: undefined,
@@ -470,10 +489,15 @@ const ProductModal: React.FC<ProductModalProps> = ({
             </Form.List>
           </>
         )}
-
         <Form.Item>
-          <Button type='primary' htmlType='submit' className='btn-submit' block loading={submitting} // shows spinner
-          disabled={submitting}> 
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="btn-submit"
+            block
+            loading={submitting} 
+            disabled={submitting}
+          >
             {mode === 'add' ? 'Save Product' : 'Update Product'}
           </Button>
         </Form.Item>

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import {
-  fetchOrderForStripeVerification
-} from '@/services/order';
+import { fetchOrderForStripeVerification } from '@/services/order';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -21,7 +19,10 @@ export async function GET(req: Request) {
     const { orderId, userId } = metadata;
 
     if (!orderId || !userId) {
-      return NextResponse.json({ error: 'Missing orderId or userId in session metadata' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing orderId or userId in session metadata' },
+        { status: 400 }
+      );
     }
 
     const order = await fetchOrderForStripeVerification(orderId);
@@ -30,7 +31,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const currentStatus = order.orderStatus; 
+    const currentStatus = order.orderStatus;
 
     return NextResponse.json({
       success: true,
@@ -40,7 +41,9 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     console.error('Verify session error:', err);
-    return NextResponse.json({ error: 'Failed to verify session' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to verify session' },
+      { status: 500 }
+    );
   }
 }
-

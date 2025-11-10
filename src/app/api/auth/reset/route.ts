@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { token, password } = body;
-    
+
     if (!token || !password) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     let decoded;
-    
+
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
     } catch (err) {
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       if (err instanceof TokenExpiredError) {
         return NextResponse.json({ error: 'Token expired' }, { status: 401 });
       }
-      
+
       if (err instanceof JsonWebTokenError) {
         return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
       }
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       );
     }
     const user = await findUserByResetToken(token, decoded.email);
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Reset link has already been used or expired' },

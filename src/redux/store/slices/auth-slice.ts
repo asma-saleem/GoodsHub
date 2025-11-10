@@ -22,9 +22,9 @@ const initialState: ForgotPasswordState = {
 };
 
 export const signupUser = createAsyncThunk<
-  UserType, 
-  { fullname: string; email: string; mobile?: string; password: string }, 
-  { rejectValue: string } 
+  UserType,
+  { fullname: string; email: string; mobile?: string; password: string },
+  { rejectValue: string }
 >('auth/signupUser', async (values, { rejectWithValue }) => {
   try {
     const res = await fetch('/api/auth/signup', {
@@ -47,64 +47,58 @@ export const signupUser = createAsyncThunk<
 });
 
 export const sendForgotPasswordEmail = createAsyncThunk<
-  string, 
-  string, 
-  { rejectValue: string } 
->(
-  'auth/sendForgotPasswordEmail',
-  async (email, { rejectWithValue }) => {
-    try {
-      const res = await fetch('/api/auth/forgot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.toLowerCase() })
-      });
+  string,
+  string,
+  { rejectValue: string }
+>('auth/sendForgotPasswordEmail', async (email, { rejectWithValue }) => {
+  try {
+    const res = await fetch('/api/auth/forgot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.toLowerCase() })
+    });
 
-      const data = await res.json();
-      if (!res.ok) {
-        return rejectWithValue(data.message || 'Failed to send reset link.');
-      }
-
-      return (
-        data.message ||
-        'If your email exists in our system, a password reset link has been sent.'
-      );
-    } catch (error) {
-      console.error('Forgot Password error:', error);
-      return rejectWithValue('Something went wrong!');
+    const data = await res.json();
+    if (!res.ok) {
+      return rejectWithValue(data.message || 'Failed to send reset link.');
     }
+
+    return (
+      data.message ||
+      'If your email exists in our system, a password reset link has been sent.'
+    );
+  } catch (error) {
+    console.error('Forgot Password error:', error);
+    return rejectWithValue('Something went wrong!');
   }
-);
+});
 
 export const resetPassword = createAsyncThunk<
-  string, 
-  { token: string; password: string }, 
-  { rejectValue: string } 
->(
-  'auth/resetPassword',
-  async ({ token, password }, { rejectWithValue }) => {
-    try {
-      const res = await fetch('/api/auth/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password })
-      });
+  string,
+  { token: string; password: string },
+  { rejectValue: string }
+>('auth/resetPassword', async ({ token, password }, { rejectWithValue }) => {
+  try {
+    const res = await fetch('/api/auth/reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password })
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        return rejectWithValue(
-          data.error || 'Password reset failed. Please try again.'
-        );
-      }
-
-      return data.message || 'Password reset successful!';
-    } catch (error) {
-      console.error('Reset Password error:', error);
-      return rejectWithValue('Something went wrong!');
+    if (!res.ok) {
+      return rejectWithValue(
+        data.error || 'Password reset failed. Please try again.'
+      );
     }
+
+    return data.message || 'Password reset successful!';
+  } catch (error) {
+    console.error('Reset Password error:', error);
+    return rejectWithValue('Something went wrong!');
   }
-);
+});
 
 const forgotPasswordSlice = createSlice({
   name: 'authRecovery',
@@ -156,10 +150,13 @@ const forgotPasswordSlice = createSlice({
         state.error = null;
         state.message = null;
       })
-      .addCase(resetPassword.fulfilled, (state, action: PayloadAction<string>) => {
-        state.loading = false;
-        state.message = action.payload;
-      })
+      .addCase(
+        resetPassword.fulfilled,
+        (state, action: PayloadAction<string>) => {
+          state.loading = false;
+          state.message = action.payload;
+        }
+      )
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Request failed';
