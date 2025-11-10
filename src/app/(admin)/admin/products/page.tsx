@@ -278,6 +278,7 @@ const ProductsContent: React.FC = () => {
       key: 'actions',
       render: (_: unknown, record: ProductType) => (
         <Space>
+          <Tooltip title="View all variants of product">
           <Button
             type='text'
             icon={<EyeOutlined />}
@@ -286,6 +287,8 @@ const ProductsContent: React.FC = () => {
               setOpenViewModal(true);
             }}
           />
+          </Tooltip>
+          <Tooltip title="Edit Product name">
           <Button
             type='text'
             icon={<EditOutlined />}
@@ -299,7 +302,8 @@ const ProductsContent: React.FC = () => {
               setOpenModal(true);
             }}
           />
-
+          </Tooltip>
+           <Tooltip title="Delete Product">
           <Button
             danger
             type='text'
@@ -309,6 +313,8 @@ const ProductsContent: React.FC = () => {
               setOpenDeleteModal(true);
             }}
           />
+          </Tooltip>
+           <Tooltip title="Add Variant to Product">
           <Button
             type='text'
             className='single-variant-button'
@@ -329,6 +335,7 @@ const ProductsContent: React.FC = () => {
           >
             + Variant
           </Button>
+          </Tooltip>
         </Space>
       )
     }
@@ -506,6 +513,7 @@ const ProductsContent: React.FC = () => {
                     <p className='variant-stock-text'>Stock: {variant.stock}</p>
                   </div>
                   <div className='variant-button-wrapper'>
+                    <Tooltip title="Edit Variant">
                     <Button
                       type='primary'
                       size='small'
@@ -528,6 +536,8 @@ const ProductsContent: React.FC = () => {
                     >
                       Edit
                     </Button>
+                    </Tooltip>
+                    <Tooltip title="Delete Variant">
                     <Button
                       danger
                       size='small'
@@ -543,6 +553,7 @@ const ProductsContent: React.FC = () => {
                     >
                       Delete
                     </Button>
+                    </Tooltip>
                   </div>
                 </div>
               )
