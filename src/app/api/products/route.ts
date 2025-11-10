@@ -50,6 +50,12 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error('Product creation failed:', error);
+    if (error instanceof Error && error.message.includes('Duplicate variant')) {
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to create product' },
       { status: 500 }

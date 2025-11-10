@@ -167,7 +167,12 @@ export async function createVariants(variants: ProductVariantType[]) {
       const size = variant.size?.trim().toLowerCase() || '';
       const key = `${color}-${size}`;
 
-      if (seen.has(key)) return null;
+      if (seen.has(key)) 
+      {
+        throw new Error(
+        `Duplicate variant found with color "${variant.color}" and size "${variant.size}".`
+      );
+    }
       seen.add(key);
 
       const imageData = variant.image as
@@ -186,8 +191,7 @@ export async function createVariants(variants: ProductVariantType[]) {
             ? imageData
             : imageData?.[0]?.url ?? null
       };
-    })
-    .filter((v) => v !== null);
+    });
 }
 
 export async function createProductWithVariants({

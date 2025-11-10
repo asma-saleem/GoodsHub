@@ -318,18 +318,18 @@ const ProductsContent: React.FC = () => {
           <Button
             type='text'
             className='single-variant-button'
-          onClick={() => {
-            setVariantMode('add');
-            setSingleVariantData({
-              id: record.id,
-              color: '',
-              colorCode: '',
-              size: '',
-              price: 0,
-              stock: 0,
-              image: ''
-            });
-            setOpenSingleVariantModal(true);
+            onClick={() => {
+              setVariantMode('add');
+              setSingleVariantData({
+                id: record.id,
+                color: '',
+                colorCode: '',
+                size: '',
+                price: 0,
+                stock: 0,
+                image: ''
+              });
+              setOpenSingleVariantModal(true);
           }
           }
           >

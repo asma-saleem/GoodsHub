@@ -241,7 +241,7 @@ export const addProduct = createAsyncThunk(
       
       const data = await res.json();
       if (!res.ok) {
-        return rejectWithValue(data?.error || 'Failed to add product');
+        return rejectWithValue(data?.message || data?.error || 'Failed to add product');
       }
       return; 
     } catch (error) {
