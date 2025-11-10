@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Spin, Button, Card, Drawer, Space, Empty } from 'antd';
+import { Table, Input, Spin, Button, Card, Drawer, Space, Empty, Skeleton} from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
@@ -156,6 +156,9 @@ const OrdersContent: React.FC = () => {
     <div className='orders-wrapper'>
       <div className='orders-stats-grid'>
         <Card className='orders-card'>
+          {loadingList ? (
+          <Skeleton active paragraph={{ rows: 1 }} />
+           ) : (
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className='orders-card-title'>Total Orders:</p>
@@ -171,8 +174,12 @@ const OrdersContent: React.FC = () => {
               />
             </div>
           </div>
+          )}
         </Card>
         <Card className='orders-card'>
+          {loadingList ? (
+          <Skeleton active paragraph={{ rows: 1 }} />
+           ) : (
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className='orders-card-title'>Total Units:</p>
@@ -188,8 +195,12 @@ const OrdersContent: React.FC = () => {
               />
             </div>
           </div>
+           )}
         </Card>
         <Card className='orders-card'>
+          {loadingList ? (
+          <Skeleton active paragraph={{ rows: 1 }} />
+           ) : (
           <div className='orders-card-inner'>
             <div className='orders-card-text'>
               <p className='orders-card-title'>Total Amount:</p>
@@ -205,6 +216,7 @@ const OrdersContent: React.FC = () => {
               />
             </div>
           </div>
+           )}
         </Card>
       </div>
       <div className='orders-header'>
