@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
-import {  updateUser, findUserByEmail } from '@/services/user';
+import { updateUser, findUserByEmail } from '@/services/user';
 
 export async function POST(req: Request) {
   try {
@@ -10,14 +10,22 @@ export async function POST(req: Request) {
     const user = await findUserByEmail(email);
 
     if (!user) {
-      return new Response(JSON.stringify({ message: 'If your email exists in our system, a password reset link has been sent.' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          message:
+            'If your email exists in our system, a password reset link has been sent.'
+        }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
     }
+    
     const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
       expiresIn: '10m'
     });
+    
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
     await updateUser(email, token, expiry);
     const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset?token=${token}`;
@@ -41,7 +49,7 @@ export async function POST(req: Request) {
       <p>Hello,</p>
       <p>You recently requested to reset your password for your account.</p>
       <p>Please click the link below to reset your password. This link will expire in <strong>10 minutes</strong>.</p>
-      <a href="${resetUrl}" style="color:#007bff; text-decoration:underline;">
+      <a href='${resetUrl}' style='color:#007bff; text-decoration:underline;'>
           Reset your password
         </a>
       <p>If you did not request a password reset, you can safely ignore this email.</p>
@@ -56,10 +64,16 @@ export async function POST(req: Request) {
   `
     });
 
-    return new Response(JSON.stringify({ message: 'If your email exists in our system, a password reset link has been sent.' }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        message:
+          'If your email exists in our system, a password reset link has been sent.'
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   } catch (err) {
     console.error('Error', err);
     return new Response(JSON.stringify({ message: 'Internal server error' }), {
