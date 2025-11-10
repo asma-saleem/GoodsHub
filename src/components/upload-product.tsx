@@ -149,6 +149,7 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
         <Upload.Dragger
           fileList={fileList}
           onChange={handleChange}
+          disabled={fileList.length >= 1}
           beforeUpload={() => false}
           multiple
           className='!border-gray-300 !rounded-lg'
@@ -156,10 +157,11 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
           <p className='ant-upload-drag-icon flex justify-center'>
             <UploadOutlined className='text-3xl text-blue-500' />
           </p>
-          <p className='text-gray-600'>Drop your file here to upload</p>
-          <Button className='mt-2' type='link'>
-            Browse
-          </Button>
+          <p className='text-gray-600'>
+            {fileList.length >= 1
+              ? 'File uploaded, cannot add more'
+              : 'Drop your file here or click to browse'}
+          </p>
         </Upload.Dragger>
         <div className='mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
           <h3 className='font-semibold text-blue-700 mb-2'>
