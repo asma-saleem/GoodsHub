@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Input, Spin, Button, Card, Drawer, Space, Empty, Skeleton} from 'antd';
-import { ArrowRightOutlined } from '@ant-design/icons';
+import { Table, Input, Spin, Button, Card, Drawer, Space, Empty, Skeleton, Tooltip} from 'antd';
+import { ArrowRightOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import moment from 'moment';
 import { formatPrice } from '@/lib/utils';
@@ -100,7 +100,38 @@ const OrdersContent: React.FC = () => {
     { title: 'Product(s)', dataIndex: 'products', key: 'products' },
     {
       title: 'Order Status',
-      dataIndex: 'orderStatus'
+      dataIndex: 'orderStatus',
+      render: (status: string) => {
+        let color = '';
+        switch (status) {
+          case 'PENDING':
+            color = '#faad14';
+            break;
+          case 'PAID':
+            color = '#1890ff';
+            break;
+          case 'COMPLETED':
+            color = '#52c41a';
+            break;
+          case 'CANCELLED':
+            color = '#ff4d4f';
+            break;
+          default:
+            color = '#d9d9d9';
+        }
+
+        return (
+          <span
+            style={{
+              color,
+              fontWeight: 600,
+              textTransform: 'capitalize'
+            }}
+          >
+            {status}
+          </span>
+        );
+      }
     },
     {
       title: 'Amount',
@@ -115,6 +146,7 @@ const OrdersContent: React.FC = () => {
         console.log('Order status:', record.orderStatus),
         (
           <Space>
+            <Tooltip title='View Details'>
             <Button
               type='text'
               icon={<ArrowRightOutlined />}
@@ -123,28 +155,36 @@ const OrdersContent: React.FC = () => {
                 setOpenDrawer(true);
               }}
             />
+            </Tooltip>
             {(record.orderStatus === 'PAID' ||
               record.orderStatus === 'COMPLETED') && (
-              <Button
-                type='primary'
-                disabled={record.orderStatus === 'COMPLETED'}
-                onClick={() => {
-                  if (record.orderStatus === 'PAID') {
-                    handleMarkCompleted(record.id);
-                  }
-                }}
-                style={{
-                  opacity: record.orderStatus === 'COMPLETED' ? 0.6 : 1,
-                  cursor:
-                    record.orderStatus === 'COMPLETED'
-                      ? 'not-allowed'
-                      : 'pointer'
-                }}
+              <Tooltip
+                title={
+                  record.orderStatus === 'COMPLETED'
+                    ? 'Already Completed'
+                    : 'Mark as Complete'
+                }
               >
-                {record.orderStatus === 'COMPLETED'
-                  ? 'Completed'
-                  : 'Mark as Complete'}
-              </Button>
+                <CheckCircleOutlined
+                  style={{
+                    fontSize: 18,
+                    color:
+                      record.orderStatus === 'COMPLETED'
+                        ? '#52c41a'
+                        : '#1890ff',
+                    opacity: record.orderStatus === 'COMPLETED' ? 0.6 : 1,
+                    cursor:
+                      record.orderStatus === 'COMPLETED'
+                        ? 'not-allowed'
+                        : 'pointer'
+                  }}
+                  onClick={() => {
+                    if (record.orderStatus === 'PAID') {
+                      handleMarkCompleted(record.id);
+                    }
+                  }}
+                />
+              </Tooltip>
             )}
           </Space>
         )

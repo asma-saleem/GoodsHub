@@ -140,7 +140,7 @@ const ProductsContent: React.FC = () => {
       key: 'title',
       render: (text: string, record: ProductType) => (
         <Space>
-          <Avatar shape='square' size={24} src={record.image} />
+          <Avatar shape='square' size={24} src={record.image || '/dashboard-image-1.png'} />
           <span className='product-title'>{text}</span>
         </Space>
       )

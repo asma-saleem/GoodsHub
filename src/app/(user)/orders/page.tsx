@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import moment from 'moment';
 
-import { Table, Button, Input, Drawer, Spin } from 'antd';
+import { Table, Button, Input, Drawer, Spin, Tooltip } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { ArrowLeftOutlined, ExportOutlined } from '@ant-design/icons';
 
@@ -83,12 +83,44 @@ const Orders: React.FC = () => {
     },
     {
       title: 'Order Status',
-      dataIndex: 'orderStatus'
+      dataIndex: 'orderStatus',
+      render: (status: string) => {
+        let color = '';
+        switch (status) {
+          case 'PENDING':
+            color = '#faad14';
+            break;
+          case 'PAID':
+            color = '#1890ff';
+            break;
+          case 'COMPLETED':
+            color = '#52c41a';
+            break;
+          case 'CANCELLED':
+            color = '#ff4d4f';
+            break;
+          default:
+            color = '#d9d9d9';
+        }
+
+        return (
+          <span
+            style={{
+              color,
+              fontWeight: 600,
+              textTransform: 'capitalize'
+            }}
+          >
+            {status}
+          </span>
+        );
+      }
     },
     {
       title: 'Actions',
       dataIndex: 'actions',
       render: (_, record) => (
+        <Tooltip title='View Details'>
         <Button
           type='text'
           icon={<ExportOutlined />}
@@ -98,6 +130,7 @@ const Orders: React.FC = () => {
             setOpenDrawer(true);
           }}
         />
+        </Tooltip>
       )
     }
   ];
