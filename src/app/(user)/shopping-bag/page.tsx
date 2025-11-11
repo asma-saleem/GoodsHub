@@ -219,7 +219,7 @@ const ShoppingBagPage: React.FC = () => {
       render: (_, record) => (
         <div className="product-container">
           <Image
-            src={record.image || '/placeholder.png'}
+            src={record.image || '/dashboard-image-1.png'}
             alt={record.title}
             width={24}
             height={24}

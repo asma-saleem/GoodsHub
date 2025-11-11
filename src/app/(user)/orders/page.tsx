@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import moment from 'moment';
 
 import { Table, Button, Input, Drawer, Spin, Tooltip } from 'antd';
@@ -140,12 +139,10 @@ const Orders: React.FC = () => {
       <div className="orders-container">
         <div className="orders-header-with-search">
           <div className="orders-header">
-            <Link href="/">
               <ArrowLeftOutlined
                 style={{ color: '#007BFF' }}
                 onClick={() => router.push('/')}
               />
-            </Link>
             <h4 className="orders-title">Orders</h4>
           </div>
           <div className="ant-search-icon">

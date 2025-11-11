@@ -4,8 +4,8 @@ const prisma = new PrismaClient();
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function main() {
-  const colors = ['Black','White','Green','Grey','Maroon','Pink','Skyblue','Camel'];
-  const colorCodes = ['#000000','#FFFFFF','#008000','#808080','#800000','#FFC0CB','#87CEEB','#C19A6B'];
+  const colors = ['Black','White','Green','Grey','Maroon','Pink','Skyblue','Camel','Navy'];
+  const colorCodes = ['#000000','#FFFFFF','#008000','#808080','#800000','#FFC0CB','#87CEEB','#C19A6B','#0E3A47'];
 
   const colorImages: Record<string, string> = {
     Black: '/shirt-black.png',
@@ -15,7 +15,8 @@ async function main() {
     Maroon: '/shirt-maroon.png',
     Pink: '/shirt-pink.png',
     Skyblue: '/shirt-skyblue.png',
-    Camel: '/shirt-camel.png'
+    Camel: '/shirt-camel.png',
+    Navy: '/shirt-navy.png'
   };
 
   const shirtNames = [

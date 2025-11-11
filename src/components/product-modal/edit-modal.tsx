@@ -41,7 +41,8 @@ const SingleVariantEditModal: React.FC<SingleVariantEditModalProps> = ({
       { name: 'Camel', code: '#C19A6B' },
       { name: 'Pink', code: '#FFC0CB' },
       { name: 'Maroon', code: '#800000' },
-      { name: 'Skyblue', code: '#87CEEB' }
+      { name: 'Skyblue', code: '#87CEEB' },
+      { name: 'Navy', code: '#0E3A47' }
     ],
     []
   );

@@ -154,7 +154,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       cover={
         <Image
           alt={product.title}
-          src={selectedVariant?.image || product.image || '/placeholder.png'}
+          src={selectedVariant?.image || product.image || '/dashboard-image-1'}
           width={257}
           height={222}
           className="product-image-card"
@@ -224,7 +224,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   }}
                 >
                   <Image
-                    src={variantForColor.image || '/placeholder.png'}
+                    src={variantForColor.image || '/dashboard-image-1.png'}
                     alt={color}
                     width={45}
                     height={45}

@@ -64,7 +64,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({
       render: (_, record: OrderItemType) => (
         <div className="product-cell">
           <Image
-            src={record.variant?.image || '/placeholder.png'}
+            src={record.variant?.image || '/dashboard-image-1.png'}
             alt={record.variant.product?.title}
             width={24}
             height={24}
