@@ -3,8 +3,95 @@ import { prisma } from '@/lib/prisma';
 import { TAX_RATE } from '@/lib/utils';
 
 import { CartItemType } from '../types/cart';
+ export interface ProductLite {
+  id: string;
+  title: string;
+}
 
-export async function getOrderById(id: string) {
+export interface VariantLite {
+  id: string;
+  image?: string | null;
+  price: number;
+  size?: string | null;
+  color?: string | null;
+  colorCode?: string | null;
+  product: ProductLite;
+}
+
+export interface OrderItemResponse {
+  quantity: number;
+  price?: number;
+  variant: VariantLite | null;
+}
+export interface CreateOrderItemResponse {
+  quantity: number;
+  price?: number;
+}
+export interface UserLite {
+  fullname: string;
+  email: string;
+}
+
+export interface OrderResponse {
+  id: string;
+  orderNo: string;
+  total: number;
+  createdAt: Date;
+  orderStatus?: OrderStatus;
+  userId?: string;
+  user?: UserLite;
+  items: OrderItemResponse[];
+  stripeSessionId?: string | null;
+}
+export interface CreateOrderResponse {
+  id: string;
+  orderNo: string;
+  total: number;
+  createdAt: Date;
+  orderStatus?: OrderStatus;
+  userId?: string;
+  user?: UserLite;
+  items: CreateOrderItemResponse[];
+  stripeSessionId?: string | null;
+}
+export interface OrderStatusResponse {
+  id: string;
+  orderNo: string;
+  total: number;
+  createdAt: Date;
+  orderStatus?: OrderStatus;
+  userId?: string;
+  user?: UserLite;
+  stripeSessionId?: string | null;
+}
+
+export interface OrdersWithSummary {
+  orders: OrderResponse[];
+  total: number;
+  totalOrders: number;
+  totalUnits: number;
+  totalAmount: number;
+}
+
+export interface OrderItemMinimal {
+  id: string; 
+}
+
+export interface OrderResponseMinimal {
+  id: string;
+  orderNo: string;
+  total: number;
+  createdAt: Date;
+  orderStatus?: OrderStatus;
+  userId?: string;
+  items: OrderItemMinimal[];
+}
+
+export interface OrdersListResponse {
+  orders: OrderResponseMinimal[];
+  total: number;
+}
+export const getOrderById = async (id: string): Promise<OrderResponse | null>=>{
   const order = await prisma.order.findUnique({
     where: { id },
     select: {
@@ -39,14 +126,14 @@ export async function getOrderById(id: string) {
 
   if (!order) return null;
   return order;
-}
+};
 
-export async function getOrdersByUserId(
+export const getOrdersByUserId= async(
   userId: string,
   page: number = 1,
   pageSize: number = 10,
   query: string = ''
-) {
+): Promise<OrdersListResponse> => {
   const baseCondition: Prisma.OrderWhereInput = {
     userId
   };
@@ -81,9 +168,9 @@ export async function getOrdersByUserId(
   });
 
   return { orders, total };
-}
+};
 
-export async function createOrder(cart: CartItemType[], userId: string) {
+export const createOrder = async(cart: CartItemType[], userId: string)  : Promise<CreateOrderResponse> => {
   const subTotal = cart.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.qty),
     0
@@ -164,13 +251,13 @@ export async function createOrder(cart: CartItemType[], userId: string) {
   });
 
   return order;
-}
+};
 
-export async function getAllOrders(
+export const getAllOrders= async(
   page: number = 1,
   pageSize: number = 10,
   query: string = ''
-) {
+) : Promise<OrdersWithSummary> => {
   const where: Prisma.OrderWhereInput = query
     ? {
         OR: [
@@ -236,26 +323,26 @@ export async function getAllOrders(
   const totalUnits = latestSummary?.totalUnits ?? 0;
   const totalAmount = latestSummary?.totalAmount ?? 0;
   return { orders, total, totalOrders, totalUnits, totalAmount };
-}
+};
 
-export async function updateOrderStatus(orderId: string, status: OrderStatus) {
+export const updateOrderStatus = async(orderId: string, status: OrderStatus) : Promise<OrderStatusResponse> => {
   const order = await prisma.order.update({
     where: { id: orderId },
     data: { orderStatus: status }
   });
   return order;
-}
+};
 
-export async function updateOrderStripeSessionId(
+export const updateOrderStripeSessionId = async(
   orderId: string,
   stripeSessionId: string
-) {
+) : Promise<OrderStatusResponse> =>{
   return await prisma.order.update({
     where: { id: orderId },
     data: { stripeSessionId }
   });
-}
+};
 
-export async function fetchOrderForStripeVerification(orderId: string) {
+export const fetchOrderForStripeVerification = async(orderId: string) : Promise<OrderStatusResponse | null> => {
   return prisma.order.findUnique({ where: { id: orderId } });
-}
+};

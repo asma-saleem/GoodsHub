@@ -14,7 +14,8 @@ import {
   Modal,
   Tooltip,
   Tag,
-  Empty
+  Empty,
+  InputNumber
 } from 'antd';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -83,6 +84,7 @@ const ProductsContent: React.FC = () => {
 
   const [variantMode, setVariantMode] = useState<'add' | 'edit'>('add');
   const [submitting, setSubmitting] = useState(false);
+  const [refreshingView, setRefreshingView] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -95,6 +97,7 @@ const ProductsContent: React.FC = () => {
   }, [localSearch]);
 
   useEffect(() => {
+    dispatch(setPage(1));
     dispatch(setSearchAndSort({ searchTerm: debouncedTerm, sortBy }));
   }, [debouncedTerm, sortBy, dispatch]);
 
@@ -132,6 +135,30 @@ const ProductsContent: React.FC = () => {
       setProductToDelete(null);
     }
   };
+
+ const refreshViewProduct = async (productId: string) => {
+  try {
+    setRefreshingView(true);
+    const response = await dispatch(
+      fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 })
+    ).unwrap();
+
+    // since response = { products: [...] }
+    const productsList = response?.products || [];
+
+    const updatedProduct = productsList.find((p: ProductType) => p.id === productId);
+
+    if (updatedProduct) {
+      setViewProduct(updatedProduct);
+    } else {
+      console.warn('⚠️ Product not found in updated list');
+    }
+  } catch (err) {
+    console.error('❌ Failed to refresh view product:', err);
+  } finally {
+    setRefreshingView(false);
+  }
+};
 
   const columns = [
     {
@@ -477,6 +504,18 @@ const ProductsContent: React.FC = () => {
           style={{ maxHeight: '80vh' }}
           className="product-view-modal"
         >
+          {refreshingView ? (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '300px'
+            }}
+          >
+            <Spin size="large" tip="Refreshing..." />
+          </div>
+        ) : (
           <div
             className="view-modal-container"
             style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}
@@ -519,7 +558,7 @@ const ProductsContent: React.FC = () => {
                         size="small"
                         icon={<EditOutlined />}
                         onClick={() => {
-                          setOpenViewModal(false);
+                          // setOpenViewModal(false);
                           setVariantMode('edit');
                           setSingleVariantData({
                             id: viewProduct.id,
@@ -543,7 +582,7 @@ const ProductsContent: React.FC = () => {
                         size="small"
                         icon={<DeleteOutlined />}
                         onClick={() => {
-                          setOpenViewModal(false);
+                          // setOpenViewModal(false);
                           setVariantToDelete({
                             productId: viewProduct.id,
                             variantId: variant.id
@@ -559,6 +598,7 @@ const ProductsContent: React.FC = () => {
               )
             )}
           </div>
+        )}
         </Modal>
       )}
 
@@ -607,14 +647,7 @@ const ProductsContent: React.FC = () => {
               setOpenSingleVariantModal(false);
               setSingleVariantData(undefined);
 
-              dispatch(
-                fetchProductsReplace({
-                  page: 1,
-                  query: searchTerm,
-                  sortBy,
-                  limit: 12
-                })
-              );
+              await refreshViewProduct(values.id!);
             } catch (error) {
               console.log('Variant submission error:', error);
               if (
@@ -666,14 +699,7 @@ const ProductsContent: React.FC = () => {
             try {
               await dispatch(deleteVariant(variantToDelete));
               toast.success('Variant deleted successfully!');
-              dispatch(
-                fetchProductsReplace({
-                  page: 1,
-                  query: searchTerm,
-                  sortBy,
-                  limit: 12
-                })
-              );
+              await refreshViewProduct(variantToDelete.productId);
             } catch (error) {
               toast.error(String(error) || 'Failed to delete variant');
             } finally {
@@ -691,98 +717,119 @@ const ProductsContent: React.FC = () => {
         />
       )}
       {inactiveVariantData && (
-        <Modal
-          open={!!inactiveVariantData}
-          centered
-          title={
-            <div className="inactive-variant-title">Inactive Variant Found</div>
+  <Modal
+    open={!!inactiveVariantData}
+    centered
+    title={<div className="inactive-variant-title">Inactive Variant Found</div>}
+    onCancel={() => setInactiveVariantData(null)}
+    footer={[
+      <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
+        Cancel
+      </Button>,
+      <Button
+        key="activate"
+        type="primary"
+        className="reactivate-btn"
+        onClick={async () => {
+          try {
+            await dispatch(
+              reactivateVariant({
+                productId: inactiveVariantData.productId,
+                variantId: inactiveVariantData.id,
+                price: Number(inactiveVariantData.price),
+                stock: Number(inactiveVariantData.stock)
+              })
+            ).unwrap();
+
+            toast.success('Variant reactivated successfully');
+            setInactiveVariantData(null);
+            dispatch(
+              fetchProductsReplace({
+                page: 1,
+                query: searchTerm,
+                sortBy,
+                limit: 12
+              })
+            );
+          } catch (error) {
+            toast.error(String(error) || 'Failed to reactivate variant');
           }
-          onCancel={() => setInactiveVariantData(null)}
-          footer={[
-            <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
-              Cancel
-            </Button>,
-            <Button
-              key="activate"
-              type="primary"
-              className="reactivate-btn"
-              onClick={async () => {
-                try {
-                  await dispatch(
-                    reactivateVariant({
-                      productId: inactiveVariantData.productId,
-                      variantId: inactiveVariantData.id
-                    })
-                  ).unwrap();
+        }}
+      >
+        Reactivate
+      </Button>
+    ]}
+  >
+    <div className="inactive-modal">
+      <p className="inactive-modal-message">{inactiveVariantData.message}</p>
 
-                  toast.success('Variant reactivated successfully');
-                  setInactiveVariantData(null);
-                  dispatch(
-                    fetchProductsReplace({
-                      page: 1,
-                      query: searchTerm,
-                      sortBy,
-                      limit: 12
-                    })
-                  );
-                } catch (error) {
-                  toast.error(String(error) || 'Failed to reactivate variant');
-                }
-              }}
-            >
-              Reactivate
-            </Button>
-          ]}
-        >
-          <div className="inactive-modal">
-            <p className="inactive-modal-message">
-              {inactiveVariantData.message}
-            </p>
+      <div className="inactive-modal-content">
+        <div className="inactive-image">
+          {inactiveVariantData.image ? (
+            <Image
+              src={inactiveVariantData.image}
+              alt={
+                inactiveVariantData.color ||
+                inactiveVariantData.product?.title ||
+                'Product Image'
+              }
+              width={120}
+              height={120}
+              className="inactive-product-image"
+              unoptimized
+            />
+          ) : (
+            <div className="inactive-fallback">No Image</div>
+          )}
+        </div>
 
-            <div className="inactive-modal-content">
-              <div className="inactive-image">
-                {inactiveVariantData.image ? (
-                  <Image
-                    src={inactiveVariantData.image}
-                    alt={
-                      inactiveVariantData.color ||
-                      inactiveVariantData.product?.title ||
-                      'Product Image'
-                    }
-                    width={120}
-                    height={120}
-                    className="inactive-product-image"
-                  />
-                ) : (
-                  <div className="inactive-fallback">No Image</div>
-                )}
-              </div>
-
-              <div className="inactive-details">
-                <div>
-                  <b>Color:</b> {inactiveVariantData.color}
-                </div>
-                <div className="flex items-center gap-2">
-                  <b>Color Code:</b>{' '}
-                  <span
-                    className="inline-block w-4 h-4 rounded-full border border-gray-300"
-                    style={{ backgroundColor: inactiveVariantData.colorCode }}
-                  ></span>
-                </div>
-                <div>
-                  <b>Size:</b> {inactiveVariantData.size}
-                </div>
-                <div>
-                  <b>Price:</b> ${inactiveVariantData.price}
-                </div>
-                <div>
-                  <b>Stock:</b> {inactiveVariantData.stock}
-                </div>
-              </div>
-            </div>
+        <div className="inactive-details">
+          <div>
+            <b>Color:</b> {inactiveVariantData.color}
           </div>
-        </Modal>
-      )}
+          <div className="flex items-center gap-2">
+            <b>Color Code:</b>{' '}
+            <span
+              className="inline-block w-4 h-4 rounded-full border border-gray-300"
+              style={{ backgroundColor: inactiveVariantData.colorCode }}
+            ></span>
+          </div>
+          <div>
+            <b>Size:</b> {inactiveVariantData.size}
+          </div>
+          <div>
+            <b>Price:</b>{' '}
+            <InputNumber
+              min={1}
+              value={inactiveVariantData.price}
+              onChange={(value) =>
+                setInactiveVariantData({
+                  ...inactiveVariantData,
+                  price: value || 1
+                })
+              }
+              prefix="$"
+            />
+          </div>
+          <div>
+            <b>Stock:</b>{' '}
+            <InputNumber
+              min={0}
+              value={inactiveVariantData.stock}
+              onChange={(value) =>
+                setInactiveVariantData({
+                  ...inactiveVariantData,
+                  stock: value || 1
+                })
+              }
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}
+
     </>
   );
 };

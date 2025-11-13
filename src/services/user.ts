@@ -1,18 +1,38 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+export interface User {
+  id: string;
+  fullname: string;
+  email: string;
+  role: string;
+  mobile?: string | null;
+  password: string;
+  stripeCustomerId?: string | null;
+  resetToken?: string | null;
+  resetTokenExpiry?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PublicUser {
+  id: string;
+  fullname: string;
+  email: string;
+  stripeCustomerId?: string | null;
+}
 
 export const createUser = async (user: {
   fullname: string;
   email: string;
   mobile?: string;
   password: string;
-}) => {
+}) : Promise<User> => {
   return prisma.user.create({
     data: user
   });
 };
 
-export const findUserByEmail = async (email: string) => {
+export const findUserByEmail = async (email: string):Promise<User | null> => {
   return prisma.user.findUnique({
     where: { email }
   });
@@ -22,7 +42,7 @@ export const updateUser = async (
   email: string,
   token: string,
   expiry: Date
-) => {
+): Promise<User> =>{
   return prisma.user.update({
     where: { email },
     data: {
@@ -32,7 +52,7 @@ export const updateUser = async (
   });
 };
 
-export async function getUserById(userId: string) {
+export const getUserById = async(userId: string): Promise<PublicUser | null>=> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -43,19 +63,19 @@ export async function getUserById(userId: string) {
     }
   });
   return user;
-}
+};
 
-export async function updateStripeCustomerId(
+export const updateStripeCustomerId = async(
   userId: string,
   stripeCustomerId: string
-) {
+) : Promise<User> => {
   return await prisma.user.update({
     where: { id: userId },
     data: { stripeCustomerId }
   });
-}
+};
 
-export async function findUserByResetToken(token: string, email: string) {
+export const findUserByResetToken = async(token: string, email: string) : Promise<User | null> => {
   return prisma.user.findFirst({
     where: {
       email,
@@ -63,9 +83,9 @@ export async function findUserByResetToken(token: string, email: string) {
       resetTokenExpiry: { gt: new Date() }
     }
   });
-}
+};
 
-export async function updateUserPassword(email: string, newPassword: string) {
+export const updateUserPassword = async(email: string, newPassword: string) : Promise<User> => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   return prisma.user.update({
     where: { email },
@@ -75,4 +95,4 @@ export async function updateUserPassword(email: string, newPassword: string) {
       resetTokenExpiry: null
     }
   });
-}
+};

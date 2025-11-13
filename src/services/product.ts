@@ -3,13 +3,86 @@ import type { Prisma } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { ProductVariantType } from '@/types/product';
+export interface VariantResponse {
+  id: string;
+  color?: string | null;
+  colorCode?: string | null;
+  size?: string | null;
+  price: number;
+  stock: number;
+  image?: string | null;
+  isVariantDeleted: boolean;
+  productId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface FindProductResponse {
+  id: string;
+  title: string;
+  image?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  isProductDeleted: boolean;
+}
+export interface NewVariantData {
+  color: string | null;
+  colorCode: string | null;
+  size: string | null;
+  price: number;
+  stock: number;
+  image: string | null;
+}
+export interface CreateProductWithVariantsResponse {
+  id: string;
+  title: string;
+  image?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  isProductDeleted: boolean;
 
+  variants: {
+    id: string;
+    color?: string | null;
+    colorCode?: string | null;
+    size?: string | null;
+    price: number;
+    stock: number;
+    image?: string | null;
+    isVariantDeleted: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }[];
+}
+
+export interface VariantLite {
+  id: string;
+  color: string | null;
+  colorCode: string | null;
+  size: string | null;
+  image: string | null;
+  price: number;
+  stock: number;
+}
+
+export interface ProductWithVariantLite {
+  id: string;
+  title: string;
+  isProductDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  image?: string | null;
+
+  variants: VariantLite[];
+
+  defaultVariant: VariantLite | null;
+  minPrice: number | null;
+}
 export const getProducts = async (
   page: number = 1,
   limit: number = 8,
   query = '',
   sortBy: string = 'createdAt_desc'
-) => {
+) : Promise<{ products: ProductWithVariantLite[]; total: number }> => {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role || 'USER';
   const where: Prisma.ProductWhereInput = {
@@ -57,7 +130,10 @@ export const getProducts = async (
     include: {
       variants: {
         where: { isVariantDeleted: false },
-        orderBy: { createdAt: 'asc' },
+        orderBy: [
+          { createdAt: 'desc' },
+          { id: 'asc' }
+        ],
         select: {
           id: true,
           color: true,
@@ -95,26 +171,35 @@ export const getProducts = async (
   return { products: enrichedProducts, total };
 };
 
-export async function getVariantById(variantId: string) {
+export const getVariantById = async (
+  variantId: string
+) : Promise<VariantResponse | null> => {
   return prisma.productVariant.findUnique({
     where: { id: variantId }
   });
-}
+};
 
-export async function reactivateVariant(variantId: string) {
+export const reactivateVariant = async (
+  variantId: string,
+  updates?: { price?: number; stock?: number }
+) : Promise<VariantResponse> => {
   return prisma.productVariant.update({
     where: { id: variantId },
-    data: { isVariantDeleted: false }
+    data: {
+      isVariantDeleted: false,
+      ...(updates?.price !== undefined && { price: updates.price }),
+      ...(updates?.stock !== undefined && { stock: updates.stock })
+    }
   });
-}
+};
 
-export async function findProductByTitleExcludingId({
+export const findProductByTitleExcludingId = async ({
   title,
   id
 }: {
   title: string;
   id: string;
-}) {
+}) : Promise<FindProductResponse | null> => {
   return prisma.product.findFirst({
     where: {
       title: {
@@ -124,31 +209,30 @@ export async function findProductByTitleExcludingId({
       NOT: { id }
     }
   });
-}
+};
 
-export async function updateProductTitle({
+export const updateProductTitle = async ({
   id,
   data
 }: {
   id: string;
   data: { title: string };
-}) {
+}) : Promise<CreateProductWithVariantsResponse> => {
   return prisma.product.update({
     where: { id },
     data,
     include: { variants: true }
   });
-}
+};
 
-export async function softDeleteProduct({ id }: { id: string }) {
-  return prisma.product.update({
+export const softDeleteProduct = async ({ id }: { id: string }) : Promise<FindProductResponse>=>
+ prisma.product.update({
     where: { id },
     data: { isProductDeleted: true }
   });
-}
 
-export async function findProductByTitle({ title }: { title: string }) {
-  return prisma.product.findFirst({
+export const findProductByTitle = async ({ title }: { title: string }): Promise<FindProductResponse|null> =>
+  prisma.product.findFirst({
     where: {
       title: {
         equals: title.trim(),
@@ -156,9 +240,9 @@ export async function findProductByTitle({ title }: { title: string }) {
       }
     }
   });
-}
 
-export async function createVariants(variants: ProductVariantType[]) {
+
+export const createVariants = async (variants: ProductVariantType[]) : Promise<NewVariantData[]> => {
   const seen = new Set<string>();
 
   return variants.map((variant) => {
@@ -185,16 +269,16 @@ export async function createVariants(variants: ProductVariantType[]) {
         typeof imageData === 'string' ? imageData : imageData?.[0]?.url ?? null
     };
   });
-}
+};
 
-export async function createProductWithVariants({
+export const createProductWithVariants = async ({
   title,
   variantData
 }: {
   title: string;
-  variantData: Awaited<ReturnType<typeof createVariants>>;
-}) {
-  return prisma.product.create({
+  variantData: NewVariantData[];
+}) : Promise<CreateProductWithVariantsResponse> =>
+  prisma.product.create({
     data: {
       title,
       variants: {
@@ -203,9 +287,8 @@ export async function createProductWithVariants({
     },
     include: { variants: true }
   });
-}
 
-export async function findVariant({
+export const findVariant = async ({
   productId,
   color,
   size
@@ -213,13 +296,12 @@ export async function findVariant({
   productId: string;
   color?: string;
   size?: string;
-}) {
-  return prisma.productVariant.findFirst({
+}) : Promise<VariantResponse | null> =>
+  prisma.productVariant.findFirst({
     where: { productId, color, size }
   });
-}
 
-export async function createVariant({
+export const createVariant = async ({
   productId,
   color,
   colorCode,
@@ -235,8 +317,8 @@ export async function createVariant({
   price: number;
   stock: number;
   image?: string | null;
-}) {
-  return prisma.productVariant.create({
+}) : Promise<VariantResponse> =>
+  prisma.productVariant.create({
     data: {
       productId,
       color: color ?? null,
@@ -247,13 +329,11 @@ export async function createVariant({
       image: image ?? null
     }
   });
-}
 
-export async function findVariantById(variantId: string) {
-  return prisma.productVariant.findUnique({ where: { id: variantId } });
-}
+export const findVariantById = async (variantId: string) : Promise<VariantResponse | null> =>
+  prisma.productVariant.findUnique({ where: { id: variantId } });
 
-export async function findDuplicateVariant({
+export const findDuplicateVariant = async ({
   productId,
   color,
   size,
@@ -263,8 +343,8 @@ export async function findDuplicateVariant({
   color?: string;
   size?: string;
   excludeId?: string;
-}) {
-  return prisma.productVariant.findFirst({
+}) : Promise<VariantResponse | null> =>
+  prisma.productVariant.findFirst({
     where: {
       productId,
       color,
@@ -272,9 +352,8 @@ export async function findDuplicateVariant({
       NOT: { id: excludeId }
     }
   });
-}
 
-export async function updateVariant({
+export const updateVariant = async ({
   variantId,
   color,
   colorCode,
@@ -290,16 +369,14 @@ export async function updateVariant({
   price: number;
   stock: number;
   image?: string | null;
-}) {
-  return prisma.productVariant.update({
+}) : Promise<VariantResponse | null> =>
+  prisma.productVariant.update({
     where: { id: variantId },
     data: { color, colorCode, size, price, stock, image }
   });
-}
 
-export async function softDeleteVariant(variantId: string) {
-  return prisma.productVariant.update({
+export const softDeleteVariant = async (variantId: string) : Promise<VariantResponse | null> =>
+  prisma.productVariant.update({
     where: { id: variantId },
     data: { isVariantDeleted: true }
   });
-}

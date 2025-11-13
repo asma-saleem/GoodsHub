@@ -15,12 +15,6 @@ export async function PUT(
     const { id, variantId } = await context.params;
     const value = await req.json();
 
-    if (!variantId) {
-      return NextResponse.json(
-        { error: 'variantId is required' },
-        { status: 400 }
-      );
-    }
     const existingVariant = await findVariantById(variantId);
 
     if (!existingVariant) {

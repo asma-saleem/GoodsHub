@@ -58,7 +58,7 @@ const OrdersContent: React.FC = () => {
 
   useEffect(() => {
     dispatch(
-      fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
+      fetchOrders({ page: currentPage, pageSize: 12, query: debouncedTerm })
     );
   }, [dispatch, currentPage, debouncedTerm]);
 
@@ -73,7 +73,7 @@ const OrdersContent: React.FC = () => {
       if (res.ok) {
         toast.success('Order marked as completed');
         dispatch(
-          fetchOrders({ page: currentPage, pageSize: 10, query: debouncedTerm })
+          fetchOrders({ page: currentPage, pageSize: 12, query: debouncedTerm })
         );
       } else {
         toast.error(data.error || 'Failed to mark order as completed');

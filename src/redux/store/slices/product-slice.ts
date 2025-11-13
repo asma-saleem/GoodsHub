@@ -223,17 +223,25 @@ export const reactivateVariant = createAsyncThunk(
   async (
     {
       productId,
-      variantId
+      variantId,
+      price,
+      stock
     }: {
       productId: string;
       variantId: string;
+      price?: number;
+      stock?: number;
     },
     { rejectWithValue }
   ) => {
     try {
       const res = await fetch(
         `/api/products/${productId}/variants/${variantId}/activate`,
-        { method: 'PATCH' }
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ price, stock })
+        }
       );
 
       const data = await res.json();

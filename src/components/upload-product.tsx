@@ -21,6 +21,16 @@ const REQUIRED_HEADERS = [
   'size'
 ];
 
+interface CsvRow {
+  title: string;
+  image: string;
+  price: string;
+  color: string;
+  colorCode: string;
+  stock: string;
+  size: string;
+}
+
 interface UploadProductsModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -29,14 +39,7 @@ interface UploadProductsModalProps {
 }
 const downloadSampleCSV = () => {
   const sampleData = `title,image,price,color,colorCode,stock,size
-Casual Shirt 9,/dashboard-image-1.png,115,Red,#FF0000,12,S
-Casual Shirt 19,/dashboard-image-2.png,125,Blue,#0000FF,12,M
-Casual Shirt 9,/dashboard-image-1.png,135,Green,#00FF00,12,L
-Casual Shirt 19,/dashboard-image-2.png,600,Yellow,#FFFF00,12,XL
-Formal Shirt 8,/dashboard-image-2.png,120,Red,#FF0000,14,S
-Formal Shirt 18,/dashboard-image-1.png,130,Blue,#0000FF,14,M
-Formal Shirt 8,/dashboard-image-2.png,140,Green,#00FF00,14,L
-Formal Shirt 18,/dashboard-image-1.png,150,Yellow,#FFFF00,14,XL`;
+  Casual Shirt 9,/dashboard-image-1.png,115,Red,#FF0000,12,S`;
 
   const blob = new Blob([sampleData], { type: 'text/csv' });
   const url = window.URL.createObjectURL(blob);
@@ -49,41 +52,93 @@ Formal Shirt 18,/dashboard-image-1.png,150,Yellow,#FFFF00,14,XL`;
   window.URL.revokeObjectURL(url);
 };
 
-const validateCsvHeaders = async (file: File): Promise<boolean> => {
+const validateCsv = async (file: File): Promise<string[]> => {
   return new Promise((resolve) => {
+    const errors: string[] = [];
     const reader = new FileReader();
 
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) {
-        alert('CSV is empty.');
-        return resolve(false);
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const result = e.target?.result;
+      if (!result || typeof result !== 'string') {
+        errors.push('CSV is empty or could not be read as text.');
+        return resolve(errors);
       }
 
-      const firstLine = text.split('\n')[0].trim();
-      const headers = firstLine.split(',').map((h) => h.trim());
+      const lines: string[] = result
+        .split('\n')
+        .map((line: string) => line.trim())
+        .filter((line: string) => line.length > 0);
+
+      if (lines.length === 0) {
+        errors.push('CSV has no content.');
+        return resolve(errors);
+      }
+
+      const headers: string[] = lines[0]
+        .split(',')
+        .map((h: string) => h.trim());
 
       const missing = REQUIRED_HEADERS.filter((h) => !headers.includes(h));
-
       if (missing.length > 0) {
-        toast.error(
-          'Invalid CSV Format.\nMissing headers:\n' + missing.join(', ')
-        );
-        resolve(false);
-      } else {
-        resolve(true);
+        errors.push(`Missing headers: ${missing.join(', ')}`);
       }
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols: string[] = lines[i].split(',').map((c: string) => c.trim());
+        if (cols.length < headers.length) {
+          errors.push(`Row ${i}: Not enough columns`);
+          continue;
+        }
+
+        const row: CsvRow = {
+          title: cols[headers.indexOf('title')],
+          image: cols[headers.indexOf('image')],
+          price: cols[headers.indexOf('price')],
+          color: cols[headers.indexOf('color')],
+          colorCode: cols[headers.indexOf('colorCode')],
+          stock: cols[headers.indexOf('stock')],
+          size: cols[headers.indexOf('size')]
+        };
+
+        if (!row.title) errors.push(`Row ${i}: title is required`);
+
+        if (!row.image || !/\.(png|jpeg|jpg)$/i.test(row.image)) {
+          errors.push(`Row ${i}: image must be png/jpeg/jpg`);
+        }
+
+        const price = Number(row.price);
+        if (isNaN(price) || price <= 0) errors.push(`Row ${i}: price must be > 0`);
+
+        const stock = Number(row.stock);
+        if (isNaN(stock) || stock < 0) errors.push(`Row ${i}: stock must be >= 0`);
+
+        if (!/^#[0-9A-Fa-f]{6}$/.test(row.colorCode)) {
+          errors.push(`Row ${i}: colorCode must be in #RRGGBB format`);
+        }
+
+        if (!row.color) errors.push(`Row ${i}: color is required`);
+        if (!row.size) {
+          errors.push(`Row ${i}: size is required`);
+        } else if (!isNaN(Number(row.size)) && Number(row.size) <= 0) {
+          errors.push(`Row ${i}: size cannot be zero or negative`);
+        }
+
+      }
+
+      resolve(errors);
     };
 
     reader.readAsText(file);
   });
 };
 
+
 const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
   open,
   setOpen
 }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleChange = ({
     fileList: newFileList
@@ -102,8 +157,12 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
 
       const file = fileList[0].originFileObj as File;
 
-      const isValid = await validateCsvHeaders(file);
-      if (!isValid) return;
+      const errors = await validateCsv(file);
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
 
       const fd = new FormData();
       fd.append('file', fileList[0].originFileObj as File);
@@ -154,6 +213,7 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
           disabled={fileList.length >= 1}
           beforeUpload={() => false}
           multiple
+          accept=".csv"
           className="!border-gray-300 !rounded-lg"
         >
           <p className="ant-upload-drag-icon flex justify-center">
@@ -199,6 +259,19 @@ const UploadProductsModal: React.FC<UploadProductsModalProps> = ({
                 />
               </div>
             ))}
+          </div>
+        )}
+
+        {validationErrors.length > 0 && (
+          <div className="mt-4 p-4 border border-red-300 bg-red-50 rounded-lg max-h-60 overflow-y-auto">
+            <Text className="font-medium text-red-700 mb-2 block">
+              CSV Validation Errors ({validationErrors.length}):
+            </Text>
+            <ul className="list-disc list-inside text-sm text-red-600">
+              {validationErrors.map((err, idx) => (
+                <li key={idx}>{err}</li>
+              ))}
+            </ul>
           </div>
         )}
 

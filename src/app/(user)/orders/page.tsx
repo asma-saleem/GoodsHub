@@ -6,7 +6,11 @@ import moment from 'moment';
 
 import { Table, Button, Input, Drawer, Spin, Tooltip } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { ArrowLeftOutlined, ExportOutlined } from '@ant-design/icons';
+import {
+  ArrowLeftOutlined,
+  ExportOutlined,
+  RedoOutlined
+} from '@ant-design/icons';
 
 import { OrderType } from '@/types/order';
 import Header from '@/components/header/header';
@@ -118,19 +122,51 @@ const Orders: React.FC = () => {
     {
       title: 'Actions',
       dataIndex: 'actions',
-      render: (_, record) => (
-        <Tooltip title="View Details">
-          <Button
-            type="text"
-            icon={<ExportOutlined />}
-            className="order-number"
-            onClick={() => {
-              setSelectedOrderId(record.id);
-              setOpenDrawer(true);
-            }}
-          />
-        </Tooltip>
-      )
+      render: (_, record) => {
+        return (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {/* View Details Button */}
+            <Tooltip title="View Details">
+              <Button
+                type="text"
+                icon={<ExportOutlined />}
+                onClick={() => {
+                  setSelectedOrderId(record.id);
+                  setOpenDrawer(true);
+                }}
+              />
+            </Tooltip>
+
+            {record.orderStatus === 'PENDING' && (
+              <Tooltip title="Retry Payment" trigger="hover">
+                <RedoOutlined
+                  style={{ fontSize: 20, color: '#1890ff', cursor: 'pointer' }}
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(
+                        `/api/orders/${record.id}/retry-payment`,
+                        {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ orderId: record.id })
+                        }
+                      );
+
+                      const data = await res.json();
+                      if (!res.ok)
+                        throw new Error(data.error || 'Retry failed');
+
+                      window.location.href = data.url;
+                    } catch (err) {
+                      console.error(err);
+                    }
+                  }}
+                />
+              </Tooltip>
+            )}
+          </div>
+        );
+      }
     }
   ];
   return (
@@ -139,10 +175,10 @@ const Orders: React.FC = () => {
       <div className="orders-container">
         <div className="orders-header-with-search">
           <div className="orders-header">
-              <ArrowLeftOutlined
-                style={{ color: '#007BFF' }}
-                onClick={() => router.push('/')}
-              />
+            <ArrowLeftOutlined
+              style={{ color: '#007BFF' }}
+              onClick={() => router.push('/')}
+            />
             <h4 className="orders-title">Orders</h4>
           </div>
           <div className="ant-search-icon">

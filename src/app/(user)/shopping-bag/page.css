@@ -46,7 +46,7 @@ body {
 }
 
 .table-wrapper {
-  @apply overflow-x-auto min-h-[700px];
+  @apply overflow-x-auto min-h-[600px];
 }
 
 .table-cell {

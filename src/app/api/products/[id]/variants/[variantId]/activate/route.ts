@@ -20,8 +20,9 @@ export async function PATCH(
         { status: 200 }
       );
     }
+    const updates = await req.json();
 
-    const reactivatedVariant = await reactivateVariant(variantId);
+    const reactivatedVariant = await reactivateVariant(variantId, updates);
 
     return NextResponse.json({
       success: true,
