@@ -75,6 +75,10 @@ export async function POST(req: Request) {
     });
 
     await updateOrderStripeSessionId(order.id, stripeSession.id);
+    
+    await fetch(`${process.env.FASTAPI_URL}/orders/summary/update`, {
+      method: 'POST'
+    });
 
     return NextResponse.json(
       {

@@ -29,8 +29,9 @@ class Order(Base):
 class OrderItem(Base):
     __tablename__ = 'OrderItem'
     __table_args__ = {'quote': True}
+
     id = Column(Integer, primary_key=True)
-    order_id = Column(Integer, ForeignKey("Order.id"))
+    order_id = Column("orderId", Integer, ForeignKey("Order.id"))  
     quantity = Column(Integer)
     createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updatedAt = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

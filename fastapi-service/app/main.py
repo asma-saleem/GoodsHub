@@ -7,7 +7,7 @@ import redis
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
-from .tasks import process_csv_task
+from .tasks import calculate_order_summary_task, process_csv_task
 
 app = FastAPI()
 
@@ -22,12 +22,10 @@ app.add_middleware(
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 r = redis.from_url(REDIS_URL)
 
-@app.get("/latest-order-summary")
-def latest_order_summary():
-    data = r.get("latest_order_summary")
-    if data:
-        return {"status": "Completed", **json.loads(data)}
-    return {"status": "Processing"}
+@app.post("/orders/summary/update")
+async def update_order_summary():
+    calculate_order_summary_task.apply_async()
+    return {"status": "summary update triggered"}
 
 UPLOAD_DIR = "public/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)

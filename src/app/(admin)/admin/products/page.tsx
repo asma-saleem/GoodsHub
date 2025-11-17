@@ -136,29 +136,31 @@ const ProductsContent: React.FC = () => {
     }
   };
 
- const refreshViewProduct = async (productId: string) => {
-  try {
-    setRefreshingView(true);
-    const response = await dispatch(
-      fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 })
-    ).unwrap();
+  const refreshViewProduct = async (productId: string) => {
+    try {
+      setRefreshingView(true);
+      const response = await dispatch(
+        fetchProductsReplace({ page: 1, query: searchTerm, sortBy, limit: 12 })
+      ).unwrap();
 
-    // since response = { products: [...] }
-    const productsList = response?.products || [];
+      // since response = { products: [...] }
+      const productsList = response?.products || [];
 
-    const updatedProduct = productsList.find((p: ProductType) => p.id === productId);
+      const updatedProduct = productsList.find(
+        (p: ProductType) => p.id === productId
+      );
 
-    if (updatedProduct) {
-      setViewProduct(updatedProduct);
-    } else {
-      console.warn('⚠️ Product not found in updated list');
+      if (updatedProduct) {
+        setViewProduct(updatedProduct);
+      } else {
+        console.warn('⚠️ Product not found in updated list');
+      }
+    } catch (err) {
+      console.error('❌ Failed to refresh view product:', err);
+    } finally {
+      setRefreshingView(false);
     }
-  } catch (err) {
-    console.error('❌ Failed to refresh view product:', err);
-  } finally {
-    setRefreshingView(false);
-  }
-};
+  };
 
   const columns = [
     {
@@ -505,100 +507,104 @@ const ProductsContent: React.FC = () => {
           className="product-view-modal"
         >
           {refreshingView ? (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '300px'
-            }}
-          >
-            <Spin size="large" tip="Refreshing..." />
-          </div>
-        ) : (
-          <div
-            className="view-modal-container"
-            style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}
-          >
-            {viewProduct.variants.map(
-              (variant: ProductVariantType, idx: number) => (
-                <div key={idx} className="variant-container">
-                  <div className="variant-image-wrapper">
-                    {variant.image ? (
-                      <Image
-                        src={variant.image}
-                        alt={variant.color || 'product image'}
-                        fill
-                        className="object-cover rounded"
-                      />
-                    ) : (
-                      <div className="variant-fallback-image" />
-                    )}
-                  </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '300px'
+              }}
+            >
+              <Spin size="large" tip="Refreshing..." />
+            </div>
+          ) : (
+            <div
+              className="view-modal-container"
+              style={{ maxHeight: '70vh', overflowY: 'auto', padding: '20px' }}
+            >
+              {viewProduct.variants.map(
+                (variant: ProductVariantType, idx: number) => (
+                  <div key={idx} className="variant-container">
+                    <div className="variant-image-wrapper">
+                      {variant.image ? (
+                        <Image
+                          src={variant.image}
+                          alt={variant.color || 'product image'}
+                          fill
+                          className="object-cover rounded"
+                        />
+                      ) : (
+                        <div className="variant-fallback-image" />
+                      )}
+                    </div>
 
-                  <div className="variant-details">
-                    <p className="variant-color-text">{variant.color || '-'}</p>
-                    {variant.colorCode && (
-                      <span
-                        className="variant-color-code"
-                        style={{ backgroundColor: variant.colorCode }}
-                        title={variant.colorCode}
-                      />
-                    )}
-                    <p className="variant-size-text">
-                      Size: {variant.size || '-'}
-                    </p>
-                    <p className="variant-price-text">${variant.price}</p>
-                    <p className="variant-stock-text">Stock: {variant.stock}</p>
+                    <div className="variant-details">
+                      <p className="variant-color-text">
+                        {variant.color || '-'}
+                      </p>
+                      {variant.colorCode && (
+                        <span
+                          className="variant-color-code"
+                          style={{ backgroundColor: variant.colorCode }}
+                          title={variant.colorCode}
+                        />
+                      )}
+                      <p className="variant-size-text">
+                        Size: {variant.size || '-'}
+                      </p>
+                      <p className="variant-price-text">${variant.price}</p>
+                      <p className="variant-stock-text">
+                        Stock: {variant.stock}
+                      </p>
+                    </div>
+                    <div className="variant-button-wrapper">
+                      <Tooltip title="Edit Variant">
+                        <Button
+                          type="primary"
+                          size="small"
+                          icon={<EditOutlined />}
+                          onClick={() => {
+                            // setOpenViewModal(false);
+                            setVariantMode('edit');
+                            setSingleVariantData({
+                              id: viewProduct.id,
+                              variantId: variant.id,
+                              colorCode: variant.colorCode,
+                              color: variant.color || '',
+                              size: variant.size || '',
+                              price: Number(variant.price ?? ''),
+                              stock: Number(variant.stock ?? ''),
+                              image: variant.image || ''
+                            });
+                            setOpenSingleVariantModal(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Delete Variant">
+                        <Button
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => {
+                            // setOpenViewModal(false);
+                            setVariantToDelete({
+                              productId: viewProduct.id,
+                              variantId: variant.id
+                            });
+                            setOpenVariantDeleteModal(true);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </Tooltip>
+                    </div>
                   </div>
-                  <div className="variant-button-wrapper">
-                    <Tooltip title="Edit Variant">
-                      <Button
-                        type="primary"
-                        size="small"
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          // setOpenViewModal(false);
-                          setVariantMode('edit');
-                          setSingleVariantData({
-                            id: viewProduct.id,
-                            variantId: variant.id,
-                            colorCode: variant.colorCode,
-                            color: variant.color || '',
-                            size: variant.size || '',
-                            price: Number(variant.price ?? ''),
-                            stock: Number(variant.stock ?? ''),
-                            image: variant.image || ''
-                          });
-                          setOpenSingleVariantModal(true);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                    </Tooltip>
-                    <Tooltip title="Delete Variant">
-                      <Button
-                        danger
-                        size="small"
-                        icon={<DeleteOutlined />}
-                        onClick={() => {
-                          // setOpenViewModal(false);
-                          setVariantToDelete({
-                            productId: viewProduct.id,
-                            variantId: variant.id
-                          });
-                          setOpenVariantDeleteModal(true);
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    </Tooltip>
-                  </div>
-                </div>
-              )
-            )}
-          </div>
-        )}
+                )
+              )}
+            </div>
+          )}
         </Modal>
       )}
 
@@ -665,7 +671,10 @@ const ProductsContent: React.FC = () => {
                   setOpenSingleVariantModal(false);
                   setInactiveVariantData({
                     ...payload.variant,
-                    message: payload.message
+                    message: payload.message,
+                    price: values.price,
+                    stock: values.stock,
+                    image: values.image
                   });
                 }, 0);
 
@@ -717,119 +726,123 @@ const ProductsContent: React.FC = () => {
         />
       )}
       {inactiveVariantData && (
-  <Modal
-    open={!!inactiveVariantData}
-    centered
-    title={<div className="inactive-variant-title">Inactive Variant Found</div>}
-    onCancel={() => setInactiveVariantData(null)}
-    footer={[
-      <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
-        Cancel
-      </Button>,
-      <Button
-        key="activate"
-        type="primary"
-        className="reactivate-btn"
-        onClick={async () => {
-          try {
-            await dispatch(
-              reactivateVariant({
-                productId: inactiveVariantData.productId,
-                variantId: inactiveVariantData.id,
-                price: Number(inactiveVariantData.price),
-                stock: Number(inactiveVariantData.stock)
-              })
-            ).unwrap();
-
-            toast.success('Variant reactivated successfully');
-            setInactiveVariantData(null);
-            dispatch(
-              fetchProductsReplace({
-                page: 1,
-                query: searchTerm,
-                sortBy,
-                limit: 12
-              })
-            );
-          } catch (error) {
-            toast.error(String(error) || 'Failed to reactivate variant');
+        <Modal
+          open={!!inactiveVariantData}
+          centered
+          title={
+            <div className="inactive-variant-title">Inactive Variant Found</div>
           }
-        }}
-      >
-        Reactivate
-      </Button>
-    ]}
-  >
-    <div className="inactive-modal">
-      <p className="inactive-modal-message">{inactiveVariantData.message}</p>
+          onCancel={() => setInactiveVariantData(null)}
+          footer={[
+            <Button key="cancel" onClick={() => setInactiveVariantData(null)}>
+              Cancel
+            </Button>,
+            <Button
+              key="activate"
+              type="primary"
+              className="reactivate-btn"
+              onClick={async () => {
+                try {
+                  await dispatch(
+                    reactivateVariant({
+                      productId: inactiveVariantData.productId,
+                      variantId: inactiveVariantData.id,
+                      price: Number(inactiveVariantData.price),
+                      stock: Number(inactiveVariantData.stock),
+                      image: inactiveVariantData.image
+                    })
+                  ).unwrap();
 
-      <div className="inactive-modal-content">
-        <div className="inactive-image">
-          {inactiveVariantData.image ? (
-            <Image
-              src={inactiveVariantData.image}
-              alt={
-                inactiveVariantData.color ||
-                inactiveVariantData.product?.title ||
-                'Product Image'
-              }
-              width={120}
-              height={120}
-              className="inactive-product-image"
-              unoptimized
-            />
-          ) : (
-            <div className="inactive-fallback">No Image</div>
-          )}
-        </div>
+                  toast.success('Variant reactivated successfully');
+                  setInactiveVariantData(null);
+                  dispatch(
+                    fetchProductsReplace({
+                      page: 1,
+                      query: searchTerm,
+                      sortBy,
+                      limit: 12
+                    })
+                  );
+                } catch (error) {
+                  toast.error(String(error) || 'Failed to reactivate variant');
+                }
+              }}
+            >
+              Reactivate
+            </Button>
+          ]}
+        >
+          <div className="inactive-modal">
+            <p className="inactive-modal-message">
+              {inactiveVariantData.message}
+            </p>
 
-        <div className="inactive-details">
-          <div>
-            <b>Color:</b> {inactiveVariantData.color}
-          </div>
-          <div className="flex items-center gap-2">
-            <b>Color Code:</b>{' '}
-            <span
-              className="inline-block w-4 h-4 rounded-full border border-gray-300"
-              style={{ backgroundColor: inactiveVariantData.colorCode }}
-            ></span>
-          </div>
-          <div>
-            <b>Size:</b> {inactiveVariantData.size}
-          </div>
-          <div>
-            <b>Price:</b>{' '}
-            <InputNumber
-              min={1}
-              value={inactiveVariantData.price}
-              onChange={(value) =>
-                setInactiveVariantData({
-                  ...inactiveVariantData,
-                  price: value || 1
-                })
-              }
-              prefix="$"
-            />
-          </div>
-          <div>
-            <b>Stock:</b>{' '}
-            <InputNumber
-              min={0}
-              value={inactiveVariantData.stock}
-              onChange={(value) =>
-                setInactiveVariantData({
-                  ...inactiveVariantData,
-                  stock: value || 1
-                })
-              }
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  </Modal>
-)}
+            <div className="inactive-modal-content">
+              <div className="inactive-image">
+                {inactiveVariantData.image ? (
+                  <Image
+                    src={inactiveVariantData.image}
+                    alt={
+                      inactiveVariantData.color ||
+                      inactiveVariantData.product?.title ||
+                      'Product Image'
+                    }
+                    width={120}
+                    height={120}
+                    className="inactive-product-image"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="inactive-fallback">No Image</div>
+                )}
+              </div>
 
+              <div className="inactive-details">
+                <div>
+                  <b>Color:</b> {inactiveVariantData.color}
+                </div>
+                <div className="flex items-center gap-2">
+                  <b>Color Code:</b>{' '}
+                  <span
+                    className="inline-block w-4 h-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: inactiveVariantData.colorCode }}
+                  ></span>
+                </div>
+                <div>
+                  <b>Size:</b> {inactiveVariantData.size}
+                </div>
+                <div>
+                  <b>Price:</b>{' '}
+                  <InputNumber
+                    min={1}
+                    value={inactiveVariantData.price}
+                    onChange={(value) =>
+                      setInactiveVariantData({
+                        ...inactiveVariantData,
+                        price: value || 1
+                      })
+                    }
+                    prefix="$"
+                  />
+                </div>
+                <div>
+                  <b>Stock:</b>{' '}
+                  <InputNumber
+                    min={0}
+                    value={inactiveVariantData.stock}
+                    onChange={(value) =>
+                      setInactiveVariantData({
+                        ...inactiveVariantData,
+                        stock: value || 1
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   );
 };

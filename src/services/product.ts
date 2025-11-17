@@ -181,14 +181,15 @@ export const getVariantById = async (
 
 export const reactivateVariant = async (
   variantId: string,
-  updates?: { price?: number; stock?: number }
+  updates?: { price?: number; stock?: number;image?: string }
 ) : Promise<VariantResponse> => {
   return prisma.productVariant.update({
     where: { id: variantId },
     data: {
       isVariantDeleted: false,
       ...(updates?.price !== undefined && { price: updates.price }),
-      ...(updates?.stock !== undefined && { stock: updates.stock })
+      ...(updates?.stock !== undefined && { stock: updates.stock }),
+      ...(updates?.image !== undefined && { image: updates.image })
     }
   });
 };

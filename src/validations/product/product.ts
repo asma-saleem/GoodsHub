@@ -11,8 +11,6 @@ export const productParamsSchema = Joi.object({
 });
 
 export const updateVariantSchema = Joi.object({
-  id: Joi.string().optional(),
-  variantId: Joi.string().optional(),
   color: Joi.string().required().allow(null, ''),
   colorCode: Joi.string()
     .pattern(/^#([0-9A-Fa-f]{6})$/)
@@ -33,7 +31,6 @@ export const updateVariantSchema = Joi.object({
 });
 
 export const createVariantSchema = Joi.object({
-  id: Joi.string().optional(),
   color: Joi.string().required().allow(null, ''),
   colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).required(),
   size: Joi.string().required(),
@@ -48,12 +45,10 @@ export const createVariantSchema = Joi.object({
 });
 
 export const updateProductSchema = Joi.object({
-  id: Joi.string().optional(),
   name: Joi.string().min(1).required()
 });
 
 export const variantSchema = Joi.object({
-  id: Joi.string().optional(),
   color: Joi.string().required(),
   colorCode: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).required(),
   size: Joi.string().required(),

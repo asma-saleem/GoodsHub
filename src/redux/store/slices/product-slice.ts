@@ -225,12 +225,14 @@ export const reactivateVariant = createAsyncThunk(
       productId,
       variantId,
       price,
-      stock
+      stock,
+      image
     }: {
       productId: string;
       variantId: string;
       price?: number;
       stock?: number;
+      image?: string;
     },
     { rejectWithValue }
   ) => {
@@ -240,7 +242,7 @@ export const reactivateVariant = createAsyncThunk(
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ price, stock })
+          body: JSON.stringify({ price, stock, image })
         }
       );
 

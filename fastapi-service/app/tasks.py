@@ -3,7 +3,7 @@ import csv
 import json
 import uuid
 import redis
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 from collections import defaultdict
 
 from sqlalchemy.orm import Session
@@ -15,83 +15,62 @@ from .models import (
     Order, OrderItem, OrderSummary,
     Product, ProductVariant
 )
+import logging
+from datetime import timedelta
+
+logger = logging.getLogger(__name__)
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 r = redis.from_url(REDIS_URL)
 
 def calculate_order_summary(db: Session):
-    """
-    # Har 1 minute:
-    #   - Orders, Units, Amount database se calculate karo
-    #   - OrderSummary table me update/add karo (aaj ki date ka record)
-    #   - Redis me cumulative total store karo
-    # """
-
+    buffer = timedelta(microseconds=1)
     now = datetime.now(timezone.utc)
     existing_summary = db.query(OrderSummary).first()
-    if not existing_summary:
-        total_orders = db.query(func.count(Order.id)).scalar() or 0
-        total_amount = db.query(func.sum(Order.total)).scalar() or 0
-        total_units = db.query(func.sum(OrderItem.quantity)).scalar() or 0
 
-        new_summary = OrderSummary(
-            date=now,
-            totalOrders=total_orders,
-            totalUnits=total_units,
-            totalAmount=total_amount
-        )
-        db.add(new_summary)
-        db.commit()
-
-        summary_data = {
-            "totalOrders": total_orders,
-            "totalUnits": total_units,
-            "totalAmount": total_amount
-        }
+    if existing_summary:
+        last_updated = existing_summary.updatedAt + buffer
+        new_orders_query = db.query(Order).filter(Order.createdAt > last_updated)
+        new_orders = new_orders_query.all()
+        logger.info(f"Orders fetched for summary: {[{'id': o.id, 'createdAt': o.createdAt} for o in new_orders]}")
 
     else:
-        last_update_time = existing_summary.updatedAt
+        last_updated = None
+        new_orders_query = db.query(Order)  
 
-        new_orders = (
-            db.query(Order)
-            .filter(Order.createdAt > last_update_time)
-            .all()
-        )
+    new_order_result = new_orders_query.with_entities(
+        func.count(Order.id),
+        func.coalesce(func.sum(Order.total), 0)
+    ).one()
+    new_total_orders, new_total_amount = new_order_result
 
-        if not new_orders:
-            print("No new orders since last update.")
-            return {
-                "totalOrders": existing_summary.totalOrders,
-                "totalUnits": existing_summary.totalUnits,
-                "totalAmount": existing_summary.totalAmount,
-            }
-        new_order_ids = [o.id for o in new_orders]
+    new_total_units = db.query(func.coalesce(func.sum(OrderItem.quantity), 0))\
+        .join(Order, Order.id == OrderItem.order_id)\
+        .filter(Order.createdAt > last_updated if last_updated else True)\
+        .scalar() or 0
 
-        new_units = (
-            db.query(func.sum(OrderItem.quantity))
-            .filter(OrderItem.id.in_(new_order_ids))
-            .scalar()
-            or 0
-        )
-        new_amount = (
-            db.query(func.sum(Order.total))
-            .filter(Order.id.in_(new_order_ids))
-            .scalar()
-            or 0
-        )
-        new_count = len(new_orders)
-
-        existing_summary.totalOrders += new_count
-        existing_summary.totalUnits += new_units
-        existing_summary.totalAmount += new_amount
+    if existing_summary:
+        existing_summary.totalOrders += new_total_orders
+        existing_summary.totalUnits += new_total_units
+        existing_summary.totalAmount += new_total_amount
         existing_summary.updatedAt = now
-        db.commit()
+    else:
+        new_summary = OrderSummary(
+            date=now,
+            totalOrders=new_total_orders,
+            totalUnits=new_total_units,
+            totalAmount=new_total_amount,
+            updatedAt=now
+        )
+        db.add(new_summary)
 
-        summary_data = {
-            "totalOrders": existing_summary.totalOrders,
-            "totalUnits": existing_summary.totalUnits,
-            "totalAmount": existing_summary.totalAmount
-        }
+    db.commit()
+
+    summary_data = {
+        "totalOrders": existing_summary.totalOrders if existing_summary else new_total_orders,
+        "totalUnits": existing_summary.totalUnits if existing_summary else new_total_units,
+        "totalAmount": existing_summary.totalAmount if existing_summary else new_total_amount
+    }
 
     r.set("latest_order_summary", json.dumps(summary_data))
     r.set("last_summary_time", now.isoformat())
@@ -109,11 +88,6 @@ def calculate_order_summary_task(self):
 
 @celery_app.task(name="app.tasks.process_csv_task")
 def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0, chunk_size: int = 5):
-    """
-    Simple CSV processor: reads chunk_size rows at a time and inserts into DB.
-    Avoids inserting duplicate variants (same color + size for a product).
-    Prints memory read and DB insert info.
-    """
     if not os.path.exists(file_path):
         return {"error": f"File not found: {file_path}"}
 
@@ -159,19 +133,27 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
 
         print(f" Loaded {len(rows_chunk)} rows into memory (start_index={start_index})")
         inserted_count = 0
-
+        
+        seen_variants = set()
         for row in rows_chunk:
             title = row["title"].strip()
+            color = row.get("color")
+            size = row.get("size")
 
-            # Get or create product
+            key = (title, color, size)
+            if key in seen_variants:
+                print(f"Skipping duplicate in CSV: {key}")
+                continue
+
+            seen_variants.add(key)
+
             product = db.query(Product).filter(Product.title == title).first()
             if not product:
                 product = Product(id=str(uuid.uuid4()), title=title)
                 db.add(product)
                 db.flush()
-                print(f"🆕 Created Product: {title}")
+                print(f"Created Product: {title}")
 
-            # Check if variant already exists
             exists = db.query(ProductVariant).filter(
                 ProductVariant.productId == product.id,
                 ProductVariant.color == row.get("color"),
@@ -182,7 +164,6 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
                 print(f" Variant already exists for {title} - Color: {row.get('color')}, Size: {row.get('size')}")
                 continue
 
-            # Insert new variant
             variant = ProductVariant(
                 productId=product.id,
                 color=row.get("color"),
@@ -208,7 +189,6 @@ def process_csv_task(file_path: str, file_uuid: str = None, start_index: int = 0
             })
         )
 
-        # Schedule next chunk
         process_csv_task.apply_async(
             args=[file_path, file_uuid, current_index, chunk_size],
             countdown=1
